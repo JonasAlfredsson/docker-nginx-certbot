@@ -3,7 +3,6 @@ letsencrypt:
   container_name: letsencrypt
   expose:
     - 80
-  net: frontend
   volumes:
     - /certs:/certs
   restart: always
