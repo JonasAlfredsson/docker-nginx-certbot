@@ -1,0 +1,12 @@
+letsencrypt:
+  build: .
+  container_name: letsencrypt
+  expose:
+    - 80
+  net: frontend
+  volumes:
+    - /certs:/certs
+  restart: always
+  environment:
+    - DOMAINS=domain1.com domain2.com
+    - EMAIL=webmaster@domain1.com
