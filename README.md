@@ -1,7 +1,9 @@
 # docker-letsencrypt-cron
-Create and automatically renew website certificates using letsencrypt CA.
+Create and automatically renew website certificates using the letsencrypt free CA.
 
 This image will renew your certificates every 2 months, and place the lastest ones in the /certs folder on the host.
+
+Note: before letsencrypt becomes generally available, you will need to sign up for the private beta.
 
 # Setup
 
@@ -62,3 +64,11 @@ docker exec letsencrypt sh -c "/run_letsencrypt.sh"
 ```
 
 At 3AM, on the 1st of every even month, a cron job will start the script, renewing your certificates.
+
+# More information
+
+Find out more about letsencrypt: https://letsencrypt.org
+
+Sign up for the private beta: https://letsencrypt.org/2015/11/12/public-beta-timing.html
+
+Letsencrypt github: https://github.com/letsencrypt/letsencrypt
