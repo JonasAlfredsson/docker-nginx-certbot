@@ -63,7 +63,7 @@ The first time you start it up, you may want to run the certificate generation s
 docker exec letsencrypt sh -c "/run_letsencrypt.sh"
 ```
 
-At 3AM, on the 1st of every even month, a cron job will start the script, renewing your certificates.
+At 3AM, on the 1st of every odd month, a cron job will start the script, renewing your certificates.
 
 # More information
 
