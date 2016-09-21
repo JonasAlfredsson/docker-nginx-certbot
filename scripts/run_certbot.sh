@@ -15,8 +15,8 @@ do
   args=$args" -d $d"
 done
 
-certbot --agree-tos --renew-by-default\
---text --server https://acme-v01.api.letsencrypt.org/directory\
+certbot --agree-tos --renew-by-default \
+--text --server https://acme-v01.api.letsencrypt.org/directory \
 --email $EMAIL certonly $args
 ec=$?
 echo "certbot exit code $ec"
