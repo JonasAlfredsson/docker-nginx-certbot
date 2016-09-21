@@ -8,6 +8,7 @@ This image will renew your certificates every 2 months, and place the lastest on
 ## Setup
 
 In docker-compose.yml, change the environment variables:
+- WEBROOT: set this variable to the webroot path if you want to use the webroot plugin. Leave to use the standalone webserver.
 - DOMAINS: a space separated list of domains for which you want to generate certificates.
 - EMAIL: where you will receive updates from letsencrypt.
 - CONCAT: true or false on whether you want to concatenate the certificate's full chain with the private key (required for e.g. haproxy), or keep the two files separate (required for e.g. nginx or apache).
@@ -81,6 +82,10 @@ Find out more about letsencrypt: https://letsencrypt.org
 Certbot github: https://github.com/certbot/certbot
 
 # Changelog
+
+### 0.3
+- Add support for webroot mode.
+- Run certbot once with all domains.
 
 ### 0.2
 - Upgraded to use certbot client
