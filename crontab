@@ -1,2 +1,1 @@
-0 3 1 */2 * root sh /run_letsencrypt.sh
-
+0 3 1 */2 * root sh /run_certbot.sh
