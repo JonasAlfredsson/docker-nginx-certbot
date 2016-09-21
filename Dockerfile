@@ -1,16 +1,19 @@
-FROM quay.io/letsencrypt/letsencrypt
+FROM python:2-alpine
 MAINTAINER Henri Dwyer <henri@dwyer.io>
 
-RUN mkdir /certs
- 
-# Add crontab file in the cron directory
-ADD crontab /etc/cron.d/crontab
- 
-# Give execution rights on the cron job
-RUN chmod 0644 /etc/cron.d/crontab
+VOLUME /certs
 
-COPY ./scripts/ /
+RUN apk add --no-cache --virtual .build-deps linux-headers gcc musl-dev\
+  && apk add --no-cache libffi-dev openssl-dev\
+  && pip install certbot\
+  && apk del .build-deps\
+  && mkdir /scripts
 
-ENTRYPOINT ["/bin/sh", "-c"]
+ADD crontab /etc/crontabs
+RUN crontab /etc/crontabs/crontab
 
-CMD ["/run_cron.sh"]
+COPY ./scripts/ /scripts
+RUN chmod +x /scripts/run_certbot.sh
+
+ENTRYPOINT []
+CMD ["crond", "-f"]

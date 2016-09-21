@@ -1,11 +1,12 @@
-letsencrypt:
+certbot:
   build: .
-  container_name: letsencrypt
+  container_name: certbot
   expose:
     - 80
   volumes:
-    - /certs:/certs
+    - ./certs:/certs
   restart: always
   environment:
     - DOMAINS=domain1.com domain2.com
     - EMAIL=webmaster@domain1.com
+    - CONCAT=true
