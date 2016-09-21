@@ -4,7 +4,7 @@ MAINTAINER Henri Dwyer <henri@dwyer.io>
 VOLUME /certs
 
 RUN apk add --no-cache --virtual .build-deps linux-headers gcc musl-dev\
-  && apk add --no-cache libffi-dev openssl-dev\
+  && apk add --no-cache libffi-dev openssl-dev dialog\
   && pip install certbot\
   && apk del .build-deps\
   && mkdir /scripts

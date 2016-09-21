@@ -1,12 +1,15 @@
-certbot:
-  build: .
-  container_name: certbot
-  expose:
-    - 80
-  volumes:
-    - ./certs:/certs
-  restart: always
-  environment:
-    - DOMAINS=domain1.com domain2.com
-    - EMAIL=webmaster@domain1.com
-    - CONCAT=true
+version: '2'
+
+services:
+  certbot:
+    build: .
+    container_name: certbot
+    expose:
+      - 80
+    volumes:
+      - ./certs:/certs
+    restart: always
+    environment:
+      - DOMAINS=domain1.com domain2.com
+      - EMAIL=webmaster@domain1.com
+      - CONCAT=true

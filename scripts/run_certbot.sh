@@ -2,7 +2,7 @@ for d in $DOMAINS
 do
  echo "Running certbot for $d"
  certbot --standalone --standalone-supported-challenges\
-  http-01 --agree-dev-preview --agree-tos --renew-by-default\
+  http-01 --agree-tos --renew-by-default\
   --email $EMAIL -d $d certonly
  ec=$?
  echo "certbot exit code $ec"

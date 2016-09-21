@@ -3,12 +3,36 @@ Create and automatically renew website SSL certificates using the letsencrypt fr
 
 This image will renew your certificates every 2 months, and place the lastest ones in the /certs folder in the container, and in the ./certs folder on the host.
 
-# Setup
+# Usage
+
+## Setup
 
 In docker-compose.yml, change the environment variables:
 - DOMAINS: a space separated list of domains for which you want to generate certificates.
 - EMAIL: where you will receive updates from letsencrypt.
 - CONCAT: true or false on whether you want to concatenate the certificate's full chain with the private key (required for e.g. haproxy), or keep the two files separate (required for e.g. nginx or apache).
+
+## Running
+
+### Using the automated image
+
+docker run --name certbot -p 80 -v `pwd`/certs:/certs --restart always -e "DOMAINS=domain1.com domain2.com" -e "EMAIL=webmaster@domain1.com" -e "CONCAT=true" henridwyer/docker-letsencrypt-cron
+
+### Building the image
+
+The easiest way to build the image yourself is to use the provided docker-compose file.
+
+```shell
+docker-compose up -d
+```
+
+The first time you start it up, you may want to run the certificate generation script immediately:
+
+```shell
+docker exec certbot ash -c "/scripts/run_certbot.sh"
+```
+
+At 3AM, on the 1st of every odd month, a cron job will start the script, renewing your certificates.
 
 # ACME Validation challenge
 
@@ -49,20 +73,6 @@ server {
 }
 
 ```
-
-# Usage
-
-```shell
-docker-compose up -d
-```
-
-The first time you start it up, you may want to run the certificate generation script immediately:
-
-```shell
-docker exec certbot sh -c "/run_certbot.sh"
-```
-
-At 3AM, on the 1st of every odd month, a cron job will start the script, renewing your certificates.
 
 # More information
 
