@@ -3,6 +3,7 @@ do
  echo "Running certbot for $d"
  certbot --standalone --standalone-supported-challenges\
   http-01 --agree-tos --renew-by-default\
+ --text --server https://acme-v01.api.letsencrypt.org/directory\
   --email $EMAIL -d $d certonly
  ec=$?
  echo "certbot exit code $ec"

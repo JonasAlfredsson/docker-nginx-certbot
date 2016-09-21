@@ -4,8 +4,6 @@ services:
   certbot:
     build: .
     container_name: certbot
-    expose:
-      - 80
     volumes:
       - ./certs:/certs
     restart: always
