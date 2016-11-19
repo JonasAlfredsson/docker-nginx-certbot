@@ -2,6 +2,7 @@ FROM python:2-alpine
 MAINTAINER Henri Dwyer <henri@dwyer.io>
 
 VOLUME /certs
+VOLUME /etc/letsencrypt
 EXPOSE 80
 
 RUN apk add --no-cache --virtual .build-deps linux-headers gcc musl-dev\

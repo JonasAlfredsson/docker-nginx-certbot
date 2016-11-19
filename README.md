@@ -11,7 +11,8 @@ In docker-compose.yml, change the environment variables:
 - WEBROOT: set this variable to the webroot path if you want to use the webroot plugin. Leave to use the standalone webserver.
 - DOMAINS: a space separated list of domains for which you want to generate certificates.
 - EMAIL: where you will receive updates from letsencrypt.
-- CONCAT: true or false on whether you want to concatenate the certificate's full chain with the private key (required for e.g. haproxy), or keep the two files separate (required for e.g. nginx or apache).
+- CONCAT: true or false, whether you want to concatenate the certificate's full chain with the private key (required for e.g. haproxy), or keep the two files separate (required for e.g. nginx or apache).
+- SEPARATE: true or false, whether you want one certificate per domain or one certificate valid for all domains. 
 
 ## Running
 
