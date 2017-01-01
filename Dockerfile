@@ -1,21 +1,18 @@
-FROM python:2-alpine
+FROM python:2
 MAINTAINER Henri Dwyer <henri@dwyer.io>
 
-VOLUME /certs
 VOLUME /etc/letsencrypt
 EXPOSE 80
 
-RUN apk add --no-cache --virtual .build-deps linux-headers gcc musl-dev\
-  && apk add --no-cache libffi-dev openssl-dev dialog\
-  && pip install certbot\
-  && apk del .build-deps\
-  && mkdir /scripts
+RUN apt update && apt install -y cron
+RUN pip install certbot
+RUN mkdir /scripts
 
-ADD crontab /etc/crontabs
-RUN crontab /etc/crontabs/crontab
+ADD ./crontab /etc/cron.d/certbot
+RUN crontab /etc/cron.d/certbot
 
 COPY ./scripts/ /scripts
 RUN chmod +x /scripts/run_certbot.sh
 
 ENTRYPOINT []
-CMD ["crond", "-f"]
+CMD ["/scripts/entrypoint.sh"]

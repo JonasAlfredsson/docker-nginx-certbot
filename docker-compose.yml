@@ -1,6 +1,7 @@
 version: '2'
 
 services:
+  # Example docker-compose service
   certbot:
     build: .
     container_name: certbot
@@ -11,5 +12,5 @@ services:
       - WEBROOT=""
       - DOMAINS=domain1.com domain2.com
       - EMAIL=webmaster@domain1.com
-      - CONCAT=true
+      - CONCAT=false
       - SEPARATE=true
