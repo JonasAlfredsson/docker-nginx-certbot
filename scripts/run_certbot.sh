@@ -17,7 +17,7 @@ get_certificate() {
   echo "certbot exit code $ec"
   if [ $ec -eq 0 ]
   then
-    echo "Your new certificates for $CERT_DOMAINS can be found in /etc/letsencrypt/live/$d"
+    echo "Certificates for $CERT_DOMAINS can be found in /etc/letsencrypt/live/$d"
   else
     echo "Cerbot failed for $CERT_DOMAINS. Check the logs for details."
   fi
