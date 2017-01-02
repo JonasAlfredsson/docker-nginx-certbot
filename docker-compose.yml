@@ -1,16 +1,13 @@
 version: '2'
 
 services:
-  # Example docker-compose service
   certbot:
-    build: .
+    image: staticfloat/docker-letsencrypt-cron
     container_name: certbot
     volumes:
-      - ./certs:/certs
-    restart: always
+      - buildbot_certbot_letsencrypt:/etc/letsencrypt
+    restart: unless-stopped
     environment:
-      - WEBROOT=""
-      - DOMAINS=domain1.com domain2.com
-      - EMAIL=webmaster@domain1.com
-      - CONCAT=false
+      - DOMAINS=buildtest.e.ip.saba.us
+      - EMAIL=staticfloat@gmail.com
       - SEPARATE=true

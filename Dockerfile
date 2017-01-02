@@ -15,4 +15,4 @@ COPY ./scripts/ /scripts
 RUN chmod +x /scripts/run_certbot.sh
 
 ENTRYPOINT []
-CMD ["/scripts/entrypoint.sh"]
+CMD ["/bin/bash", "/scripts/entrypoint.sh"]

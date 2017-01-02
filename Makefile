@@ -3,5 +3,5 @@ all: build
 build: Makefile Dockerfile
 	docker build --squash -t staticfloat/docker-letsencrypt-cron .
 
-push: build
+push:
 	docker push staticfloat/docker-letsencrypt-cron

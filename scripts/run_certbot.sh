@@ -6,7 +6,6 @@ get_certificate() {
   # To work, the following variables must be set:
   # - CERT_DOMAINS : comma separated list of domains
   # - EMAIL
-  # - CONCAT
   # - args
 
   local d=${CERT_DOMAINS//,*/} # read first domain
@@ -18,16 +17,7 @@ get_certificate() {
   echo "certbot exit code $ec"
   if [ $ec -eq 0 ]
   then
-    if $CONCAT
-    then
-      # concat the full chain with the private key (e.g. for haproxy)
-      cat /etc/letsencrypt/live/$d/fullchain.pem /etc/letsencrypt/live/$d/privkey.pem > /certs/$d.pem
-    else
-      # keep full chain and private key in separate files (e.g. for nginx and apache)
-      cp /etc/letsencrypt/live/$d/fullchain.pem /certs/$d.pem
-      cp /etc/letsencrypt/live/$d/privkey.pem /certs/$d.key
-    fi
-    echo "Certificate obtained for $CERT_DOMAINS! Your new certificate - named $d - is in /certs"
+    echo "Certificate obtained for $CERT_DOMAINS! Your new certificate - named $d - /etc/letsencrypt"
   else
     echo "Cerbot failed for $CERT_DOMAINS. Check the logs for details."
   fi
@@ -46,6 +36,7 @@ then
   args=$args" --debug"
 fi
 
+set -x
 if $SEPARATE
 then
   for d in $DOMAINS

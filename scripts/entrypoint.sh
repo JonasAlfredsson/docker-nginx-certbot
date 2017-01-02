@@ -1,3 +1,3 @@
-#!/bin/sh
-/scripts/run_certbot.sh
-crond -f
+#!/bin/bash
+/bin/bash /scripts/run_certbot.sh
+cron -f
