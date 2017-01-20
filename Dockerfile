@@ -1,5 +1,5 @@
 FROM python:2
-MAINTAINER Henri Dwyer <henri@dwyer.io>
+MAINTAINER Elliot Saba <staticfloat@gmail.com>
 
 VOLUME /etc/letsencrypt
 EXPOSE 80
@@ -8,7 +8,7 @@ RUN apt update && apt install -y cron
 RUN pip install certbot
 RUN mkdir /scripts
 
-ADD ./crontab /etc/cron.d/certbot
+COPY ./crontab /etc/cron.d/certbot
 RUN crontab /etc/cron.d/certbot
 
 COPY ./scripts/ /scripts
