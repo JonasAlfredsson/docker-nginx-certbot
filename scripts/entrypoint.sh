@@ -1,3 +1,6 @@
 #!/bin/bash
-/bin/bash /scripts/run_certbot.sh
-exec cron -f
+
+trap "exit" INT TERM
+trap "kill 0" EXIT
+/scripts/run_certbot.sh && cron -f &
+wait

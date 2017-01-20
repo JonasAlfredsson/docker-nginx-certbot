@@ -12,7 +12,7 @@ COPY ./crontab /etc/cron.d/certbot
 RUN crontab /etc/cron.d/certbot
 
 COPY ./scripts/ /scripts
-RUN chmod +x /scripts/run_certbot.sh
+RUN chmod +x /scripts/*.sh
 
 ENTRYPOINT []
 CMD ["/bin/bash", "/scripts/entrypoint.sh"]
