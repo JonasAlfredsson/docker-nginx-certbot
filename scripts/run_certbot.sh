@@ -1,48 +1,30 @@
-error() {
-    (set +x; tput -Tscreen bold
-    tput -Tscreen setaf 1
-    echo $*
-    tput -Tscreen sgr0) >&2
-}
+#!/bin/sh
 
-if [ -z "$DOMAINS" ]; then
-    error "DOMAINS environment variable undefined; certbot will do nothing"
+# Source in util.sh so we can have our nice tools
+. $(cd $(dirname $0); pwd)/util.sh
+
+# We require an email to register the ssl certificate for
+if [ -z "$CERTBOT_EMAIL" ]; then
+    error "CERTBOT_EMAIL environment variable undefined; certbot will do nothing"
     exit 1
 fi
-if [ -z "$EMAIL" ]; then
-    error "EMAIL environment variable undefined; certbot will do nothing"
-    exit 1
-fi
-echo "Running certbot for domains $DOMAINS for user $EMAIL..."
-
-get_certificate() {
-    # Gets the certificate for the domain(s) CERT_DOMAINS (a comma separated list)
-    # The certificate will be named after the first domain in the list
-    # To work, the following variables must be set:
-    # - CERT_DOMAINS : comma separated list of domains
-    # - EMAIL
-
-    local d=${CERT_DOMAINS//,*/} # read first domain
-    echo "Getting certificate for $CERT_DOMAINS"
-    certbot certonly --agree-tos --keep -n --text --email $EMAIL --server \
-        https://acme-v01.api.letsencrypt.org/directory -d $CERT_DOMAINS \
-        --standalone --standalone-supported-challenges http-01 --debug
-    ec=$?
-    echo "certbot exit code $ec"
-    if [ $ec -eq 0 ]; then
-        error "Certificates for $CERT_DOMAINS can be found in /etc/letsencrypt/live/$d"
-    else
-        error "Cerbot failed for $CERT_DOMAINS. Check the logs for details."
-        exit 1
-    fi
-}
 
 exit_code=0
 set -x
-for d in $DOMAINS; do
-    CERT_DOMAINS=$d
-    if ! get_certificate; then
+# Loop over every domain we can find
+for domain in $(parse_domains); do
+    if ! get_certificate $domain $CERTBOT_EMAIL; then
+        error "Cerbot failed for $domain. Check the logs for details."
         exit_code=1
     fi
 done
+
+# After trying to get all our certificates, auto enable any configs that we
+# did indeed get certificates for
+auto_enable_configs
+
+# Finally, tell nginx to reload the configs
+kill -HUP $NGINX_PID
+
+set +x
 exit $exit_code
