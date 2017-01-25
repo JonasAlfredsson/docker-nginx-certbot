@@ -16,13 +16,13 @@ error() {
 parse_domains() {
     # For each configuration file in /etc/nginx/conf.d/*.conf*
     for conf_file in /etc/nginx/conf.d/*.conf*; do
-        sed -n -e 's/^\s*ssl_certificate_key\s*\/etc/letsencrypt/live/(.*\)/privkey.pem;/\1/p' $conf_file | tr '\n' ','
+        sed -n -e 's&^\s*ssl_certificate_key\s*\/etc/letsencrypt/live/\(.*\)/privkey.pem;&\1&p' $conf_file | xargs echo | tr ' ' ','
     done
 }
 
 # Given a config file path, spit out all the ssl_certificate_key file paths
 parse_keyfiles() {
-    sed -n -e 's/^\s*ssl_certificate_key\s*\(.*\);/\1/p' "$1"
+    sed -n -e 's&^\s*ssl_certificate_key\s*\(.*\);&\1&p' "$1"
 }
 
 # Given a config file path, return 0 if all keyfiles exist (or there are no
@@ -41,13 +41,13 @@ keyfiles_exist() {
 # that don't have their keyfiles yet, and disabling them through renaming
 auto_enable_configs() {
     for conf_file in /etc/nginx/conf.d/*.conf*; do
-        if ! keyfiles_exist $conf_file; then
-            if [ $conf_file == *.nokey ]; then
+        if keyfiles_exist $conf_file; then
+            if [ ${conf_file##*.} = nokey ]; then
                 echo "Found all the keyfiles for $conf_file, enabling..."
                 mv $conf_file ${conf_file%.*}
             fi
         else
-            if [ $conf_file == *.conf ]; then
+            if [ ${conf_file##*.} = conf ]; then
                 echo "Keyfile(s) missing for $conf_file, disabling..."
                 mv $conf_file $conf_file.nokey
             fi
@@ -59,7 +59,7 @@ auto_enable_configs() {
 # EMAIL environment variable, to register the proper support email address.
 get_certificate() {
     echo "Getting certificate for domain $1 on behalf of user $2"
-    return certbot certonly --agree-tos --keep -n --text --email $2 --server \
-        https://acme-v01.api.letsencrypt.org/directory -d $1 \
+    certbot certonly --agree-tos --keep -n --text --email $2 --server \
+        https://acme-v01.api.letsencrypt.org/directory -d $1 --http-01-port 1337 \
         --standalone --standalone-supported-challenges http-01 --debug
 }
