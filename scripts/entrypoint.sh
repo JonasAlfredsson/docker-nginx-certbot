@@ -20,4 +20,4 @@ export NGINX_PID=$!
 # Run `cron -f &` so that it's a background job owned by bash and then `wait`.
 # This allows SIGINT (e.g. CTRL-C) to kill cron gracefully, due to our `trap`.
 cron -f &
-wait
+wait "$NGINX_PID"
