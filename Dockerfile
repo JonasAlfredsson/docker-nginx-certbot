@@ -22,6 +22,9 @@ RUN crontab /etc/cron.d/certbot
 COPY ./scripts/ /scripts
 RUN chmod +x /scripts/*.sh
 
+# Add /scripts/startup directory to source more startup scripts
+RUN mkdir -p /scripts/startup
+
 # Copy in default nginx configuration (which just forwards ACME requests to
 # certbot, or redirects to HTTPS, but has no HTTPS configurations by default).
 RUN rm -f /etc/nginx/conf.d/*

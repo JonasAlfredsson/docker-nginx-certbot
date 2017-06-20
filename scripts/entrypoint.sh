@@ -17,6 +17,12 @@ export NGINX_PID=$!
 # Next, run certbot to request all the ssl certs we can find
 /scripts/run_certbot.sh
 
+# Lastly, run startup scripts
+for f in /scripts/startup/*.sh; do
+    echo "Running startup script $f"
+    $f
+done
+
 # Run `cron -f &` so that it's a background job owned by bash and then `wait`.
 # This allows SIGINT (e.g. CTRL-C) to kill cron gracefully, due to our `trap`.
 cron -f &
