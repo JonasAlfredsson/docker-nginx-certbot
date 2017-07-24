@@ -19,9 +19,12 @@ export NGINX_PID=$!
 
 # Lastly, run startup scripts
 for f in /scripts/startup/*.sh; do
-    echo "Running startup script $f"
-    $f
+    if [[ -x "$f" ]]; then
+        echo "Running startup script $f"
+        $f
+    fi
 done
+echo "Done with startup"
 
 # Run `cron -f &` so that it's a background job owned by bash and then `wait`.
 # This allows SIGINT (e.g. CTRL-C) to kill cron gracefully, due to our `trap`.
