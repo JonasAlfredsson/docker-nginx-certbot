@@ -18,7 +18,6 @@ RUN apt update && \
 
 # Copy in cron job and scripts for certbot
 COPY ./crontab /etc/cron.d/certbot
-RUN crontab /etc/cron.d/certbot
 COPY ./scripts/ /scripts
 RUN chmod +x /scripts/*.sh
 
