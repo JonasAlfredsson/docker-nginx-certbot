@@ -26,7 +26,15 @@ for f in /scripts/startup/*.sh; do
 done
 echo "Done with startup"
 
-# Run `cron -f &` so that it's a background job owned by bash and then `wait`.
-# This allows SIGINT (e.g. CTRL-C) to kill cron gracefully, due to our `trap`.
-cron -f &
-wait "$NGINX_PID"
+# Instead of trying to run `cron` or something like that, just leep and run `certbot`.
+while [ true ]; do
+    # Sleep for 1 week
+    sleep 604800 &
+    SLEEP_PID=$!
+
+    # re-run certbot
+    /scripts/run_certbot.sh
+
+    # Wait on sleep so that when we get ctrl-c'ed it kills everything due to our trap
+    wait "$SLEEP_PID"
+done

@@ -8,7 +8,7 @@ EXPOSE 443
 # Do this apt/pip stuff all in one RUN command to avoid creating large
 # intermediate layers on non-squashable docker installs
 RUN apt update && \
-    apt install -y cron python python-dev libffi6 libffi-dev libssl-dev curl build-essential && \
+    apt install -y python python-dev libffi6 libffi-dev libssl-dev curl build-essential && \
     curl -L 'https://bootstrap.pypa.io/get-pip.py' | python && \
     pip install -U cffi certbot && \
     apt remove --purge -y python-dev build-essential libffi-dev libssl-dev curl && \
@@ -16,8 +16,7 @@ RUN apt update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Copy in cron job and scripts for certbot
-COPY ./crontab /etc/cron.d/certbot
+# Copy in scripts for certbot
 COPY ./scripts/ /scripts
 RUN chmod +x /scripts/*.sh
 

@@ -11,6 +11,9 @@ This repository was originally forked from `@henridwyer`, many thanks to him for
 
 # Changelog
 
+### 0.8
+- Ditch cron, it never liked me anway.  Just use `sleep` and a `while` loop instead.
+
 ### 0.7
 - Complete rewrite, build this image on top of the `nginx` image, and run `cron`/`certbot` alongside `nginx` so that we can have nginx configs dynamically enabled as we get SSL certificates.
 
