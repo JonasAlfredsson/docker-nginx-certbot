@@ -26,6 +26,17 @@ for f in /scripts/startup/*.sh; do
 done
 echo "Done with startup"
 
+now=$(date)
+last_sync_file="/etc/letsencrypt/last_sync.txt"
+
+if [[ ! -e "$last_sync_file" ]]; then
+    mkdir -p /Scripts
+    touch "$last_sync_file"
+fi
+
+last_sync=$(stat -c %y "$last_sync_file")
+updated_days=$(( ($(date -d now +%s) - $(date -d last_sync +%s) )/(60*60*24) ))
+
 # Instead of trying to run `cron` or something like that, just leep and run `certbot`.
 while [ true ]; do
     # Sleep for 1 week
