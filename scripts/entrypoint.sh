@@ -48,6 +48,9 @@ while [ true ]; do
 
     echo "Not run_certbot.sh"
     if [ $is_finshed_week_sec -lt 0 ]; then
+        # recreate the file
+        touch "$last_sync_file"
+
         # re-run certbot
         echo "Run certbot"
         /scripts/run_certbot.sh
