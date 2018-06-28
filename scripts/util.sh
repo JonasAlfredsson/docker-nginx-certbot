@@ -62,14 +62,15 @@ get_certificate() {
     PRODUCTION_URL='https://acme-v01.api.letsencrypt.org/directory'
     STAGING_URL='https://acme-staging.api.letsencrypt.org/directory'
 
-    if [[ ! "${IS_STAGING}" = "1" ]]; then
+    if [ "${IS_STAGING}" = "1" ]; then
         letsencrypt_url=STAGING_URL
-        echo "Staging on"
-    else
+        echo "Staging ..."
+    elses
         letsencrypt_url=PRODUCTION_URL
-        echo "Production on"
+        echo "Production ..."
     fi
 
+    echo "running certbot ... $letsencrypt_url"
     certbot certonly --agree-tos --keep -n --text --email $2 --server \
         $letsencrypt_url -d $1 --http-01-port 1337 \
         --standalone --standalone-supported-challenges http-01 --debug
