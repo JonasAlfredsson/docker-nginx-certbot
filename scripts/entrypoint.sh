@@ -38,7 +38,7 @@ one_week_sec=604800
 # Instead of trying to run `cron` or something like that, just leep and run `certbot`.
 while [ true ]; do
     # Sleep for 1 week
-    sleep 604800 &
+    sleep 604810 &
     SLEEP_PID=$!
 
     last_sync_sec=$(stat -c %Y "$last_sync_file")
