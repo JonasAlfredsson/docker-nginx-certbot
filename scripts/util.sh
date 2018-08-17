@@ -16,7 +16,7 @@ error() {
 parse_domains() {
     # For each configuration file in /etc/nginx/conf.d/*.conf*
     for conf_file in /etc/nginx/conf.d/*.conf*; do
-        sed -n -e 's&^\s*ssl_certificate_key\s*\/etc/letsencrypt/live/\(.*\)/privkey.pem;&\1&p' $conf_file | xargs echo | tr ' ' ','
+        sed -n -e 's&^\s*ssl_certificate_key\s*\/etc/letsencrypt/live/\(.*\)/privkey.pem;&\1&p' $conf_file | xargs echo
     done
 }
 
