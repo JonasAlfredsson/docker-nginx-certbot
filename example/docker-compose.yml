@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  proxy:
+    build: .
+    restart: always
+    environment:
+      CERTBOT_EMAIL: "your.email@example.com"
+    ports:
+      - "80:80"
+      - "443:443"
