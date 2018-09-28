@@ -23,15 +23,15 @@ for f in /scripts/startup/*.sh; do
 done
 echo "Done with startup"
 
-last_sync_file="/etc/letsencrypt/last_sync.txt"
+last_renewal_file="/etc/letsencrypt/last_renewal.txt"
 
 # Instead of trying to run `cron` or something like that, just sleep and run `certbot`.
 while [ true ]; do
-    if [ is_sync_required $last_sync_file ]; then
-        # recreate the file to persist the last sync timestamp
-        touch "$last_sync_file"
+    if [ is_renewal_required $last_renewal_file ]; then
+        # Recreate the file to persist the last renewal timestamp
+        touch "$last_renewal_file"
 
-        # run certbot to request all the ssl certs we can find
+        # Run certbot to request all the ssl certs we can find
         echo "Run certbot"
         /scripts/run_certbot.sh
     else
