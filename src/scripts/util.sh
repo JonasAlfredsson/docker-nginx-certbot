@@ -76,11 +76,15 @@ get_certificate() {
         --standalone --preferred-challenges http-01 --debug
 }
 
+# Given a last renewal file with timestamp, return true if a renewal is
+# required (last renewal ran over a week ago), return false otherwise
 is_renewal_required() {
+    # If the file does not exist assume a renewal is required
     if [ ! -e "$1" ]; then
         return true
     fi
     
+    # If the file exists, check if the last renewal was more than a week ago
     one_week_sec=604800
     now_sec=$(date -d now +%s)
     last_renewal_sec=$(stat -c %Y "$1")
