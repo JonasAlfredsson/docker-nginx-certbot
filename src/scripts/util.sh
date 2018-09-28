@@ -80,9 +80,7 @@ get_certificate() {
 # required (last renewal ran over a week ago), return false otherwise
 is_renewal_required() {
     # If the file does not exist assume a renewal is required
-    if [ ! -e "$1" ]; then
-        return true
-    fi
+    [[ ! -e "$1" ]] && return;
     
     # If the file exists, check if the last renewal was more than a week ago
     one_week_sec=604800
@@ -90,5 +88,5 @@ is_renewal_required() {
     last_renewal_sec=$(stat -c %Y "$1")
     last_renewal_delta_sec=$(( ($now_sec - $last_renewal_sec) ))
     is_finshed_week_sec=$(( ($one_week_sec - $last_renewal_delta_sec) ))
-    return $is_finshed_week_sec -lt 0
+    [[ $is_finshed_week_sec -lt 0 ]]
 }

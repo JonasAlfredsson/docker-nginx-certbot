@@ -27,7 +27,7 @@ last_renewal_file="/etc/letsencrypt/last_renewal.txt"
 
 # Instead of trying to run `cron` or something like that, just sleep and run `certbot`.
 while [ true ]; do
-    if [ is_renewal_required $last_renewal_file ]; then
+    if is_renewal_required $last_renewal_file; then
         # Recreate the file to persist the last renewal timestamp
         touch "$last_renewal_file"
 
