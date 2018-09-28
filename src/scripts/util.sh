@@ -75,3 +75,16 @@ get_certificate() {
         $letsencrypt_url -d $1 --http-01-port 1337 \
         --standalone --preferred-challenges http-01 --debug
 }
+
+is_sync_required() {
+    if [ ! -e "$1" ]; then
+        return true
+    fi
+    
+    one_week_sec=604800
+    last_sync_sec=$(stat -c %Y "$1")
+    now_sec=$(date -d now +%s)
+    last_sync_delta_sec=$(( ($now_sec - $last_sync_sec) ))
+    is_finshed_week_sec=$(( ($one_week_sec - $last_sync_delta_sec) ))
+    return $is_finshed_week_sec -lt 0
+}
