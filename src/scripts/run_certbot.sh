@@ -13,9 +13,15 @@ exit_code=0
 set -x
 # Loop over every domain we can find
 for domain in $(parse_domains); do
-    if ! get_certificate $domain $CERTBOT_EMAIL; then
-        error "Cerbot failed for $domain. Check the logs for details."
-        exit_code=1
+    if is_renewal_required $domain; then
+        if get_certificate $domain $CERTBOT_EMAIL; then
+            update_renewal_timestamp $domain
+        else
+            error "Cerbot failed for $domain. Check the logs for details."
+            exit_code=1
+        fi
+    else
+        echo "Not run certbot for $domain; last renewal happened just recently."
     fi
 done
 
