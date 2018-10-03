@@ -16,10 +16,7 @@ for domain in $(parse_domains); do
     if is_renewal_required $domain; then
         # Renewal required for this doman.
         # Last one happened over a week ago (or never)
-        if get_certificate $domain $CERTBOT_EMAIL; then
-            # Renewal successful. Update timestamp...
-            update_renewal_timestamp $domain
-        else
+        if ! get_certificate $domain $CERTBOT_EMAIL; then
             error "Cerbot failed for $domain. Check the logs for details."
             exit_code=1
         fi
