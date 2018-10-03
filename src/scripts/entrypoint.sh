@@ -14,26 +14,23 @@ auto_enable_configs
 nginx -g "daemon off;" &
 export NGINX_PID=$!
 
-# Next, run certbot to request all the ssl certs we can find
-/scripts/run_certbot.sh
-
 # Lastly, run startup scripts
 for f in /scripts/startup/*.sh; do
-    if [[ -x "$f" ]]; then
+    if [ -x "$f" ]; then
         echo "Running startup script $f"
         $f
     fi
 done
 echo "Done with startup"
 
-# Instead of trying to run `cron` or something like that, just leep and run `certbot`.
+# Instead of trying to run `cron` or something like that, just sleep and run `certbot`.
 while [ true ]; do
-    # Sleep for 1 week
-    sleep 604800 &
-    SLEEP_PID=$!
-
-    # re-run certbot
+    echo "Run certbot"
     /scripts/run_certbot.sh
+
+    # Sleep for 1 week
+    sleep 604810 &
+    SLEEP_PID=$!
 
     # Wait on sleep so that when we get ctrl-c'ed it kills everything due to our trap
     wait "$SLEEP_PID"
