@@ -23,20 +23,10 @@ for f in /scripts/startup/*.sh; do
 done
 echo "Done with startup"
 
-last_renewal_file="/etc/letsencrypt/last_renewal.txt"
-
 # Instead of trying to run `cron` or something like that, just sleep and run `certbot`.
 while [ true ]; do
-    if is_renewal_required $last_renewal_file; then
-        # Recreate the file to persist the last renewal timestamp
-        touch "$last_renewal_file"
-
-        # Run certbot to request all the ssl certs we can find
-        echo "Run certbot"
-        /scripts/run_certbot.sh
-    else
-        echo "Not run certbot"
-    fi
+    echo "Run certbot"
+    /scripts/run_certbot.sh
 
     # Sleep for 1 week
     sleep 604810 &

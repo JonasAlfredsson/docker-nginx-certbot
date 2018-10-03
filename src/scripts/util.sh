@@ -76,17 +76,25 @@ get_certificate() {
         --standalone --preferred-challenges http-01 --debug
 }
 
-# Given a last renewal file with timestamp, return true if a renewal is
-# required (last renewal ran over a week ago), return false otherwise
+# Given a domain name, return true if a renewal is required (last renewal
+# ran over a week ago or never happened yet), otherwise return false.
 is_renewal_required() {
     # If the file does not exist assume a renewal is required
-    [[ ! -e "$1" ]] && return;
+    last_renewal_file="/etc/letsencrypt/$1_last_renewal.txt"
+    [[ ! -e "$last_renewal_file" ]] && return;
     
     # If the file exists, check if the last renewal was more than a week ago
     one_week_sec=604800
     now_sec=$(date -d now +%s)
-    last_renewal_sec=$(stat -c %Y "$1")
+    last_renewal_sec=$(stat -c %Y "$last_renewal_file")
     last_renewal_delta_sec=$(( ($now_sec - $last_renewal_sec) ))
     is_finshed_week_sec=$(( ($one_week_sec - $last_renewal_delta_sec) ))
     [[ $is_finshed_week_sec -lt 0 ]]
+}
+
+# Given a domain name, set the current time as the last renewal timestamp
+# as read by is_renewal_required().
+update_renewal_timestamp() {
+    last_renewal_file="/etc/letsencrypt/$1_last_renewal.txt"
+    touch "$last_renewal_file"
 }
