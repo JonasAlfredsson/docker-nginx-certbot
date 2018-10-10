@@ -90,10 +90,21 @@ get_certificate() {
         echo "Production ..."
     fi
 
-    echo "running certbot ... $letsencrypt_url $1 $2"
-    certbot certonly --agree-tos --keep -n --text --email $2 --server \
-        $letsencrypt_url -d $1 --http-01-port 1337 \
-        --standalone --preferred-challenges http-01 --debug
+    if [ -z "$RSA_KEY_SIZE" ]; then
+        echo "RSA_KEY_SIZE unset, defaulting to 2048."
+        RSA_KEY_SIZE=2048
+    fi
+
+    echo "running certbot... $letsencrypt_url $1 $2"
+    certbot certonly \
+        --agree-tos --keep -n --text \
+        -a webroot --webroot-path=/var/www/letsencrypt \
+        --rsa-key-size $RSA_KEY_SIZE \
+        --preferred-challenges http-01 \
+        --email $2 \
+        --server $letsencrypt_url \
+        -d $1 \
+        --debug
 }
 
 # Given a domain name, return true if a renewal is required (last renewal

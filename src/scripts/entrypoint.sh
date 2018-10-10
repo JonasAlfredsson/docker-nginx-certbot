@@ -1,13 +1,14 @@
 #!/bin/sh
 
-# When we get killed, kill all our children
+# When we get killed, kill all our children (o.O)
 trap "exit" INT TERM
 trap "kill 0" EXIT
 
-# Source in util.sh so we can have our nice tools
+# Source "util.sh" so we can have our nice tools
 . $(cd $(dirname $0); pwd)/util.sh
 
 # Immediately run auto_enable_configs so that nginx is in a runnable state
+# This will temporarily disable any misconfigured servers.
 auto_enable_configs
 
 # Start up nginx, save PID so we can reload config inside of run_certbot.sh
@@ -28,7 +29,7 @@ while [ true ]; do
     echo "Run certbot"
     /scripts/run_certbot.sh
 
-    # Sleep for 1 week
+    echo "Sleeping for 1 week..."
     sleep 604810 &
     SLEEP_PID=$!
 
