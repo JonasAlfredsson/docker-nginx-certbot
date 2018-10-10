@@ -1,32 +1,53 @@
-FROM nginx
-LABEL maintainer="Elliot Saba <staticfloat@gmail.com>, Valder Gallo <valergallo@gmail.com>, Bruno Zell <bruno.zzell@gmail.com>"
+FROM nginx:mainline
+LABEL maintainer="Jonas Alfredsson <jonas.alfredsson@protonmail.com>"
 
-# Do this apt/pip stuff all in one RUN command to avoid creating large
-# intermediate layers on non-squashable docker installs
-RUN apt update && \
-    apt install -y python python-dev libffi6 libffi-dev libssl-dev curl build-essential && \
+# Install all necessary packages
+RUN set -ex && \
+    apt-get update && \
+    apt-get install -y \
+            build-essential \
+            curl \
+            libffi6 \
+            libffi-dev \
+            libssl-dev \
+            python \
+            python-dev \
+            openssl
+
+# Install certbot
+RUN set -ex && \ 
     curl -L 'https://bootstrap.pypa.io/get-pip.py' | python && \
-    pip install -U cffi certbot && \
-    apt remove --purge -y python-dev build-essential libffi-dev libssl-dev curl && \
+    pip install -U cffi certbot 
+    
+# Remove everything that is no longer necessary
+RUN set -ex && \
+    apt-get remove --purge -y \
+            build-essential \
+            curl \
+            libffi-dev \
+            libssl-dev \
+            python-dev \
+    && \
     apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Add new directories
-RUN mkdir -p /scripts/startup /var/www/letsencrypt
-
-# Copy in scripts for certbot
-COPY ./scripts/ /scripts
-
-# Edit some permissions
-RUN chmod +x /scripts/*.sh && chown www-data: -R /var/www
+# Create new directories and set correct permissions
+RUN mkdir -p /var/www/letsencrypt && \
+    chown www-data:www-data -R /var/www && \
+    mkdir -p /etc/letsencrypt/dhparams && \
+    chmod 700 /etc/letsencrypt/dhparams
 
 # Copy in default nginx configuration (which just forwards ACME requests to
 # certbot, or redirects to HTTPS, but has no HTTPS configurations by default).
 RUN rm -f /etc/nginx/conf.d/*
 COPY nginx_conf.d/ /etc/nginx/conf.d/
 
-# Create a volume to have persistant storage for obtained certificates
+# Copy in scripts and set permissions
+COPY scripts/ /scripts
+RUN chmod +x -R /scripts
+
+# Create a volume to have persistent storage for obtained certificates
 VOLUME /etc/letsencrypt
 
 EXPOSE 80
