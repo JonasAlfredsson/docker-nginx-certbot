@@ -20,35 +20,55 @@ parse_domains() {
     done
 }
 
-# Given a config file path, spit out all the ssl_certificate_key file paths
+# Return all the "ssl_certificate_key" file paths
 parse_keyfiles() {
     sed -n -e 's&^\s*ssl_certificate_key\s*\(.*\);&\1&p' "$1"
 }
 
-# Given a config file path, return 0 if all keyfiles exist (or there are no
-# keyfiles), return 1 otherwise
-keyfiles_exist() {
-    for keyfile in $(parse_keyfiles $1); do
-        if [ ! -f $keyfile ]; then
-            echo "Couldn't find keyfile $keyfile for $1"
-            return 1
-        fi
+# Return all the "ssl_certificate" file paths
+parse_fullchains() {
+    sed -n -e 's&^\s*ssl_certificate \s*\(.*\);&\1&p' "$1"
+}
+
+# Return all the "ssl_trusted_certificate" file paths
+parse_chains() {
+    sed -n -e 's&^\s*ssl_trusted_certificate\s*\(.*\);&\1&p' "$1"
+}
+
+# Return all the "dhparam" file paths
+parse_dhparams() {
+    sed -n -e 's&^\s*ssl_dhparam\s*\(.*\);&\1&p' "$1"
+}
+
+# Given a config file path, return 0 if all ssl related files exist (or there 
+# are no files needed to be found), return 1 otherwise.
+allfiles_exist() {
+    all_exist=0
+    for type in keyfile fullchain chain dhparam; do
+        for file in $(parse_"$type"s $1); do
+            if [ ! -f $file ]; then
+                error "Couldn't find $type $file for $1"
+                all_exist=1
+            fi
+        done
     done
-    return 0
+
+    return $all_exist
 }
 
 # Helper function that sifts through /etc/nginx/conf.d/, looking for configs
-# that don't have their keyfiles yet, and disabling them through renaming
+# that don't have their necessary files yet, and disables them until everything
+# has been set up correctly. This also activates them afterwards.
 auto_enable_configs() {
     for conf_file in /etc/nginx/conf.d/*.conf*; do
-        if keyfiles_exist $conf_file; then
+        if allfiles_exist $conf_file; then
             if [ ${conf_file##*.} = nokey ]; then
-                echo "Found all the keyfiles for $conf_file, enabling..."
+                echo "Found all the necessary files for $conf_file, enabling..."
                 mv $conf_file ${conf_file%.*}
             fi
         else
             if [ ${conf_file##*.} = conf ]; then
-                echo "Keyfile(s) missing for $conf_file, disabling..."
+                echo "Important file(s) for $conf_file are missing, disabling..."
                 mv $conf_file $conf_file.nokey
             fi
         fi
