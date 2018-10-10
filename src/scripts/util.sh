@@ -8,6 +8,46 @@ error() {
     tput -Tscreen sgr0) >&2
 }
 
+# This method may take an extremely long time to complete, be patient. 
+# It should be possible to use the same dhparam for all sites, just specify the 
+# same file path under the "ssl_dhparam" parameter in the nginx server config. 
+# File path should be under /etc/letsencrypt/dhparams/ to ensure persistence.
+create_dhparam() {
+    if [ -z "$DHPARAM_SIZE" ]; then
+        echo "DHPARAM_SIZE unset, using default of 2048 bits"
+        DHPARAM_SIZE=2048
+    fi
+
+    echo "
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %                        ATTENTION!                        %
+    %                                                          %
+    % This script will now create a $DHPARAM_SIZE bit Diffie-Hellman    %
+    % parameter to use during the SSL handshake.               %
+    %                                                          %
+    % >>>>>      This MIGHT take a VERY long time!       <<<<< %
+    %       (Took 65 minutes for 4096 bit on a 3Ghz cpu)       %
+    %                                                          %
+    % However, there is some randomness involved so it might   %
+    % be both faster or slower for you. 2048 is secure enough  %
+    % for today and quite fast to generate. These files will   %
+    % only have to be created once so please be patient.       %
+    % A message will be displayed when this process finishes.  %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    "
+    echo "Creation will start in 10 seconds"
+    echo "Press Ctrl+C to abort this process now"
+    sleep 1
+    echo
+    echo "Output file > $1"
+    openssl dhparam -out $1 $DHPARAM_SIZE
+    echo "
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % >>>>>   Diffie-Hellman parameter creation done!    <<<<< %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    "
+}
+
 # Helper function that sifts through /etc/nginx/conf.d/, looking for lines that
 # contain ssl_certificate_key, and try to find domain names in them.  We accept
 # a very restricted set of keys: Each key must map to a set of concrete domains
@@ -68,7 +108,7 @@ auto_enable_configs() {
             fi
         else
             if [ ${conf_file##*.} = conf ]; then
-                echo "Important file(s) for $conf_file are missing, disabling..."
+                error "Important file(s) for $conf_file are missing, disabling..."
                 mv $conf_file $conf_file.nokey
             fi
         fi
@@ -84,10 +124,10 @@ get_certificate() {
 
     if [ "${IS_STAGING}" = "1" ]; then
         letsencrypt_url=$STAGING_URL
-        echo "Staging ..."
+        echo "Using staging environment..."
     else
         letsencrypt_url=$PRODUCTION_URL
-        echo "Production ..."
+        echo "Using production environment..."
     fi
 
     if [ -z "$RSA_KEY_SIZE" ]; then
