@@ -10,7 +10,6 @@ if [ -z "$CERTBOT_EMAIL" ]; then
 fi
 
 exit_code=0
-set -x
 # Loop over every domain we can find
 for domain in $(parse_domains); do
     if is_renewal_required $domain; then
@@ -30,7 +29,8 @@ done
 auto_enable_configs
 
 # Finally, tell nginx to reload the configs
-kill -HUP $NGINX_PID
-
+set -x
+nginx -s reload
 set +x
+
 exit $exit_code

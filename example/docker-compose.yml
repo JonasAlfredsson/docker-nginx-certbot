@@ -1,11 +1,18 @@
 version: '3'
 
 services:
-  proxy:
+  nginx:
     build: .
     restart: always
-    environment:
-      CERTBOT_EMAIL: "your.email@example.com"
+    env_file:
+        - ./ENVS
     ports:
-      - "80:80"
-      - "443:443"
+      - 80:80
+      - 443:443
+    volumes:
+      - nginx_secrets:/etc/letsencrypt
+    networks: 
+      - closed_network
+
+volumes:
+  nginx_secrets:

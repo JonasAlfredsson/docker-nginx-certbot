@@ -1,0 +1,7 @@
+# Obligatory
+CERTBOT_EMAIL=yourmail@example.com
+
+# Optional (Defaults)
+IS_STAGING=0
+DHPARAM_SIZE=2048
+RSA_KEY_SIZE=2048
