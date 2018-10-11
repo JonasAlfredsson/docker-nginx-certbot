@@ -1,5 +1,5 @@
 # Obligatory
-CERTBOT_EMAIL=yourmail@example.com
+CERTBOT_EMAIL=your@email.org
 
 # Optional (Defaults)
 IS_STAGING=0
