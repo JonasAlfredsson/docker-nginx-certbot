@@ -48,16 +48,30 @@ create_dhparam() {
     "
 }
 
-# Helper function that sifts through /etc/nginx/conf.d/, looking for lines that
-# contain ssl_certificate_key, and try to find domain names in them.  We accept
-# a very restricted set of keys: Each key must map to a set of concrete domains
-# (no wildcards) and each keyfile will be stored at the default location of
-# /etc/letsencrypt/live/<primary_domain_name>/privkey.pem
-parse_domains() {
-    # For each configuration file in /etc/nginx/conf.d/*.conf*
-    for conf_file in /etc/nginx/conf.d/*.conf*; do
-        sed -n -e 's&^\s*ssl_certificate_key\s*\/etc/letsencrypt/live/\(.*\)/privkey.pem;&\1&p' $conf_file | xargs echo
-    done
+# Find lines that contain 'ssl_certificate_key', and try to extract domain names 
+# from them. We accept a very restricted set of keys: 
+# * Each key must map to a valid domain
+# * No wildcards (not supported by this method of authentication)
+# * Each keyfile must be stored at the default location of
+#   /etc/letsencrypt/live/<primary_domain_name>/privkey.pem
+# 
+parse_primary_domains() {
+    sed -n -e 's&^\s*ssl_certificate_key\s*\/etc/letsencrypt/live/\(.*\)/privkey.pem;&\1&p' "$1" | xargs echo
+}
+
+# Your server may respond to many domain names. Nginx will answer to any names 
+# written on the line which starts with 'server_name'. 
+# This method will try to extract all those names and add them to the 
+# certificate request. Some things to think about:
+# * No wildcard names. They are not supported by the authentication method used
+#   in this script and will most likely fail by certbot.
+# * Possble overlappings. This method will find all 'server_names' in a .conf 
+#   file inside the conf.d/ folder and attach them to the request. If there are 
+#   different primary domains in the same .conf file it will cause some weird 
+#   certificates. Should however work fine but is not best practice. 
+#
+parse_server_names() {
+    sed -n -e 's&^\s*server_name \s*\(.*\);&\1&p' "$1" | xargs echo
 }
 
 # Return all the "ssl_certificate_key" file paths
@@ -81,7 +95,7 @@ parse_dhparams() {
 }
 
 # Given a config file path, return 0 if all ssl related files exist (or there 
-# are no files needed to be found), return 1 otherwise.
+# are no files needed to be found). Return 1 otherwise.
 allfiles_exist() {
     all_exist=0
     for type in keyfile fullchain chain dhparam; do
@@ -115,7 +129,7 @@ auto_enable_configs() {
     done
 }
 
-# Helper function to ask certbot for the given domain(s).  Must have defined the
+# Helper function to ask certbot for the given domain(s). Must have defined the
 # EMAIL environment variable, to register the proper support email address.
 get_certificate() {
     echo "Getting certificate for domain $1 on behalf of user $2"
@@ -135,7 +149,7 @@ get_certificate() {
         RSA_KEY_SIZE=2048
     fi
 
-    echo "running certbot... $letsencrypt_url $1 $2"
+    echo "Running certbot... $letsencrypt_url $1 $2"
     certbot certonly \
         --agree-tos --keep -n --text \
         -a webroot --webroot-path=/var/www/letsencrypt \
@@ -143,7 +157,7 @@ get_certificate() {
         --preferred-challenges http-01 \
         --email $2 \
         --server $letsencrypt_url \
-        -d $1 \
+        $3 \
         --debug
 }
 

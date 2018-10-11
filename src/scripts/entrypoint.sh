@@ -26,10 +26,10 @@ echo "Done with startup"
 
 # Instead of trying to run `cron` or something like that, just sleep and run `certbot`.
 while [ true ]; do
-    echo "Run certbot"
+    echo "Run certbot!"
     /scripts/run_certbot.sh
 
-    echo "Sleeping for 1 week..."
+    echo "Certbot will now sleep for 1 week..."
     sleep 604810 &
     SLEEP_PID=$!
 
