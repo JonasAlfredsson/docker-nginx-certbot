@@ -4,8 +4,11 @@ services:
   nginx:
     build: .
     restart: always
-    env_file:
-        - ./ENVS
+    environment:
+        - CERTBOT_EMAIL
+        - STAGING
+        - DHPARAM_SIZE
+        - RSA_KEY_SIZE
     ports:
       - 80:80
       - 443:443
