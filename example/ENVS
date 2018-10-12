@@ -2,6 +2,6 @@
 CERTBOT_EMAIL=your@email.org
 
 # Optional (Defaults)
-IS_STAGING=0
+STAGING=0
 DHPARAM_SIZE=2048
 RSA_KEY_SIZE=2048

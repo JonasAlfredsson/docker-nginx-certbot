@@ -72,7 +72,7 @@ services:
     nginx:
         environment:
             - CERTBOT_EMAIL=your@email.org
-            - IS_STAGING=0
+            - STAGING=0
             - DHPARAM_SIZE=2048
             - RSA_KEY_SIZE=2048
   ...
@@ -93,7 +93,7 @@ docker-compose up
 
 ### Initial testing
 In case you are experimenting with setting this up I suggest you set the 
-environment variable `IS_STAGING=1` as this will change the challenge URL to 
+environment variable `STAGING=1` as this will change the challenge URL to 
 the staging one. This will not give you "proper" certificates, but it has 
 ridiculous high 
 [rate limits](https://letsencrypt.org/docs/staging-environment/) compared to 
@@ -101,7 +101,7 @@ the "real" [production certificates](https://letsencrypt.org/docs/rate-limits/).
 
 Include it like this:
 ```bash
-docker run -d --env CERTBOT_EMAIL=your@email.org --env IS_STAGING=1 \
+docker run -d --env CERTBOT_EMAIL=your@email.org --env STAGING=1 \
 -p 80:80 -p 443:443 nginx-certbot:latest  
 ```
 
