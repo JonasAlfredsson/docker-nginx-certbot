@@ -1,6 +1,6 @@
 # docker-nginx-certbot
 Create and automatically renew website SSL certificates using the letsencrypt 
-free certificate authority, and its client *certbot*, built on top of the nginx 
+free certificate authority and its client *certbot*. Built on top of the nginx 
 server running on Debian. OpenSSL is used to create the Diffie-Hellman 
 parameters used during the initial handshake.
 
@@ -24,25 +24,72 @@ certificate request if they are defined in the nginx configuration files).
 # Usage
 
 ## Before you start
-This guide expects you to already have a domain name which points at your 
-address, and have both port 80 and 443 correctly forwarded if you are behind 
-NAT. Otherwise I reccomend [DuckDNS](https://www.duckdns.org/) as a Dynamic DNS 
-provider, and then either search on how to port forward on your router or maybe 
-find it [here](https://portforward.com/router.htm). 
+1. This guide expects you to already own a domain which points at the correct 
+   IP address, and you have both port 80 and 443 correctly forwarded if you are 
+   behind NAT. 
+   Otherwise I recommend [DuckDNS](https://www.duckdns.org/) as a Dynamic DNS 
+   provider, and then either search on how to port forward on your router or 
+   maybe find it [here](https://portforward.com/router.htm). 
 
-This image have not yet been publicized to Dockerhub, so for now you will have
-to download this repository.
+2. This image have not yet been publicized to Dockerhub, so for now you will 
+   have to download this repository.
 
-I don't think it is neccessary to point out if you found this repository, 
-however, I have been proven wrong before so I want to make it clear that this is
-a Dockerfile which requires [Docker](https://www.docker.com/) to function. 
+3. Tips on how to make a proper server config file and creating a simple test
+   can be found under the [Good to Know
+   ](https://github.com/JonasAlfredsson/docker-nginx-certbot/#good-to-know)
+   section. 
 
-## Creating a proper server config
+4. I don't think it is neccessary to mention if you managed to find this 
+   repository, however, I have been proven wrong before so I want to make it 
+   clear that this is a Dockerfile which requires 
+   [Docker](https://www.docker.com/) to function. 
 
-As an example of a very barebone (but functional) https server in nginx you can 
-find the file `example_server.conf` inside the `example` directory. By replacing 
-`yourdomain.org` with your own domain you can use this file to quickly test if 
-things are working. 
+
+## Run with just Docker 
+Place any additional server configuration you desire inside the `nginx_confd/` 
+folder and run the following commands in your terminal while residing inside 
+the `src/` folder.
+```bash
+docker build --tag nginx-certbot:latest . 
+```
+```bash
+docker run -d --env CERTBOT_EMAIL=your@email.org -p 80:80 -p 443:443 \
+-v nginx_secrets:/etc/letsencrypt nginx-certbot:latest  
+```
+The `CERTBOT_EMAIL` environment variable is required by certbot for them to 
+contact you in case of security issues.
+
+
+## Run with docker-compose
+
+An example of a `docker-compose.yaml` file can be found in the `example` folder.
+That file takes use of an Environment file which is called `ENVS` in the same 
+folder. If that is not to your liking they can be included in the `.yaml` like
+this instead:
+```yaml
+version: '3'
+services:
+    nginx:
+        environment:
+            - CERTBOT_EMAIL=your@email.org
+            - IS_STAGING=0
+            - DHPARAM_SIZE=2048
+            - RSA_KEY_SIZE=2048
+  ...
+```
+
+This is then built and started with the following commands. Just don't forget to 
+place any additional server configs you want inside the `nginx_confd/` folder
+beforehand.
+
+```bash
+docker-compose build 
+```
+```bash
+docker-compose up  
+```
+
+# Good to Know
 
 ### Initial testing
 In case you are experimenting with setting this up I suggest you set the 
@@ -51,6 +98,20 @@ the staging one. This will not give you 'proper' certificates, but it has
 ridiculous high 
 [rate limits](https://letsencrypt.org/docs/staging-environment/) compared to 
 the 'real' [production certificates](https://letsencrypt.org/docs/rate-limits/).
+
+### Creating a server .conf file
+
+As an example of a very barebone (but functional) SSL server in nginx you can 
+look at the file `example_server.conf` inside the `example` directory. By 
+replacing '`yourdomain.org`' with your own domain you can actually use this 
+config to quickly test if things are working properly.
+
+Place the modified config inside `nginx_confd/`, `build` the container and then 
+run it as described [above
+](https://github.com/JonasAlfredsson/docker-nginx-certbot/#usage). Let it do 
+it's magic for a while, and then try to visit your domain. You should be greeted
+with the string `Let's Encrypt certificate successfully installed!`
+
 
 ### Diffie-Hellman parameters
 
@@ -80,54 +141,15 @@ the config file expects the file to be. This means that you may also create this
 file on an external computer and mount it to any folder that is not under 
 `/etc/letsencrypt/` as that will casue a double mount. 
 
-## Run with just Docker 
-Place any additional server configuration you desire inside the `nginx_confd/` 
-folder and run the following commands in your terminal while residing inside 
-the `src/` folder.
-```bash
-docker build --tag dnc:latest . 
-```
-```bash
-docker run -d --env CERTBOT_EMAIL=your@email.org -p 80:80 -p 443:443 \
--v nginx_secrets:/etc/letsencrypt dnc:latest  
-```
-
-## Run with docker-compose
-
-An example of a `docker-compose.yaml` file can be found in the `example` folder.
-That file takes use of an Environment file which is called `ENVS` in the same 
-folder. If that is not to your liking they can be included in the `.yaml` like
-this instead:
-```yaml
-version: '3'
-services:
-    nginx:
-        environment:
-            - CERTBOT_EMAIL=your@email.org
-            - IS_STAGING=0
-            - DHPARAM_SIZE=2048
-            - RSA_KEY_SIZE=2048
-  ...
-```
-
-This is then built and started with 
-
-```bash
-docker-compose build 
-```
-```bash
-docker-compose up  
-```
-
 # Changelog
 
-### 0.9
+### 0.9-beta
 - `@JonasAlfredsson` enters the battle.
-- Diffie-Hellman parameters are now automatically created.
+- Diffie-Hellman parameters are now automatically generated.
 - Nginx now handles everything http related, certbot set to webroot mode.
 - Better checking to see if necessary files exist.
 - Will now request a certificate that includes all domain variants listed 
-  in `server_name`.
+  at the `server_name` line.
 - More extensive documentation.
 
 ### 0.8
