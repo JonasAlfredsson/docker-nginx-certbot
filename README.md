@@ -1,5 +1,5 @@
 # docker-nginx-certbot
-Create and automatically renew website SSL certificates using the letsencrypt 
+Create and automatically renew website SSL certificates using the Let's Encrypt 
 free certificate authority and its client *certbot*. Built on top of the nginx 
 server running on Debian. OpenSSL is used to create the Diffie-Hellman 
 parameters used during the initial handshake.
@@ -25,8 +25,8 @@ certificate request if they are defined in the nginx configuration files).
 
 ## Before you start
 1. This guide expects you to already own a domain which points at the correct 
-   IP address, and you have both port 80 and 443 correctly forwarded if you are 
-   behind NAT. 
+   IP address, and that you have both port 80 and 443 correctly forwarded if 
+   you are behind NAT. 
    Otherwise I recommend [DuckDNS](https://www.duckdns.org/) as a Dynamic DNS 
    provider, and then either search on how to port forward on your router or 
    maybe find it [here](https://portforward.com/router.htm). 
@@ -34,7 +34,7 @@ certificate request if they are defined in the nginx configuration files).
 2. This image have not yet been publicized to Dockerhub, so for now you will 
    have to download this repository.
 
-3. Tips on how to make a proper server config file and creating a simple test
+3. Tips on how to make a proper server config file, and creating a simple test,
    can be found under the [Good to Know
    ](https://github.com/JonasAlfredsson/docker-nginx-certbot/#good-to-know)
    section. 
@@ -63,9 +63,9 @@ contact you in case of security issues.
 ## Run with docker-compose
 
 An example of a `docker-compose.yaml` file can be found in the `example` folder.
-That file takes use of an Environment file which is called `ENVS` in the same 
-folder. If that is not to your liking they can be included in the `.yaml` like
-this instead:
+That file uses an "environment file" which is called `ENVS` and can be found in 
+the same folder. If a separate file is not to your liking, it can be included 
+in the `.yaml` like this instead:
 ```yaml
 version: '3'
 services:
@@ -94,10 +94,16 @@ docker-compose up
 ### Initial testing
 In case you are experimenting with setting this up I suggest you set the 
 environment variable `IS_STAGING=1` as this will change the challenge URL to 
-the staging one. This will not give you 'proper' certificates, but it has 
+the staging one. This will not give you "proper" certificates, but it has 
 ridiculous high 
 [rate limits](https://letsencrypt.org/docs/staging-environment/) compared to 
-the 'real' [production certificates](https://letsencrypt.org/docs/rate-limits/).
+the "real" [production certificates](https://letsencrypt.org/docs/rate-limits/).
+
+Include it like this:
+```bash
+docker run -d --env CERTBOT_EMAIL=your@email.org --env IS_STAGING=1 \
+-p 80:80 -p 443:443 nginx-certbot:latest  
+```
 
 ### Creating a server .conf file
 
