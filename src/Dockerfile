@@ -1,7 +1,8 @@
 FROM nginx:mainline
 LABEL maintainer="Jonas Alfredsson <jonas.alfredsson@protonmail.com>"
 
-# Install all necessary packages
+# Do a single run command to make the intemediary containers smaller.
+# Install all necessary packages 
 RUN set -ex && \
     apt-get update && \
     apt-get install -y \
@@ -12,15 +13,13 @@ RUN set -ex && \
             libssl-dev \
             python \
             python-dev \
-            openssl
-
+            openssl \
+    && \
 # Install certbot
-RUN set -ex && \ 
     curl -L 'https://bootstrap.pypa.io/get-pip.py' | python && \
-    pip install -U cffi certbot 
-    
+    pip install -U cffi certbot \
+    && \
 # Remove everything that is no longer necessary
-RUN set -ex && \
     apt-get remove --purge -y \
             build-essential \
             curl \
@@ -30,17 +29,17 @@ RUN set -ex && \
     && \
     apt-get autoremove -y && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
+    rm -rf /var/lib/apt/lists/* \
+    && \
 # Create new directories and set correct permissions
-RUN mkdir -p /var/www/letsencrypt && \
+    mkdir -p /var/www/letsencrypt && \
     chown www-data:www-data -R /var/www && \
     mkdir -p /etc/letsencrypt/dhparams && \
-    chmod 700 /etc/letsencrypt/dhparams
-
+    chmod 700 /etc/letsencrypt/dhparams \
+    && \
 # Copy in default nginx configuration (which just forwards ACME requests to
 # certbot, or redirects to HTTPS, but has no HTTPS configurations by default).
-RUN rm -f /etc/nginx/conf.d/*
+    rm -f /etc/nginx/conf.d/*
 COPY nginx_conf.d/ /etc/nginx/conf.d/
 
 # Copy in scripts and set permissions
