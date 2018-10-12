@@ -11,8 +11,6 @@ services:
       - 443:443
     volumes:
       - nginx_secrets:/etc/letsencrypt
-    networks: 
-      - closed_network
 
 volumes:
   nginx_secrets:
