@@ -136,7 +136,7 @@ get_certificate() {
     PRODUCTION_URL='https://acme-v01.api.letsencrypt.org/directory'
     STAGING_URL='https://acme-staging.api.letsencrypt.org/directory'
 
-    if [ "${IS_STAGING}" = "1" ]; then
+    if [ "${STAGING}" = "1" ]; then
         letsencrypt_url=$STAGING_URL
         echo "Using staging environment..."
     else
