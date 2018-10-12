@@ -53,6 +53,3 @@ nginx -s reload
 set +x
 
 exit $exit_code
-
-
-#* https://stackoverflow.com/questions/229551/how-to-check-if-a-string-contains-a-substring-in-bash#comment48465862_231298
