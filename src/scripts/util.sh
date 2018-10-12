@@ -8,9 +8,9 @@ error() {
     tput -Tscreen sgr0) >&2
 }
 
-# This method may take an extremely long time to complete, be patient. 
-# It should be possible to use the same dhparam for all sites, just specify the 
-# same file path under the "ssl_dhparam" parameter in the nginx server config. 
+# This method may take an extremely long time to complete, be patient.
+# It should be possible to use the same dhparam for all sites, just specify the
+# same file path under the "ssl_dhparam" parameter in the nginx server config.
 # File path should be under /etc/letsencrypt/dhparams/ to ensure persistence.
 create_dhparam() {
     if [ -z "$DHPARAM_SIZE" ]; then
@@ -48,27 +48,27 @@ create_dhparam() {
     "
 }
 
-# Find lines that contain 'ssl_certificate_key', and try to extract domain names 
-# from them. We accept a very restricted set of keys: 
+# Find lines that contain 'ssl_certificate_key', and try to extract domain names
+# from them. We accept a very restricted set of keys:
 # * Each key must map to a valid domain
 # * No wildcards (not supported by this method of authentication)
 # * Each keyfile must be stored at the default location of
 #   /etc/letsencrypt/live/<primary_domain_name>/privkey.pem
-# 
+#
 parse_primary_domains() {
     sed -n -e 's&^\s*ssl_certificate_key\s*\/etc/letsencrypt/live/\(.*\)/privkey.pem;&\1&p' "$1" | xargs echo
 }
 
-# Your server may respond to many domain names. Nginx will answer to any names 
-# written on the line which starts with 'server_name'. 
-# This method will try to extract all those names and add them to the 
+# Your server may respond to many domain names. Nginx will answer to any names
+# written on the line which starts with 'server_name'.
+# This method will try to extract all those names and add them to the
 # certificate request. Some things to think about:
 # * No wildcard names. They are not supported by the authentication method used
 #   in this script and will most likely fail by certbot.
-# * Possble overlappings. This method will find all 'server_names' in a .conf 
-#   file inside the conf.d/ folder and attach them to the request. If there are 
-#   different primary domains in the same .conf file it will cause some weird 
-#   certificates. Should however work fine but is not best practice. 
+# * Possble overlappings. This method will find all 'server_names' in a .conf
+#   file inside the conf.d/ folder and attach them to the request. If there are
+#   different primary domains in the same .conf file it will cause some weird
+#   certificates. Should however work fine but is not best practice.
 #
 parse_server_names() {
     sed -n -e 's&^\s*server_name \s*\(.*\);&\1&p' "$1" | xargs echo
@@ -94,7 +94,7 @@ parse_dhparams() {
     sed -n -e 's&^\s*ssl_dhparam\s*\(.*\);&\1&p' "$1"
 }
 
-# Given a config file path, return 0 if all ssl related files exist (or there 
+# Given a config file path, return 0 if all ssl related files exist (or there
 # are no files needed to be found). Return 1 otherwise.
 allfiles_exist() {
     all_exist=0
@@ -167,7 +167,7 @@ is_renewal_required() {
     # If the file does not exist assume a renewal is required
     last_renewal_file="/etc/letsencrypt/live/$1/privkey.pem"
     [ ! -e "$last_renewal_file" ] && return;
-    
+
     # If the file exists, check if the last renewal was more than a week ago
     one_week_sec=604800
     now_sec=$(date -d now +%s)
