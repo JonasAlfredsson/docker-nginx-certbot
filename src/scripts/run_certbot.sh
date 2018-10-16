@@ -34,11 +34,11 @@ for conf_file in /etc/nginx/conf.d/*.conf*; do
             done 
 
             if ! get_certificate $primary_domain $CERTBOT_EMAIL "$domain_request"; then
-                error "Cerbot failed for $domain. Check the logs for details."
+                error "Cerbot failed for $primary_domain. Check the logs for details."
                 exit_code=1
             fi
         else
-            echo "Not running certbot for $domain; last renewal happened just recently."
+            echo "Not running certbot for $primary_domain; last renewal happened just recently."
         fi
     done
 done
