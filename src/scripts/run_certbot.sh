@@ -24,7 +24,7 @@ for conf_file in /etc/nginx/conf.d/*.conf*; do
             for server_name in $(parse_server_names $conf_file); do
                 if [ -n "$server_name" ]; then
                     # String is not empty
-                    tmp="-d $server_name" # Check footnote*
+                    tmp="-d $server_name"
                     if [[ ! $domain_request =~ $tmp ]]; then
                         # This server name was not found in the domain request, 
                         # append it...
@@ -48,8 +48,6 @@ done
 auto_enable_configs
 
 # Finally, tell nginx to reload the configs
-set -x
 nginx -s reload
-set +x
 
 exit $exit_code
