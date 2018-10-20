@@ -11,10 +11,7 @@ trap "kill 0" EXIT
 # This will temporarily disable any misconfigured servers.
 auto_enable_configs
 
-# Start up nginx
-nginx -g "daemon off;" &
-
-# Lastly, run startup scripts
+# Run any startup scripts
 for f in /scripts/startup/*.sh; do
     if [ -x "$f" ]; then
         echo "Running startup script $f"
@@ -23,15 +20,24 @@ for f in /scripts/startup/*.sh; do
 done
 echo "Done with startup"
 
-# Instead of trying to run 'cron' or something like that, just sleep and run 'certbot'.
+# Start nginx without its daemon mode (and save its PID).
+exec nginx -g "daemon off;" &
+NGINX_PID=$!
+
+# Instead of trying to run 'cron' or something like that, just sleep and 
+# execute the 'certbot' script.
+(
+sleep 5 # Give nginx a little time to start
 while [ true ]; do
     echo "Run certbot!"
     /scripts/run_certbot.sh
 
-    echo "Certbot will now sleep for 1 week..."
-    sleep 604810 &
-    SLEEP_PID=$!
-
-    # Wait on sleep so that when we get Ctrl-C'ed it kills everything due to our trap
-    wait "$SLEEP_PID"
+    echo "Certbot will now sleep for 8 days..."
+    sleep 8d
 done
+) &
+
+# Nginx and the update process are now our children. As a parent we will wait 
+# for nginx, and if it exits we do the same with its status code.
+wait $NGINX_PID
+exit $?
