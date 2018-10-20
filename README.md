@@ -152,7 +152,7 @@ ssl_certificate_key /etc/letsencrypt/live/yourdomain.org/privkey.pem;
 ```
 which means that the "primary domain" is `yourdomain.org`. It will then find all
 the lines that contain `server_name` and make a list of all the words that exist
-on the same line. So a file contaiing something like this
+on the same line. So a file containg something like this
 ```
 server {
     listen              443 ssl;
@@ -168,7 +168,7 @@ server {
     ...
 }
 ```
-will have share the same certificate, but the certbot command will include all
+will share the same certificate, but the certbot command will include all
 listed domain variants. The limitation is that you should list all your 
 listening servers that have the same primary domain in the same file. The 
 certificate request from the above file will then become something like this:
@@ -211,6 +211,7 @@ file on an external computer and mount it to any folder that is not under
 - Container will now die along with nginx like it should.
 - Dhparams now have better permissions.
 - Container now exist on Docker Hub under `jonasal/nginx-certbot:latest`
+- More documentation.
 
 ### 0.9-beta
 - `@JonasAlfredsson` enters the battle.
