@@ -9,6 +9,7 @@ handle_dhparams() {
         if [ ! -f $file ]; then
             echo "Couldn't find the dhparam file $file; creating it..."
             create_dhparam $file
+            chmod 600 $file
         fi
     done
 }
