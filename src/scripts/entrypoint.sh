@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# When we get killed, kill all our children (o.O)
+trap "exit" INT TERM
+trap "kill 0" EXIT
+
 # Source "util.sh" so we can have our nice tools
 . $(cd $(dirname $0); pwd)/util.sh
 
@@ -16,17 +20,24 @@ for f in /scripts/startup/*.sh; do
 done
 echo "Done with startup"
 
-# Instead of trying to run 'cron' or something like that, just sleep and run 'certbot'.
+# Start nginx without its daemon mode (and save its PID).
+exec nginx -g "daemon off;" &
+NGINX_PID=$!
+
+# Instead of trying to run 'cron' or something like that, just sleep and 
+# execute the 'certbot' script.
 (
-sleep 5 # give nginx time to start
+sleep 5 # Give nginx a little time to start
 while [ true ]; do
     echo "Run certbot!"
     /scripts/run_certbot.sh
 
-    echo "Certbot will now sleep for 1 week..."
-    sleep 7d
+    echo "Certbot will now sleep for 8 days..."
+    sleep 8d
 done
 ) &
 
-# Start nginx as PID 1
-exec nginx -g "daemon off;"
+# Nginx and the update process are now our children. As a parent we will wait 
+# for nginx, and if it exits we do the same with its status code.
+wait $NGINX_PID
+exit $?
