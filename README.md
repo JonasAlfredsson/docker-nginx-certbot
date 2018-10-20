@@ -31,29 +31,49 @@ files).
    provider, and then either search on how to port forward on your router or 
    maybe find it [here](https://portforward.com/router.htm). 
 
-2. The current docker image is available on docker hub under
-   `jonasal/nginx-certbot`.
-
-3. Tips on how to make a proper server config file, and how to create a simple
+2. Tips on how to make a proper server config file, and how to create a simple
    test, can be found under the [Good to Know
    ](https://github.com/JonasAlfredsson/docker-nginx-certbot/#good-to-know)
    section. 
 
-4. I don't think it is neccessary to mention if you managed to find this 
+3. I don't think it is neccessary to mention if you managed to find this 
    repository, however, I have been proven wrong before so I want to make it 
    clear that this is a Dockerfile which requires 
    [Docker](https://www.docker.com/) to function. 
 
 ## Run with `docker run`
+
+### Build it yourself
+This option is for if you have downloaded this entire repository. 
+
 Place any additional server configuration you desire inside the `nginx_confd/` 
-folder and run the following commands in your terminal while residing inside 
+folder and run the following command in your terminal while residing inside 
 the `src/` folder.
 ```bash
-docker build --tag nginx-certbot:latest . 
+docker build --tag jonasal/nginx-certbot:latest . 
 ```
+
+### Get it from Docker Hub
+This option is for if you make your own `Dockerfile`.
+
+This image exist on Docker Hub under `jonasal/nginx-certbot`, which means you 
+can make your own `Dockerfile` for a cleaner folder structure. Just add a 
+command where you copy in your own server configuration files.
+
+```Dockerfile
+FROM jonasal/nginx-certbot:latest
+COPY conf.d/* /etc/nginx/conf.d/
+```
+Don't forget to build it!
+```bash
+docker build --tag jonasal/nginx-certbot:latest . 
+```
+
+### The run command
+Irregardless what option you chose above you run it with the following command:
 ```bash
 docker run -d --env CERTBOT_EMAIL=your@email.org -p 80:80 -p 443:443 \
--v nginx_secrets:/etc/letsencrypt nginx-certbot:latest  
+-v nginx_secrets:/etc/letsencrypt jonasal/nginx-certbot:latest  
 ```
 The `CERTBOT_EMAIL` environment variable is required by certbot for them to 
 contact you in case of security issues.
@@ -61,9 +81,8 @@ contact you in case of security issues.
 ## Run with `docker-compose`
 
 An example of a `docker-compose.yaml` file can be found in the `example` folder.
-That file uses an "environment file" which is called `ENVS` and can be found in 
-the same folder. If a separate file is not to your liking, it can be included 
-in the `.yaml` like this instead:
+The default parameters that are found inside the `.env` file will be overwritten
+any environment variables you set in the `.yaml` file.
 ```yaml
 version: '3'
 services:
@@ -107,7 +126,7 @@ the non-staging
 Include it like this:
 ```bash
 docker run -d --env CERTBOT_EMAIL=your@email.org --env STAGING=1 \
--p 80:80 -p 443:443 nginx-certbot:latest  
+-p 80:80 -p 443:443 jonasal/nginx-certbot:latest  
 ```
 
 ### Creating a server .conf file
@@ -123,6 +142,39 @@ run it as described [above
 it's magic for a while, and then try to visit your domain. You should be greeted
 with the string `Let's Encrypt certificate successfully installed!`
 
+### How the script add domain names to certificate requests
+
+The script will go trough all configuration files it finds inside Nginx's 
+`conf.d` folder, and create requests from the file's content. In every unique 
+file it will find the line that says
+```
+ssl_certificate_key /etc/letsencrypt/live/yourdomain.org/privkey.pem;
+```
+which means that the "primary domain" is `yourdomain.org`. It will then find all
+the lines that contain `server_name` and make a list of all the words that exist
+on the same line. So a file contaiing something like this
+```
+server {
+    listen              443 ssl;
+    server_name         yourdomain.org www.yourdomain.org;
+    ssl_certificate_key /etc/letsencrypt/live/yourdomain.org/privkey.pem;
+    ...
+}
+
+server {
+    listen              443 ssl;
+    server_name         yourdomain.org sub.yourdomain.org;
+    ssl_certificate_key /etc/letsencrypt/live/yourdomain.org/privkey.pem;
+    ...
+}
+```
+will have share the same certificate, but the certbot command will include all
+listed domain variants. The limitation is that you should list all your 
+listening servers that have the same primary domain in the same file. The 
+certificate request from the above file will then become something like this:
+```
+certbot ... -d yourdomain.org -d www.yourdomain.org -d sub.yourdomain.org
+```
 
 ### Diffie-Hellman parameters
 
@@ -153,6 +205,12 @@ file on an external computer and mount it to any folder that is not under
 `/etc/letsencrypt/` as that will casue a double mount. 
 
 # Changelog
+
+### 0.9-gamma
+- Make both nginx and the update script child processes of the entryscript.
+- Container will now die along with nginx like it should.
+- Dhparams now have better permissions.
+- Container now exist on Docker Hub under `jonasal/nginx-certbot:latest`
 
 ### 0.9-beta
 - `@JonasAlfredsson` enters the battle.
