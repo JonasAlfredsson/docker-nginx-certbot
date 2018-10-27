@@ -1,7 +1,7 @@
 FROM nginx:mainline
 LABEL maintainer="Jonas Alfredsson <jonas.alfredsson@protonmail.com>"
 
-# Do a single run command to make the intemediary containers smaller.
+# Do a single run command to make the intermediary containers smaller.
 # Install all necessary packages 
 RUN set -ex && \
     apt-get update && \
@@ -37,7 +37,7 @@ RUN set -ex && \
     mkdir -p /etc/letsencrypt/dhparams && \
     chmod 700 /etc/letsencrypt/dhparams \
     && \
-# Copy in default nginx configuration (which just forwards ACME requests to
+# Copy in default Nginx configuration (which just forwards ACME requests to
 # certbot, or redirects to HTTPS, but has no HTTPS configurations by default).
     rm -f /etc/nginx/conf.d/*
 COPY nginx_conf.d/ /etc/nginx/conf.d/

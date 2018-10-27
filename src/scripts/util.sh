@@ -10,7 +10,7 @@ error() {
 
 # This method may take an extremely long time to complete, be patient. 
 # It should be possible to use the same dhparam for all sites, just specify the 
-# same file path under the "ssl_dhparam" parameter in the nginx server config. 
+# same file path under the "ssl_dhparam" parameter in the Nginx server config. 
 # File path should be under /etc/letsencrypt/dhparams/ to ensure persistence.
 create_dhparam() {
     if [ -z "$DHPARAM_SIZE" ]; then
@@ -65,7 +65,7 @@ parse_primary_domains() {
 # certificate request. Some things to think about:
 # * No wildcard names. They are not supported by the authentication method used
 #   in this script and will most likely fail by certbot.
-# * Possble overlappings. This method will find all 'server_names' in a .conf 
+# * Possible overlappings. This method will find all 'server_names' in a .conf 
 #   file inside the conf.d/ folder and attach them to the request. If there are 
 #   different primary domains in the same .conf file it will cause some weird 
 #   certificates. Should however work fine but is not best practice. 
@@ -94,7 +94,7 @@ parse_dhparams() {
     sed -n -e 's&^\s*ssl_dhparam\s*\(.*\);&\1&p' "$1"
 }
 
-# Given a config file path, return 0 if all ssl related files exist (or there 
+# Given a config file path, return 0 if all SSL related files exist (or there 
 # are no files needed to be found). Return 1 otherwise.
 allfiles_exist() {
     all_exist=0

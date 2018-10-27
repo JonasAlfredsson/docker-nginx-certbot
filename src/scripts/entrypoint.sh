@@ -7,7 +7,7 @@ trap "kill 0" EXIT
 # Source "util.sh" so we can have our nice tools
 . $(cd $(dirname $0); pwd)/util.sh
 
-# Immediately run 'auto_enable_configs' so that nginx is in a runnable state
+# Immediately run 'auto_enable_configs' so that Nginx is in a runnable state
 # This will temporarily disable any misconfigured servers.
 auto_enable_configs
 
@@ -20,7 +20,8 @@ for f in /scripts/startup/*.sh; do
 done
 echo "Done with startup"
 
-# Start nginx without its daemon mode (and save its PID).
+# Start Nginx without its daemon mode (and save its PID).
+echo "Starting the Nginx service"
 exec nginx -g "daemon off;" &
 NGINX_PID=$!
 
@@ -38,6 +39,6 @@ done
 ) &
 
 # Nginx and the update process are now our children. As a parent we will wait 
-# for nginx, and if it exits we do the same with its status code.
+# for Nginx, and if it exits we do the same with its status code.
 wait $NGINX_PID
 exit $?

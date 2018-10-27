@@ -3,18 +3,18 @@
 # Source in util.sh so we can have our nice tools
 . $(cd $(dirname $0); pwd)/util.sh
 
-# We require an email to register the ssl certificate
+# We require an email to register the SSL certificate
 if [ -z "$CERTBOT_EMAIL" ]; then
     error "CERTBOT_EMAIL environment variable undefined; certbot will do nothing"
     exit 1
 fi
 
 exit_code=0
-# Go thtough the .conf files and loop over every domain we can find
+# Go through the .conf files and loop over every domain we can find
 for conf_file in /etc/nginx/conf.d/*.conf*; do
     for primary_domain in $(parse_primary_domains $conf_file); do
         if is_renewal_required $primary_domain; then
-            # Renewal required for this doman!
+            # Renewal required for this domain!
             # The last one happened over a week ago (or never)
 
             # At minimum we will make a request for the primary domain
@@ -34,7 +34,7 @@ for conf_file in /etc/nginx/conf.d/*.conf*; do
             done 
 
             if ! get_certificate $primary_domain $CERTBOT_EMAIL "$domain_request"; then
-                error "Cerbot failed for $primary_domain. Check the logs for details."
+                error "Certbot failed for $primary_domain. Check the logs for details."
                 exit_code=1
             fi
         else
@@ -47,7 +47,7 @@ done
 # did indeed get certificates for.
 auto_enable_configs
 
-# Finally, tell nginx to reload the configs
+# Finally, tell Nginx to reload the configs
 nginx -s reload
 
 exit $exit_code
