@@ -1,6 +1,6 @@
 # docker-nginx-certbot
 Create and automatically renew website SSL certificates using the Let's Encrypt 
-free certificate authority and its client *certbot*. Built on top of the nginx 
+free certificate authority and its client *certbot*. Built on top of the Nginx 
 server running on Debian. OpenSSL is used to create the Diffie-Hellman 
 parameters used during the initial handshake.
 
@@ -9,7 +9,7 @@ parameters used during the initial handshake.
 This container requests SSL certificates from 
 [Let's Encrypt](https://letsencrypt.org/), with the help of their 
 [*certbot*](https://github.com/certbot/certbot) script, which they provide for 
-the absolutley bargain price of free! 
+the absolutely bargain price of free! 
 If you like what they do, please [donate](https://letsencrypt.org/donate/).
 
 
@@ -18,7 +18,7 @@ and is now forked again by me! I thought the container could be more autonomous
 and stricter when it comes to checking that all files exist. In addition,
 this container also allows for multiple server names when requesting
 certificates (i.e. both `example.com` and `www.example.com` will be included in
-the same certificate request if they are defined in the nginx configuration
+the same certificate request if they are defined in the Nginx configuration
 files).
 
 # Usage
@@ -36,7 +36,7 @@ files).
    ](https://github.com/JonasAlfredsson/docker-nginx-certbot/#good-to-know)
    section. 
 
-3. I don't think it is neccessary to mention if you managed to find this 
+3. I don't think it is necessary to mention if you managed to find this 
    repository, however, I have been proven wrong before so I want to make it 
    clear that this is a Dockerfile which requires 
    [Docker](https://www.docker.com/) to function. 
@@ -72,11 +72,14 @@ docker build --tag jonasal/nginx-certbot:latest .
 ### The run command
 Irregardless what option you chose above you run it with the following command:
 ```bash
-docker run -d --env CERTBOT_EMAIL=your@email.org -p 80:80 -p 443:443 \
+docker run -it --env CERTBOT_EMAIL=your@email.org -p 80:80 -p 443:443 \
 -v nginx_secrets:/etc/letsencrypt jonasal/nginx-certbot:latest  
 ```
 The `CERTBOT_EMAIL` environment variable is required by certbot for them to 
 contact you in case of security issues.
+
+> You should be able to detach from the container by pressing 
+`Ctrl`+`p`+`Ctrl`+`o`
 
 ## Run with `docker-compose`
 
@@ -109,7 +112,7 @@ place any additional server configs you want inside the `nginx_confd/` folder
 beforehand.
 
 ```bash
-docker-compose up -d --build
+docker-compose up --build
 ```
 
 # Good to Know
@@ -131,7 +134,7 @@ docker run -d --env CERTBOT_EMAIL=your@email.org --env STAGING=1 \
 
 ### Creating a server .conf file
 
-As an example of a barebone (but functional) SSL server in nginx you can 
+As an example of a barebone (but functional) SSL server in Nginx you can 
 look at the file `example_server.conf` inside the `example` directory. By 
 replacing '`yourdomain.org`' with your own domain you can actually use this 
 config to quickly test if things are working properly.
@@ -152,7 +155,7 @@ ssl_certificate_key /etc/letsencrypt/live/yourdomain.org/privkey.pem;
 ```
 which means that the "primary domain" is `yourdomain.org`. It will then find all
 the lines that contain `server_name` and make a list of all the words that exist
-on the same line. So a file containg something like this
+on the same line. So a file containing something like this:
 ```
 server {
     listen              443 ssl;
@@ -179,37 +182,37 @@ certbot ... -d yourdomain.org -d www.yourdomain.org -d sub.yourdomain.org
 ### Diffie-Hellman parameters
 
 Regarding the Diffie-Hellman parameter it is recommended that you have one for 
-your server. However, you can make a config file without it and nginx will work
+your server. However, you can make a config file without it and Nginx will work
 fine with ciphers that don't rely on Diffie-Hellman key exchange. 
 ([Info about
 ciphers](https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html)).
 
 The larger you make these parameters the longer it will take to generate them. 
 I was unlucky and it took me 65 minutes to generate a 4096 bit parameter on an 
-old 3.0Ghz CPU. This will vary greatly between runs as some randomness is 
+old 3.0GHz CPU. This will vary greatly between runs as some randomness is 
 involved. A 2048 bit parameter, which is still secure today, can probably be 
 calculated in about 3-5 minutes on a modern CPU. To modify the size of the 
 parameter you may set the `DHPARAM_SIZE` environment variable. Default is `2048`
 if nothing is provided.
 
-It is also posible to have all your server configs point to the same 
+It is also possible to have all your server configs point to the same 
 Diffie-Hellman parameter on disk. There is no negative effects in doing this for
 home use 
 [[1](https://security.stackexchange.com/questions/70831/does-dh-parameter-file-need-to-be-unique-per-private-key)]
 [[2](https://security.stackexchange.com/questions/94390/whats-the-purpose-of-dh-parameters)].
 For persistence you should place it inside the dedicated
-folder `/etc/letsencrypt/dhparams/` which is insde a Docker volume. There is
+folder `/etc/letsencrypt/dhparams/` which is inside a Docker volume. There is
 however no requirement to do so, as a missing parameter will be created where 
 the config file expects the file to be. This means that you may also create this
 file on an external computer and mount it to any folder that is not under 
-`/etc/letsencrypt/` as that will casue a double mount. 
+`/etc/letsencrypt/` as that will cause a double mount. 
 
 # Changelog
 
 ### 0.9-gamma
-- Make both nginx and the update script child processes of the entryscript.
-- Container will now die along with nginx like it should.
-- Dhparams now have better permissions.
+- Make both Nginx and the update script child processes of the entryscript.
+- Container will now die along with Nginx like it should.
+- The Diffie-Hellman parameters now have better permissions.
 - Container now exist on Docker Hub under `jonasal/nginx-certbot:latest`
 - More documentation.
 
