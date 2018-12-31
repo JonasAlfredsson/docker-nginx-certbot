@@ -33,8 +33,8 @@ while [ true ]; do
     echo "Run certbot!"
     /scripts/run_certbot.sh
 
-    echo "Certbot will now sleep for 8 days..."
-    sleep 8d
+    echo "Certbot will now sleep for 15 days..."
+    sleep 15d
 done
 ) &
 
