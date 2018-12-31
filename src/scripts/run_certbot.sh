@@ -37,6 +37,7 @@ for conf_file in /etc/nginx/conf.d/*.conf*; do
                 error "Certbot failed for $primary_domain. Check the logs for details."
                 exit_code=1
             fi
+            echo $(date -d now +%s) > "/etc/letsencrypt/archive/$primary_domain/last_renewal"
         else
             echo "Not running certbot for $primary_domain; last renewal happened just recently."
         fi
