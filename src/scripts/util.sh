@@ -168,11 +168,11 @@ is_renewal_required() {
     last_renewal_file="/etc/letsencrypt/live/$1/privkey.pem"
     [ ! -e "$last_renewal_file" ] && return;
     
-    # If the file exists, check if the last renewal was more than a week ago
-    one_week_sec=604800
+    # If the file exists, check if the last renewal was more than 60 days ago
+    sixty_days_sec=5184000
     now_sec=$(date -d now +%s)
     last_renewal_sec=$(stat -c %Y "$last_renewal_file")
     last_renewal_delta_sec=$(( ($now_sec - $last_renewal_sec) ))
-    is_finshed_week_sec=$(( ($one_week_sec - $last_renewal_delta_sec) ))
-    [ $is_finshed_week_sec -lt 0 ]
+    to_sixty_days_sec=$(( ($sixty_days_sec - $last_renewal_delta_sec) ))
+    [ $to_sixty_days_sec -lt 0 ]
 }

@@ -38,7 +38,7 @@ for conf_file in /etc/nginx/conf.d/*.conf*; do
                 exit_code=1
             fi
         else
-            echo "Not running certbot for $primary_domain; last renewal happened just recently."
+            echo "Not running certbot for $primary_domain; renewal happened in the last 60 days."
         fi
     done
 done
