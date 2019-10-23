@@ -156,7 +156,6 @@ get_certificate() {
         --rsa-key-size $RSA_KEY_SIZE \
         --preferred-challenges http-01 \
         --email $2 \
-        --server $letsencrypt_url \
         $3 \
         --debug
 }
