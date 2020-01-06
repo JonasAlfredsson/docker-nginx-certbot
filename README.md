@@ -209,6 +209,9 @@ file on an external computer and mount it to any folder that is not under
 
 # Changelog
 
+### 0.10
+- Update to new ACME v2 servers.
+
 ### 0.9-gamma
 - Make both Nginx and the update script child processes of the entryscript.
 - Container will now die along with Nginx like it should.
