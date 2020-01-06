@@ -2,7 +2,7 @@ FROM nginx:mainline
 LABEL maintainer="Jonas Alfredsson <jonas.alfredsson@protonmail.com>"
 
 # Do a single run command to make the intermediary containers smaller.
-# Install all necessary packages 
+# Install all necessary packages
 RUN set -ex && \
     apt-get update && \
     apt-get install -y \

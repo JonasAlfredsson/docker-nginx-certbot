@@ -19,19 +19,19 @@ for conf_file in /etc/nginx/conf.d/*.conf*; do
 
             # At minimum we will make a request for the primary domain
             domain_request="-d $primary_domain"
-            
+
             # Find all 'server_names' in this .conf file
             for server_name in $(parse_server_names $conf_file); do
                 if [ -n "$server_name" ]; then
                     # String is not empty
                     tmp="-d $server_name"
                     if [[ ! $domain_request =~ $tmp ]]; then
-                        # This server name was not found in the domain request, 
+                        # This server name was not found in the domain request,
                         # append it...
                         domain_request="$domain_request -d $server_name"
                     fi
                 fi
-            done 
+            done
 
             if ! get_certificate $primary_domain $CERTBOT_EMAIL "$domain_request"; then
                 error "Certbot failed for $primary_domain. Check the logs for details."

@@ -25,7 +25,7 @@ echo "Starting the Nginx service"
 exec nginx -g "daemon off;" &
 NGINX_PID=$!
 
-# Instead of trying to run 'cron' or something like that, just sleep and 
+# Instead of trying to run 'cron' or something like that, just sleep and
 # execute the 'certbot' script.
 (
 sleep 5 # Give nginx a little time to start
@@ -38,7 +38,7 @@ while [ true ]; do
 done
 ) &
 
-# Nginx and the update process are now our children. As a parent we will wait 
+# Nginx and the update process are now our children. As a parent we will wait
 # for Nginx, and if it exits we do the same with its status code.
 wait $NGINX_PID
 exit $?
