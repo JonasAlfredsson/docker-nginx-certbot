@@ -11,12 +11,12 @@ RUN set -ex && \
             libffi6 \
             libffi-dev \
             libssl-dev \
-            python \
-            python-dev \
+            python3 \
+            python3-dev \
             openssl \
     && \
 # Install certbot
-    curl -L 'https://bootstrap.pypa.io/get-pip.py' | python && \
+    curl -L 'https://bootstrap.pypa.io/get-pip.py' | python3 && \
     pip install -U cffi certbot \
     && \
 # Remove everything that is no longer necessary
@@ -25,7 +25,7 @@ RUN set -ex && \
             curl \
             libffi-dev \
             libssl-dev \
-            python-dev \
+            python3-dev \
     && \
     apt-get autoremove -y && \
     apt-get clean && \
