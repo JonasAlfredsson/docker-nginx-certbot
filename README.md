@@ -211,6 +211,7 @@ file on an external computer and mount it to any folder that is not under
 
 ### 0.11
 - Python 2 is EOL, so it's time to move over to Python 3.
+- From now on DockerHub will also build with tags (`jonasal/nginx-certbot:0.11`)
 
 ### 0.10
 - Update to new ACME v2 servers.
