@@ -209,8 +209,16 @@ file on an external computer and mount it to any folder that is not under
 
 # Changelog
 
+### 0.11
+- Python 2 is EOL, so it's time to move over to Python 3.
+
 ### 0.10
 - Update to new ACME v2 servers.
+
+### 0.9
+- I am now confident enough to remove the version suffixes.
+- `nginx:mainline` is now using Debian 10 Buster.
+- Updated documentation.
 
 ### 0.9-gamma
 - Make both Nginx and the update script child processes of the entryscript.
