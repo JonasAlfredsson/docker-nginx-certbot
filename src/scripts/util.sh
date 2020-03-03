@@ -35,10 +35,6 @@ create_dhparam() {
     % A message will be displayed when this process finishes.  %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     "
-    echo "Creation will start in 10 seconds"
-    echo "Press Ctrl+C to abort this process now"
-    sleep 1
-    echo
     echo "Output file > $1"
     openssl dhparam -out $1 $DHPARAM_SIZE
     echo "
