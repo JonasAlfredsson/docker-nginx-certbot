@@ -154,6 +154,7 @@ get_certificate() {
         --preferred-challenges http-01 \
         --email $2 \
         --server $letsencrypt_url \
+        --cert-name $1 \
         $3 \
         --debug
 }
