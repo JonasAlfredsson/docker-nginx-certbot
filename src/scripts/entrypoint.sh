@@ -18,7 +18,7 @@ for f in /scripts/startup/*.sh; do
         $f
     fi
 done
-echo "Done with startup"
+echo "Done with startup scripts"
 
 # Start Nginx without its daemon mode (and save its PID).
 echo "Starting the Nginx service"
