@@ -1,8 +1,11 @@
 # docker-nginx-certbot
+
 Create and automatically renew website SSL certificates using the Let's Encrypt
 free certificate authority and its client *certbot*. Built on top of the Nginx
 server running on Debian. OpenSSL is used to create the Diffie-Hellman
 parameters used during the initial handshake.
+
+
 
 # Acknowledgments and Thanks
 
@@ -20,6 +23,8 @@ this container also allows for multiple server names when requesting
 certificates (i.e. both `example.com` and `www.example.com` will be included in
 the same certificate request if they are defined in the Nginx configuration
 files).
+
+
 
 # Usage
 
@@ -41,12 +46,13 @@ files).
    clear that this is a Dockerfile which requires
    [Docker](https://www.docker.com/) to function.
 
+
 ## Run with `docker run`
 
 ### Build it yourself
 This option is for if you have downloaded this entire repository.
 
-Place any additional server configuration you desire inside the `nginx_confd/`
+Place any additional server configuration you desire inside the `nginx_conf.d/`
 folder and run the following command in your terminal while residing inside
 the `src/` folder.
 ```bash
@@ -69,23 +75,23 @@ Don't forget to build it!
 docker build --tag jonasal/nginx-certbot:latest .
 ```
 
-### The run command
+### The `run` command
 Irregardless what option you chose above you run it with the following command:
 ```bash
 docker run -it --env CERTBOT_EMAIL=your@email.org -p 80:80 -p 443:443 \
 -v nginx_secrets:/etc/letsencrypt jonasal/nginx-certbot:latest
 ```
-The `CERTBOT_EMAIL` environment variable is required by certbot for them to
-contact you in case of security issues.
+The `CERTBOT_EMAIL` environment variable is required by Let's Encrypt, so they
+can contact you in case of security issues.
 
 > You should be able to detach from the container by pressing
-`Ctrl`+`p`+`Ctrl`+`o`
+  `Ctrl`+`p`+`Ctrl`+`o`
+
 
 ## Run with `docker-compose`
-
 An example of a `docker-compose.yaml` file can be found in the `example` folder.
 The default parameters that are found inside the `.env` file will be overwritten
-any environment variables you set in the `.yaml` file.
+by any environment variables you set in the `.yaml` file.
 ```yaml
 version: '3'
 services:
@@ -108,18 +114,20 @@ volumes:
 ```
 
 You then build and start with the following commands. Just remember to
-place any additional server configs you want inside the `nginx_confd/` folder
+place any additional server configs you want inside the `nginx_conf.d/` folder
 beforehand.
 
 ```bash
 docker-compose up --build
 ```
 
+
+
 # Good to Know
 
 ### Initial testing
 In case you are experimenting with setting this up I suggest you set the
-environment variable `STAGING=1` as this will change the challenge URL to
+environment variable `STAGING=1`, since this will change the challenge URL to
 the staging one. This will not give you *proper* certificates, but it has
 ridiculous high
 [rate limits](https://letsencrypt.org/docs/staging-environment/) compared to
@@ -133,29 +141,32 @@ docker run -d --env CERTBOT_EMAIL=your@email.org --env STAGING=1 \
 ```
 
 ### Creating a server .conf file
-
 As an example of a barebone (but functional) SSL server in Nginx you can
-look at the file `example_server.conf` inside the `example` directory. By
+look at the file `example_server.conf` inside the `example/` directory. By
 replacing '`yourdomain.org`' with your own domain you can actually use this
 config to quickly test if things are working properly.
 
-Place the modified config inside `nginx_confd/`, `build` the container and then
-run it as described [above
-](https://github.com/JonasAlfredsson/docker-nginx-certbot/#usage). Let it do
-it's magic for a while, and then try to visit your domain. You should be greeted
-with the string `Let's Encrypt certificate successfully installed!`
+Place the modified config inside the `nginx_conf.d/` folder, `build` the
+container and then run it as described
+[above](https://github.com/JonasAlfredsson/docker-nginx-certbot/#usage). Let
+the container do it's magic for a while, and then try to visit your domain. You
+should now be greeted with the string
+"`Let's Encrypt certificate successfully installed!`".
 
 ### How the script add domain names to certificate requests
+The included scripts will go trough all configuration files (`*.conf*`) it
+finds inside Nginx's `/etc/nginx/conf.d/` folder, and create requests from the
+file's content. In every unique file it will find any line that says:
 
-The script will go trough all configuration files it finds inside Nginx's
-`conf.d` folder, and create requests from the file's content. In every unique
-file it will find the line that says
 ```
 ssl_certificate_key /etc/letsencrypt/live/yourdomain.org/privkey.pem;
 ```
-which means that the "primary domain" is `yourdomain.org`. It will then find all
-the lines that contain `server_name` and make a list of all the words that exist
-on the same line. So a file containing something like this:
+
+and only extract the part which here says "`yourdomain.org`", and this will
+henceforth be used as the "primary domain" for this config file. It will then
+find all the lines that contain `server_name` and make a list of all the domain
+that exist on the same line. So a file containing something like this:
+
 ```
 server {
     listen              443 ssl;
@@ -166,34 +177,35 @@ server {
 
 server {
     listen              443 ssl;
-    server_name         yourdomain.org sub.yourdomain.org;
+    server_name         sub.yourdomain.org www.yourdomain.org;
     ssl_certificate_key /etc/letsencrypt/live/yourdomain.org/privkey.pem;
     ...
 }
 ```
-will share the same certificate, but the certbot command will include all
-listed domain variants. The limitation is that you should list all your
-listening servers that have the same primary domain in the same file. The
-certificate request from the above file will then become something like this:
+
+will share the same certificate file, but the certbot command will include all
+listed domain variants. The limitation is that you should write all your
+server blocks that have the same primary domain in the same file. The
+certificate request from the above file will then become something like this
+(duplicates will be removed):
+
 ```
 certbot ... -d yourdomain.org -d www.yourdomain.org -d sub.yourdomain.org
 ```
 
 ### Diffie-Hellman parameters
-
 Regarding the Diffie-Hellman parameter it is recommended that you have one for
 your server. However, you can make a config file without it and Nginx will work
-fine with ciphers that don't rely on Diffie-Hellman key exchange.
-([Info about
-ciphers](https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html)).
+fine with ciphers that don't rely on the Diffie-Hellman key exchange
+([more info about ciphers](https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html)).
 
 The larger you make these parameters the longer it will take to generate them.
 I was unlucky and it took me 65 minutes to generate a 4096 bit parameter on an
 old 3.0GHz CPU. This will vary greatly between runs as some randomness is
 involved. A 2048 bit parameter, which is still secure today, can probably be
-calculated in about 3-5 minutes on a modern CPU. To modify the size of the
-parameter you may set the `DHPARAM_SIZE` environment variable. Default is `2048`
-if nothing is provided.
+calculated in about 1-3 minutes on a modern CPU (this process will only have to
+be done once). To modify the size of the parameter you may set the
+`DHPARAM_SIZE` environment variable. Default is `2048` if nothing is provided.
 
 It is also possible to have all your server configs point to the same
 Diffie-Hellman parameter on disk. There is no negative effects in doing this for
@@ -201,13 +213,27 @@ home use
 [[1](https://security.stackexchange.com/questions/70831/does-dh-parameter-file-need-to-be-unique-per-private-key)]
 [[2](https://security.stackexchange.com/questions/94390/whats-the-purpose-of-dh-parameters)].
 For persistence you should place it inside the dedicated
-folder `/etc/letsencrypt/dhparams/` which is inside a Docker volume. There is
+folder `/etc/letsencrypt/dhparams/`, which is inside a Docker volume. There is
 however no requirement to do so, as a missing parameter will be created where
-the config file expects the file to be. This means that you may also create this
-file on an external computer and mount it to any folder that is not under
-`/etc/letsencrypt/` as that will cause a double mount.
+the config file expects the file to be.
+
+You can also create this file on a completely different (faster?) computer and
+just mount the created file into this container. This is perfectly fine, but use
+a folder that is not under `/etc/letsencrypt/`, since that would cause a double
+mount.
+
+
 
 # Changelog
+
+### 0.12
+- Added `--cert-name` flag to certificate request.
+  - This allows both adding and subtracting domains to the same certificate.
+  - Makes it possible to have path names that are not domain names (but this
+    is not allowed yet)
+- Made the file parsing functions smarter to only find unique file paths.
+- Cleaned up some log output.
+- Updated the `docker-compose` example.
 
 ### 0.11
 - Python 2 is EOL, so it's time to move over to Python 3.
