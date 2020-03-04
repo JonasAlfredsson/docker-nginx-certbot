@@ -54,7 +54,7 @@ create_dhparam() {
 #   /etc/letsencrypt/live/<primary_domain_name>/privkey.pem
 #
 parse_primary_domains() {
-    sed -n -e 's&^\s*ssl_certificate_key\s*\/etc/letsencrypt/live/\(.*\)/privkey.pem;&\1&p' "$1" | xargs -n1 echo | uniq
+    sed -n -r -e 's&^\s*ssl_certificate_key\s+\/etc/letsencrypt/live/(.*)/privkey.pem;.*&\1&p' "$1" | xargs -n1 echo | uniq
 }
 
 # Nginx will answer to any domain name that is written on the line which starts
@@ -70,27 +70,27 @@ parse_primary_domains() {
 #   certificates. Should however work fine but is not best practice.
 #
 parse_server_names() {
-    sed -n -e 's&^\s*server_name \s*\(.*\);&\1&p' "$1" | xargs -n1 echo | uniq
+    sed -n -r -e 's&^\s*server_name\s+(.*);.*&\1&p' "$1" | xargs -n1 echo | uniq
 }
 
 # Return all unique "ssl_certificate_key" file paths.
 parse_keyfiles() {
-    sed -n -e 's&^\s*ssl_certificate_key\s*\(.*\);&\1&p' "$1" | xargs -n1 echo | uniq
+    sed -n -r -e 's&^\s*ssl_certificate_key\s+(.*);.*&\1&p' "$1" | xargs -n1 echo | uniq
 }
 
 # Return all unique "ssl_certificate" file paths.
 parse_fullchains() {
-    sed -n -e 's&^\s*ssl_certificate \s*\(.*\);&\1&p' "$1" | xargs -n1 echo | uniq
+    sed -n -r -e 's&^\s*ssl_certificate\s+(.*);.*&\1&p' "$1" | xargs -n1 echo | uniq
 }
 
 # Return all unique "ssl_trusted_certificate" file paths.
 parse_chains() {
-    sed -n -e 's&^\s*ssl_trusted_certificate\s*\(.*\);&\1&p' "$1" | xargs -n1 echo | uniq
+    sed -n -r -e 's&^\s*ssl_trusted_certificate\s+(.*);.*&\1&p' "$1" | xargs -n1 echo | uniq
 }
 
 # Return all unique "dhparam" file paths.
 parse_dhparams() {
-    sed -n -e 's&^\s*ssl_dhparam\s*\(.*\);&\1&p' "$1" | xargs -n1 echo | uniq
+    sed -n -r -e 's&^\s*ssl_dhparam\s+(.*);.*&\1&p' "$1" | xargs -n1 echo | uniq
 }
 
 # Given a config file path, return 0 if all SSL related files exist (or there
