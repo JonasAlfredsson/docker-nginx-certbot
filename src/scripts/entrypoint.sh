@@ -22,7 +22,7 @@ echo "Done with startup scripts"
 
 # Start Nginx without its daemon mode (and save its PID).
 echo "Starting the Nginx service"
-exec nginx -g "daemon off;" &
+nginx -g "daemon off;" &
 NGINX_PID=$!
 
 # Instead of trying to run 'cron' or something like that, just sleep and
