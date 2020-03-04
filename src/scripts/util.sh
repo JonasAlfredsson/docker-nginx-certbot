@@ -145,7 +145,7 @@ get_certificate() {
     fi
 
     if [ -z "$RSA_KEY_SIZE" ]; then
-        echo "RSA_KEY_SIZE unset, defaulting to 2048."
+        echo "RSA_KEY_SIZE unset, defaulting to 2048"
         RSA_KEY_SIZE=2048
     fi
 
