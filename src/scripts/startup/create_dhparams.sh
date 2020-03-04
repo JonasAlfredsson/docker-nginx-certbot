@@ -1,9 +1,9 @@
 #!/bin/sh
 
-# Source "util.sh" so we can have our nice tools
+# Source "util.sh" so we can have our nice tools.
 . $(cd $(dirname $0); pwd)/../util.sh
 
-# Find any mentions of Diffie-Hellman parameters and create them if missing
+# Find any mentions of Diffie-Hellman parameters and create them if missing.
 files_created=0
 for conf_file in /etc/nginx/conf.d/*.conf*; do
     for dh_file in $(parse_dhparams $conf_file); do

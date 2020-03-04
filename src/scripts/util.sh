@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Helper function to output error messages to STDERR, with red text
+# Helper function to output error messages to STDERR, with red text.
 error() {
     (set +x; tput -Tscreen bold
     tput -Tscreen setaf 1
@@ -94,7 +94,7 @@ parse_dhparams() {
 }
 
 # Given a config file path, return 0 if all SSL related files exist (or there
-# are no files needed to be found). Return 1 otherwise.
+# are no files needed to be found). Return 1 otherwise (i.e. error exit code).
 allfiles_exist() {
     all_exist=0
     for type in keyfile fullchain chain dhparam; do
@@ -128,8 +128,9 @@ auto_enable_configs() {
     done
 }
 
-# Helper function to ask certbot for the given domain(s). Must have defined the
-# EMAIL environment variable, to register the proper support email address.
+# Helper function to ask certbot for the given domain(s). The CERTBOT_EMAIL
+# environment variable must be defined, so that Let's Encrypt may contact you
+# in case of security issues.
 get_certificate() {
     echo "Getting certificate for domain $1 on behalf of user $2"
     PRODUCTION_URL='https://acme-v02.api.letsencrypt.org/directory'

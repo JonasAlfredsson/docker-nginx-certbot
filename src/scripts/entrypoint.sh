@@ -4,14 +4,14 @@
 trap "exit" INT TERM
 trap "kill 0" EXIT
 
-# Source "util.sh" so we can have our nice tools
+# Source "util.sh" so we can have our nice tools.
 . $(cd $(dirname $0); pwd)/util.sh
 
 # Immediately run 'auto_enable_configs' so that Nginx is in a runnable state
 # This will temporarily disable any misconfigured servers.
 auto_enable_configs
 
-# Run any startup scripts
+# Run any startup scripts found in the startup/ folder.
 for f in /scripts/startup/*.sh; do
     if [ -x "$f" ]; then
         echo "Running startup script $f"
@@ -28,7 +28,7 @@ NGINX_PID=$!
 # Instead of trying to run 'cron' or something like that, just sleep and
 # execute the 'certbot' script.
 (
-sleep 5 # Give nginx a little time to start
+sleep 5 # Give Nginx a little time to start.
 while [ true ]; do
     echo "Run certbot!"
     /scripts/run_certbot.sh
