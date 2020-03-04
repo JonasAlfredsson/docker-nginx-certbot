@@ -45,21 +45,23 @@ create_dhparam() {
     "
 }
 
-# Find lines that contain 'ssl_certificate_key', and try to extract domain names
-# from them. We accept a very restricted set of keys:
-# * Each key must map to a valid domain
-# * No wildcards (not supported by this method of authentication)
+# Find lines that contain 'ssl_certificate_key', and try to extract a domain
+# name from each of these file paths. However, there are some strict rules that
+# apply for these keys:
+# * Each key must map to a valid domain.
+# * No wildcards (not supported by this method of authentication).
 # * Each keyfile must be stored at the default location of
 #   /etc/letsencrypt/live/<primary_domain_name>/privkey.pem
 #
 parse_primary_domains() {
-    sed -n -e 's&^\s*ssl_certificate_key\s*\/etc/letsencrypt/live/\(.*\)/privkey.pem;&\1&p' "$1" | xargs echo
+    sed -n -e 's&^\s*ssl_certificate_key\s*\/etc/letsencrypt/live/\(.*\)/privkey.pem;&\1&p' "$1" | xargs -n1 echo | uniq
 }
 
-# Your server may respond to many domain names. Nginx will answer to any names
-# written on the line which starts with 'server_name'.
-# This method will try to extract all those names and add them to the
-# certificate request. Some things to think about:
+# Nginx will answer to any domain name that is written on the line which starts
+# with 'server_name'. A server block may have multiple domain names defined on
+# this line, and a config file may have multiple server blocks. This method will
+# therefore try to extract all unique domain names and add them to the
+# certificate request being sent. Some things to think about:
 # * No wildcard names. They are not supported by the authentication method used
 #   in this script and will most likely fail by certbot.
 # * Possible overlappings. This method will find all 'server_names' in a .conf
@@ -68,27 +70,27 @@ parse_primary_domains() {
 #   certificates. Should however work fine but is not best practice.
 #
 parse_server_names() {
-    sed -n -e 's&^\s*server_name \s*\(.*\);&\1&p' "$1" | xargs echo
+    sed -n -e 's&^\s*server_name \s*\(.*\);&\1&p' "$1" | xargs -n1 echo | uniq
 }
 
-# Return all the "ssl_certificate_key" file paths
+# Return all unique "ssl_certificate_key" file paths.
 parse_keyfiles() {
-    sed -n -e 's&^\s*ssl_certificate_key\s*\(.*\);&\1&p' "$1"
+    sed -n -e 's&^\s*ssl_certificate_key\s*\(.*\);&\1&p' "$1" | xargs -n1 echo | uniq
 }
 
-# Return all the "ssl_certificate" file paths
+# Return all unique "ssl_certificate" file paths.
 parse_fullchains() {
-    sed -n -e 's&^\s*ssl_certificate \s*\(.*\);&\1&p' "$1"
+    sed -n -e 's&^\s*ssl_certificate \s*\(.*\);&\1&p' "$1" | xargs -n1 echo | uniq
 }
 
-# Return all the "ssl_trusted_certificate" file paths
+# Return all unique "ssl_trusted_certificate" file paths.
 parse_chains() {
-    sed -n -e 's&^\s*ssl_trusted_certificate\s*\(.*\);&\1&p' "$1"
+    sed -n -e 's&^\s*ssl_trusted_certificate\s*\(.*\);&\1&p' "$1" | xargs -n1 echo | uniq
 }
 
-# Return all the "dhparam" file paths
+# Return all unique "dhparam" file paths.
 parse_dhparams() {
-    sed -n -e 's&^\s*ssl_dhparam\s*\(.*\);&\1&p' "$1"
+    sed -n -e 's&^\s*ssl_dhparam\s*\(.*\);&\1&p' "$1" | xargs -n1 echo | uniq
 }
 
 # Given a config file path, return 0 if all SSL related files exist (or there
