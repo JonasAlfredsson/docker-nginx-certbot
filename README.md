@@ -47,6 +47,22 @@ files).
    [Docker](https://www.docker.com/) to function.
 
 
+## Available Environment Variables
+
+### Reuired
+- `CERTBOT_EMAIL`: Your e-mail address. Used by Let's Encrypt to contact you in
+                   case of security issues.
+
+### Optional
+- `STAGING`: Set to `1` to use Let's Encrypt's
+             [staging servers](#initial-testing) (default: `0`)
+- `DHPARAM_SIZE`: The size of the
+                  [Diffie-Hellman parameters](#diffie-hellman-parameters)
+                  (default: `2048`)
+- `RSA_KEY_SIZE`: The size of the RSA encryption keys (default: `2048`)
+- `RENEWAL_INTERVAL`: Time interval between certbot's
+                      [renewal checks](#renewal-check-interval) (default: `8d`)
+
 ## Run with `docker run`
 
 ### Build it yourself
@@ -103,6 +119,7 @@ services:
         - STAGING=0
         - DHPARAM_SIZE=2048
         - RSA_KEY_SIZE=2048
+        - RENEWAL_INTERVAL=8d
     ports:
       - 80:80
       - 443:443
@@ -192,6 +209,36 @@ certificate request from the above file will then become something like this
 ```
 certbot ... -d yourdomain.org -d www.yourdomain.org -d sub.yourdomain.org
 ```
+
+### Renewal check interval
+This container will automatically start a certbot certificate renewal check
+after the time duration that is defined in the environmental variable
+`RENEWAL_INTERVAL` has passed. After certbot has done its stuff, the code will
+return and wait the defined time before triggering again.
+
+This process is very simple, and is just a `while [ true ];` loop with a `sleep`
+at the end:
+
+```bash
+while [ true ]; do
+    # Run certbot...
+    sleep "$RENEWAL_INTERVAL"
+done
+```
+
+So when setting the environmental variable, it is possible to use any string
+that is recognized by `sleep`, e.g. `3600` or `60m` or `1h`. Read more about
+which values that are allowed in its
+[manual](http://man7.org/linux/man-pages/man1/sleep.1.html).
+
+The default is `8d`, since this allows for multiple retries per month, while
+keeping the output in the logs at a very low level. If nothing needs to be
+renewed certbot won't do anything, so it should be no problem setting it lower
+if you want to. The only thing to think about is to not to make it longer than
+one month, because then you would
+[miss the window](https://community.letsencrypt.org/t/solved-how-often-to-renew/13678)
+where certbot would deem it necessary to update the certificates.
+
 
 ### Diffie-Hellman parameters
 Regarding the Diffie-Hellman parameter it is recommended that you have one for

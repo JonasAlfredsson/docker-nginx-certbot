@@ -9,6 +9,7 @@ services:
         - STAGING
         - DHPARAM_SIZE
         - RSA_KEY_SIZE
+        - RENEWAL_INTERVAL
     ports:
       - 80:80
       - 443:443
