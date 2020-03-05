@@ -25,6 +25,12 @@ echo "Starting the Nginx service"
 nginx -g "daemon off;" &
 NGINX_PID=$!
 
+# Make sure a renewal interval is set before continuing.
+if [ -z "$RENEWAL_INTERVAL" ]; then
+    echo "RENEWAL_INTERVAL unset, using default of '8d'"
+    RENEWAL_INTERVAL='8d'
+fi
+
 # Instead of trying to run 'cron' or something like that, just sleep and
 # execute the 'certbot' script.
 (
@@ -33,8 +39,8 @@ while [ true ]; do
     echo "Run certbot!"
     /scripts/run_certbot.sh
 
-    echo "Certbot will now sleep for 8 days..."
-    sleep 8d
+    echo "Certbot will now sleep..."
+    sleep "$RENEWAL_INTERVAL"
 done
 ) &
 
