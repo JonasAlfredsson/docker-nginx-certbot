@@ -161,19 +161,3 @@ get_certificate() {
         $3 \
         --debug
 }
-
-# Given a domain name, return true if a renewal is required (last renewal
-# ran over a week ago or never happened yet), otherwise return false.
-is_renewal_required() {
-    # If the file does not exist assume a renewal is required
-    last_renewal_file="/etc/letsencrypt/live/$1/privkey.pem"
-    [ ! -e "$last_renewal_file" ] && return;
-
-    # If the file exists, check if the last renewal was more than a week ago
-    one_week_sec=604800
-    now_sec=$(date -d now +%s)
-    last_renewal_sec=$(stat -c %Y "$last_renewal_file")
-    last_renewal_delta_sec=$(( ($now_sec - $last_renewal_sec) ))
-    is_finshed_week_sec=$(( ($one_week_sec - $last_renewal_delta_sec) ))
-    [ $is_finshed_week_sec -lt 0 ]
-}
