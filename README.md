@@ -49,7 +49,7 @@ files).
 
 ## Available Environment Variables
 
-### Reuired
+### Required
 - `CERTBOT_EMAIL`: Your e-mail address. Used by Let's Encrypt to contact you in
                    case of security issues.
 
@@ -71,6 +71,7 @@ This option is for if you have downloaded this entire repository.
 Place any additional server configuration you desire inside the `nginx_conf.d/`
 folder and run the following command in your terminal while residing inside
 the `src/` folder.
+
 ```bash
 docker build --tag jonasal/nginx-certbot:latest .
 ```
@@ -86,19 +87,20 @@ command where you copy in your own server configuration files.
 FROM jonasal/nginx-certbot:latest
 COPY conf.d/* /etc/nginx/conf.d/
 ```
+
 Don't forget to build it!
+
 ```bash
 docker build --tag jonasal/nginx-certbot:latest .
 ```
 
 ### The `run` command
 Irregardless what option you chose above you run it with the following command:
+
 ```bash
 docker run -it --env CERTBOT_EMAIL=your@email.org -p 80:80 -p 443:443 \
 -v nginx_secrets:/etc/letsencrypt jonasal/nginx-certbot:latest
 ```
-The `CERTBOT_EMAIL` environment variable is required by Let's Encrypt, so they
-can contact you in case of security issues.
 
 > You should be able to detach from the container by pressing
   `Ctrl`+`p`+`Ctrl`+`o`
@@ -171,7 +173,7 @@ should now be greeted with the string
 "`Let's Encrypt certificate successfully installed!`".
 
 ### How the script add domain names to certificate requests
-The included scripts will go trough all configuration files (`*.conf*`) it
+The included script will go trough all configuration files (`*.conf*`) it
 finds inside Nginx's `/etc/nginx/conf.d/` folder, and create requests from the
 file's content. In every unique file it will find any line that says:
 
@@ -200,11 +202,11 @@ server {
 }
 ```
 
-will share the same certificate file, but the certbot command will include all
-listed domain variants. The limitation is that you should write all your
-server blocks that have the same primary domain in the same file. The
-certificate request from the above file will then become something like this
-(duplicates will be removed):
+will share the same certificate file (the "primary domain"), but the certbot
+command will include all listed domain variants. The limitation is that you
+should write all your server blocks that have the same primary domain in the
+same file. The certificate request from the above file will then become
+something like this (duplicates will be removed):
 
 ```
 certbot ... -d yourdomain.org -d www.yourdomain.org -d sub.yourdomain.org
@@ -273,18 +275,35 @@ mount.
 
 # Changelog
 
+### 0.13
+- Fixed the regex used in all of the `sed` commands.
+  - Now makes sure that the proper amount of spaces are present in the right
+    places.
+  - Now allows comments at the end of the lines in the configs. `# Nice!`
+  - Made the expression a little bit more readable thanks to the `-r` flag.
+- Now made certbot solely responsible for checking if the certificates needs to
+  be renewed.
+  - Certbot is actually smart enough to not send any renewal requests if it
+    doesn't have to.
+- The time interval used to trigger the certbot renewal check is now user
+  configurable.
+  - The environmental variable to use is `RENEWAL_INTERVAL`.
+
 ### 0.12
-- Added `--cert-name` flag to certificate request.
-  - This allows both adding and subtracting domains to the same certificate.
+- Added `--cert-name` flag to the certbot certificate request command.
+  - This allows for both adding and subtracting domains to the same certificate
+    file.
   - Makes it possible to have path names that are not domain names (but this
-    is not allowed yet)
-- Made the file parsing functions smarter to only find unique file paths.
+    is not allowed yet).
+- Made the file parsing functions smarter so they only find unique file paths.
 - Cleaned up some log output.
 - Updated the `docker-compose` example.
+- Fixed some spelling in the documentation.
 
 ### 0.11
 - Python 2 is EOL, so it's time to move over to Python 3.
-- From now on DockerHub will also build with tags (`jonasal/nginx-certbot:0.11`)
+- From now on DockerHub will also build with tags.
+  - Lock the version by specifying the tag: `jonasal/nginx-certbot:0.11`
 
 ### 0.10
 - Update to new ACME v2 servers.
