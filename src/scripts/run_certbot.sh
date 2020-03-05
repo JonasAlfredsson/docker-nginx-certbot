@@ -14,24 +14,20 @@ exit_code=0
 # the certificate request.
 for conf_file in /etc/nginx/conf.d/*.conf*; do
     for primary_domain in $(parse_primary_domains $conf_file); do
-        if is_renewal_required $primary_domain; then
-            # Renewal required for this domain!
-            # The last one happened over a week ago (or never)
+        # At minimum we will make a request for the primary domain.
+        domain_request="-d $primary_domain"
 
-            # At minimum we will make a request for the primary domain
-            domain_request="-d $primary_domain"
+        # Find all 'server_names' in this .conf file and add them to the same
+        # request.
+        for server_name in $(parse_server_names $conf_file); do
+            domain_request="$domain_request -d $server_name"
+        done
 
-            # Find all 'server_names' in this .conf file
-            for server_name in $(parse_server_names $conf_file); do
-                domain_request="$domain_request -d $server_name"
-            done
-
-            if ! get_certificate $primary_domain $CERTBOT_EMAIL "$domain_request"; then
-                error "Certbot failed for $primary_domain. Check the logs for details."
-                exit_code=1
-            fi
-        else
-            echo "Not running certbot for $primary_domain; last renewal happened just recently."
+        # Hand over all the info required for the certificate request, and let
+        # certbot decide if it is necessary to update the certificate.
+        if ! get_certificate $primary_domain $CERTBOT_EMAIL "$domain_request"; then
+            error "Certbot failed for $primary_domain. Check the logs for details."
+            exit_code=1
         fi
     done
 done
