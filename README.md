@@ -278,7 +278,7 @@ mount.
 ### 0.14
 - Made so that the container now exits gracefully and reports the correct exit code.
   - More details can be found in the commit message:
-    43dde6ec24f399fe49729b28ba4892665e3d7078
+    [43dde6e](https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/43dde6ec24f399fe49729b28ba4892665e3d7078)
 - Bash script now correctly monitors **both** the Nginx and the certbot renewal
   process PIDs.
   - If either one of these processes dies, the container will exit with the same
