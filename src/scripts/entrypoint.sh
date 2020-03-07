@@ -1,8 +1,21 @@
 #!/bin/bash
 
-# When we get killed, kill all our children (o.O)
-trap "exit" INT TERM
-trap "kill 0" EXIT
+# Helper function to gracefully shut down our child processes when we exit.
+clean_exit() {
+    for PID in $NGINX_PID $CERTBOT_LOOP_PID; do
+        if kill -0 $PID 2>/dev/null; then
+            kill -SIGTERM "$PID"
+            wait "$PID"
+        fi
+    done
+}
+
+# Make bash listen to the SIGTERM and SIGINT kill signals, and make them trigger
+# a normal "exit" command in this script. Then we tell bash to execute the
+# "clean_exit" function, seen above, in the case an "exit" command is triggered.
+# This is done to give the child processes a chance to exit gracefully.
+trap "exit" TERM INT
+trap "clean_exit" EXIT
 
 # Source "util.sh" so we can have our nice tools.
 . $(cd $(dirname $0); pwd)/util.sh
