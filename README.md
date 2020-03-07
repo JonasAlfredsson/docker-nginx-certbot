@@ -275,6 +275,18 @@ mount.
 
 # Changelog
 
+### 0.14
+- Made so that the container now exits gracefully and reports the correct exit code.
+  - More details can be found in the commit message:
+    43dde6ec24f399fe49729b28ba4892665e3d7078
+- Bash script now correctly monitors **both** the Nginx and the certbot renewal
+  process PIDs.
+  - If either one of these processes dies, the container will exit with the same
+    exit code as that process.
+  - This will also trigger a graceful exit for the rest of the processes.
+- Removed unnecessary and empty `ENTRYPOINT` from Dockerfile.
+- A lot of refactoring of the code, cosmetic changes and editing of comments.
+
 ### 0.13
 - Fixed the regex used in all of the `sed` commands.
   - Now makes sure that the proper amount of spaces are present in the right
