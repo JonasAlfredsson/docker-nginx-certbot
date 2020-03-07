@@ -17,7 +17,7 @@ RUN set -ex && \
     && \
 # Install certbot
     curl -L 'https://bootstrap.pypa.io/get-pip.py' | python3 && \
-    pip install -U cffi certbot \
+    pip3 install -U cffi certbot \
     && \
 # Remove everything that is no longer necessary
     apt-get remove --purge -y \
