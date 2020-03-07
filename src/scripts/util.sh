@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Helper function to output error messages to STDERR, with red text.
 error() {

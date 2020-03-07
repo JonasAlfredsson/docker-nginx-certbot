@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Source "util.sh" so we can have our nice tools.
 . $(cd $(dirname $0); pwd)/../util.sh
