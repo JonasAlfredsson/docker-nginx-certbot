@@ -1,9 +1,10 @@
 #!/bin/bash
 
 # This method may take an extremely long time to complete, be patient.
-# It should be possible to use the same dhparam file for all sites, just specify
-# the same file path under the "ssl_dhparam" parameter in the Nginx server
-# config. The file should be stored somewhere under /etc/letsencrypt/dhparams/
+# It should be possible to use the same dhparam file for all sites, just
+# specify the same file path under the "ssl_dhparam" parameter in the Nginx
+# server config.
+# The created file should be stored somewhere under /etc/letsencrypt/dhparams/
 # to ensure persistence between restarts.
 create_dhparam() {
     if [ -z "$DHPARAM_SIZE" ]; then

@@ -91,9 +91,9 @@ auto_enable_configs() {
     done
 }
 
-# Helper function to ask certbot for the given domain(s). The CERTBOT_EMAIL
-# environment variable must be defined, so that Let's Encrypt may contact you
-# in case of security issues.
+# Helper function to ask certbot to request a certificate for the given
+# domain(s). The CERTBOT_EMAIL environment variable must be defined, so that
+# Let's Encrypt may contact you in case of security issues.
 get_certificate() {
     echo "Getting certificate for domain $1 on behalf of user $2"
     PRODUCTION_URL='https://acme-v02.api.letsencrypt.org/directory'
