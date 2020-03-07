@@ -54,5 +54,5 @@ VOLUME /etc/letsencrypt
 EXPOSE 80
 EXPOSE 443
 
-ENTRYPOINT []
+# Change the container's start command to launch our entrypoint script.
 CMD ["/bin/bash", "/scripts/entrypoint.sh"]
