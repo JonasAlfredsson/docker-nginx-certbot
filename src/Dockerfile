@@ -2,8 +2,8 @@ FROM nginx:mainline
 LABEL maintainer="Jonas Alfredsson <jonas.alfredsson@protonmail.com>"
 
 # Do a single run command to make the intermediary containers smaller.
-# Install all necessary packages
 RUN set -ex && \
+# Install all necessary packages.
     apt-get update && \
     apt-get install -y \
             build-essential \
@@ -15,11 +15,11 @@ RUN set -ex && \
             python3-dev \
             openssl \
     && \
-# Install certbot
+# Install certbot.
     curl -L 'https://bootstrap.pypa.io/get-pip.py' | python3 && \
     pip3 install -U cffi certbot \
     && \
-# Remove everything that is no longer necessary
+# Remove everything that is no longer necessary.
     apt-get remove --purge -y \
             build-essential \
             curl \
@@ -31,24 +31,26 @@ RUN set -ex && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* \
     && \
-# Create new directories and set correct permissions
+# Create new directories and set correct permissions for them.
     mkdir -p /var/www/letsencrypt && \
     chown www-data:www-data -R /var/www && \
     mkdir -p /etc/letsencrypt/dhparams && \
     chmod 700 /etc/letsencrypt/dhparams \
     && \
-# Copy in default Nginx configuration (which just forwards ACME requests to
-# certbot, or redirects to HTTPS, but has no HTTPS configurations by default).
+# Copy in our "default" Nginx server configurations, which make sure that the
+# ACME challenge requests are correctly forwarded to certbot and then redirects
+# everything else to HTTPS.
     rm -f /etc/nginx/conf.d/*
 COPY nginx_conf.d/ /etc/nginx/conf.d/
 
-# Copy in scripts and set permissions
+# Copy in our scripts and make them executable.
 COPY scripts/ /scripts
 RUN chmod +x -R /scripts
 
-# Create a volume to have persistent storage for obtained certificates
+# Create a volume to have persistent storage for the obtained certificates.
 VOLUME /etc/letsencrypt
 
+# These ports are used by Nginx.
 EXPOSE 80
 EXPOSE 443
 
