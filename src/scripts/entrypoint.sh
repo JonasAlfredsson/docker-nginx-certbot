@@ -28,8 +28,10 @@ NGINX_PID=$!
 # Start the certbot certificate management script.
 sleep 5 # Give Nginx a little time to start.
 $(cd $(dirname $0); pwd)/run_certbot.sh &
+CERTBOT_LOOP_PID=$!
 
-# Nginx and the update process are now our children. As a parent we will wait
-# for Nginx, and if it exits we do the same with its status code.
-wait $NGINX_PID
+# Nginx and the certbot update-loop process are now our children. As a parent
+# we will wait for both of their PIDs, and if one of them exits we will follow
+# suit and use the same status code as the program which exited first.
+wait -n $NGINX_PID $CERTBOT_LOOP_PID
 exit $?
