@@ -25,24 +25,9 @@ echo "Starting the Nginx service"
 nginx -g "daemon off;" &
 NGINX_PID=$!
 
-# Make sure a renewal interval is set before continuing.
-if [ -z "$RENEWAL_INTERVAL" ]; then
-    echo "RENEWAL_INTERVAL unset, using default of '8d'"
-    RENEWAL_INTERVAL='8d'
-fi
-
-# Instead of trying to run 'cron' or something like that, just sleep and
-# execute the 'certbot' script.
-(
+# Start the certbot certificate management script.
 sleep 5 # Give Nginx a little time to start.
-while [ true ]; do
-    echo "Run certbot!"
-    /scripts/run_certbot.sh
-
-    echo "Certbot will now sleep..."
-    sleep "$RENEWAL_INTERVAL"
-done
-) &
+$(cd $(dirname $0); pwd)/run_certbot.sh &
 
 # Nginx and the update process are now our children. As a parent we will wait
 # for Nginx, and if it exits we do the same with its status code.
