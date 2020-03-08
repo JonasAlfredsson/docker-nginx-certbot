@@ -5,11 +5,11 @@ services:
     build: .
     restart: unless-stopped
     environment:
-        - CERTBOT_EMAIL
-        - STAGING
-        - DHPARAM_SIZE
-        - RSA_KEY_SIZE
-        - RENEWAL_INTERVAL
+      - CERTBOT_EMAIL
+      - STAGING
+      - DHPARAM_SIZE
+      - RSA_KEY_SIZE
+      - RENEWAL_INTERVAL
     ports:
       - 80:80
       - 443:443
