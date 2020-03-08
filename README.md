@@ -63,6 +63,12 @@ files).
 - `RENEWAL_INTERVAL`: Time interval between certbot's
                       [renewal checks](#renewal-check-interval) (default: `8d`)
 
+
+## Volumes
+- `/etc/letsencrypt`: Stores the obtained certificates and the Diffie-Hellman
+                      parameters
+
+
 ## Run with `docker run`
 
 ### Build it yourself
