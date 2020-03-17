@@ -279,7 +279,7 @@ home use
 [[2](https://security.stackexchange.com/questions/94390/whats-the-purpose-of-dh-parameters)].
 For persistence you should place it inside the dedicated folder
 `/etc/letsencrypt/dhparams/`, which is inside the predefined Docker
-[volume](#volume). There is however no requirement to do so, since a missing
+[volume](#volumes). There is however no requirement to do so, since a missing
 parameter will be created where the config file expects the file to be. But this
 would mean that the script will have to re-create these every time you restart
 the container, which may become a little bit tedious.
