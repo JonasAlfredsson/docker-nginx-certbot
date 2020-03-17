@@ -1,9 +1,14 @@
 # docker-nginx-certbot
 
-Create and automatically renew website SSL certificates using the Let's Encrypt
+Automatically create and renew website SSL certificates using the Let's Encrypt
 free certificate authority and its client *certbot*. Built on top of the Nginx
-server running on Debian. OpenSSL is used to create the Diffie-Hellman
-parameters used during the initial handshake.
+server running on Debian. OpenSSL is used to automatically create the
+Diffie-Hellman parameters used during the initial handshake of some ciphers.
+
+> :information_source: The very first time this container is started it might
+  take a long time before before it is ready to respond to requests. Read more
+  about this in the [Diffie-Hellman parameters](#diffie-hellman-parameters)
+  section.
 
 
 
@@ -37,9 +42,7 @@ files).
    maybe find it [here](https://portforward.com/router.htm).
 
 2. Tips on how to make a proper server config file, and how to create a simple
-   test, can be found under the [Good to Know
-   ](https://github.com/JonasAlfredsson/docker-nginx-certbot/#good-to-know)
-   section.
+   test, can be found under the [Good to Know](#good-to-know) section.
 
 3. I don't think it is necessary to mention if you managed to find this
    repository, however, I have been proven wrong before so I want to make it
@@ -71,7 +74,7 @@ files).
 
 ## Run with `docker run`
 
-### Build it yourself
+### Build it yourself...
 This option is for if you have downloaded this entire repository.
 
 Place any additional server configuration you desire inside the `nginx_conf.d/`
@@ -79,10 +82,10 @@ folder and run the following command in your terminal while residing inside
 the `src/` folder.
 
 ```bash
-docker build --tag jonasal/nginx-certbot:latest .
+docker build --tag jonasal/nginx-certbot:local .
 ```
 
-### Get it from Docker Hub
+### ...or get it from Docker Hub
 This option is for if you make your own `Dockerfile`.
 
 This image exist on Docker Hub under `jonasal/nginx-certbot`, which means you
@@ -97,15 +100,17 @@ COPY conf.d/* /etc/nginx/conf.d/
 Don't forget to build it!
 
 ```bash
-docker build --tag jonasal/nginx-certbot:latest .
+docker build --tag jonasal/nginx-certbot:local .
 ```
 
 ### The `run` command
 Irregardless what option you chose above you run it with the following command:
 
 ```bash
-docker run -it --env CERTBOT_EMAIL=your@email.org -p 80:80 -p 443:443 \
--v nginx_secrets:/etc/letsencrypt jonasal/nginx-certbot:latest
+docker run -it -p 80:80 -p 443:443 \
+           --env CERTBOT_EMAIL=your@email.org \
+           -v nginx_secrets:/etc/letsencrypt \
+           --name nginx-certbot jonasal/nginx-certbot:local
 ```
 
 > You should be able to detach from the container by pressing
@@ -113,9 +118,10 @@ docker run -it --env CERTBOT_EMAIL=your@email.org -p 80:80 -p 443:443 \
 
 
 ## Run with `docker-compose`
-An example of a `docker-compose.yaml` file can be found in the `example` folder.
-The default parameters that are found inside the `.env` file will be overwritten
-by any environment variables you set in the `.yaml` file.
+An example of a `docker-compose.yaml` file can be found in the `example/`
+folder. The default parameters that are found inside the `.env` file will be
+overwritten by any environment variables you set inside the `.yaml` file.
+
 ```yaml
 version: '3'
 services:
@@ -151,9 +157,9 @@ docker-compose up --build
 # Good to Know
 
 ### Initial testing
-In case you are experimenting with setting this up I suggest you set the
+In case you are just experimenting with setting this up I suggest you set the
 environment variable `STAGING=1`, since this will change the challenge URL to
-the staging one. This will not give you *proper* certificates, but it has
+the staging one. This will not give you "*proper*" certificates, but it has
 ridiculous high
 [rate limits](https://letsencrypt.org/docs/staging-environment/) compared to
 the non-staging
@@ -161,8 +167,10 @@ the non-staging
 
 Include it like this:
 ```bash
-docker run -d --env CERTBOT_EMAIL=your@email.org --env STAGING=1 \
--p 80:80 -p 443:443 jonasal/nginx-certbot:latest
+docker run -d -p 80:80 -p 443:443 \
+           --env CERTBOT_EMAIL=your@email.org \
+           --env STAGING=1 \
+           --name nginx-certbot jonasal/nginx-certbot:latest
 ```
 
 ### Creating a server .conf file
@@ -173,9 +181,8 @@ config to quickly test if things are working properly.
 
 Place the modified config inside the `nginx_conf.d/` folder, `build` the
 container and then run it as described
-[above](https://github.com/JonasAlfredsson/docker-nginx-certbot/#usage). Let
-the container do it's magic for a while, and then try to visit your domain. You
-should now be greeted with the string
+[above](#usage). Let the container do it's magic for a while, and then try to
+visit your domain. You should now be greeted with the string
 "`Let's Encrypt certificate successfully installed!`".
 
 ### How the script add domain names to certificate requests
@@ -190,7 +197,7 @@ ssl_certificate_key /etc/letsencrypt/live/yourdomain.org/privkey.pem;
 and only extract the part which here says "`yourdomain.org`", and this will
 henceforth be used as the "primary domain" for this config file. It will then
 find all the lines that contain `server_name` and make a list of all the domain
-that exist on the same line. So a file containing something like this:
+names that exist on the same line. So a file containing something like this:
 
 ```
 server {
@@ -250,32 +257,38 @@ where certbot would deem it necessary to update the certificates.
 
 ### Diffie-Hellman parameters
 Regarding the Diffie-Hellman parameter it is recommended that you have one for
-your server. However, you can make a config file without it and Nginx will work
-fine with ciphers that don't rely on the Diffie-Hellman key exchange
+your server, and in Nginx you define it by including a line that starts with
+`ssl_dhparam` in the server block (see `example/example_server.conf`). However,
+you can make a config file without it and Nginx will work just fine with ciphers
+that don't rely on the Diffie-Hellman key exchange
 ([more info about ciphers](https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html)).
 
 The larger you make these parameters the longer it will take to generate them.
 I was unlucky and it took me 65 minutes to generate a 4096 bit parameter on an
-old 3.0GHz CPU. This will vary greatly between runs as some randomness is
+old 3.0GHz CPU. This will vary **greatly** between runs as some randomness is
 involved. A 2048 bit parameter, which is still secure today, can probably be
 calculated in about 1-3 minutes on a modern CPU (this process will only have to
-be done once). To modify the size of the parameter you may set the
+be done once, since one of these parameters is good for the rest of your
+website's lifetime). To modify the size of the parameter you may set the
 `DHPARAM_SIZE` environment variable. Default is `2048` if nothing is provided.
 
-It is also possible to have all your server configs point to the same
+It is also possible to have **all** your server configs point to **the same**
 Diffie-Hellman parameter on disk. There is no negative effects in doing this for
 home use
 [[1](https://security.stackexchange.com/questions/70831/does-dh-parameter-file-need-to-be-unique-per-private-key)]
 [[2](https://security.stackexchange.com/questions/94390/whats-the-purpose-of-dh-parameters)].
-For persistence you should place it inside the dedicated
-folder `/etc/letsencrypt/dhparams/`, which is inside a Docker volume. There is
-however no requirement to do so, as a missing parameter will be created where
-the config file expects the file to be.
+For persistence you should place it inside the dedicated folder
+`/etc/letsencrypt/dhparams/`, which is inside the predefined Docker
+[volume](#volume). There is however no requirement to do so, since a missing
+parameter will be created where the config file expects the file to be. But this
+would mean that the script will have to re-create these every time you restart
+the container, which may become a little bit tedious.
 
 You can also create this file on a completely different (faster?) computer and
-just mount the created file into this container. This is perfectly fine, but use
-a folder that is not under `/etc/letsencrypt/`, since that would cause a double
-mount.
+just mount/copy the created file into this container. This is perfectly fine,
+since it is nothing "private/personal" about this file. The only thing to
+think about in that case would perhaps be to use a folder that is not under
+`/etc/letsencrypt/`, since that would otherwise cause a double mount.
 
 
 
