@@ -296,7 +296,8 @@ think about in that case would perhaps be to use a folder that is not under
 # Changelog
 
 ### 0.14
-- Made so that the container now exits gracefully and reports the correct exit code.
+- Made so that the container now exits gracefully and reports the correct exit
+  code.
   - More details can be found in the commit message:
     [43dde6e](https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/43dde6ec24f399fe49729b28ba4892665e3d7078)
 - Bash script now correctly monitors **both** the Nginx and the certbot renewal
@@ -319,7 +320,7 @@ think about in that case would perhaps be to use a folder that is not under
     doesn't have to.
 - The time interval used to trigger the certbot renewal check is now user
   configurable.
-  - The environmental variable to use is `RENEWAL_INTERVAL`.
+  - The environment variable to use is `RENEWAL_INTERVAL`.
 
 ### 0.12
 - Added `--cert-name` flag to the certbot certificate request command.
@@ -334,7 +335,7 @@ think about in that case would perhaps be to use a folder that is not under
 
 ### 0.11
 - Python 2 is EOL, so it's time to move over to Python 3.
-- From now on DockerHub will also build with tags.
+- From now on DockerHub will also automatically build with tags.
   - Lock the version by specifying the tag: `jonasal/nginx-certbot:0.11`
 
 ### 0.10
@@ -346,7 +347,8 @@ think about in that case would perhaps be to use a folder that is not under
 - Updated documentation.
 
 ### 0.9-gamma
-- Make both Nginx and the update script child processes of the entryscript.
+- Make both Nginx and the update script child processes of the `entrypoint.sh`
+  script.
 - Container will now die along with Nginx like it should.
 - The Diffie-Hellman parameters now have better permissions.
 - Container now exist on Docker Hub under `jonasal/nginx-certbot:latest`
@@ -355,24 +357,24 @@ think about in that case would perhaps be to use a folder that is not under
 ### 0.9-beta
 - `@JonasAlfredsson` enters the battle.
 - Diffie-Hellman parameters are now automatically generated.
-- Nginx now handles everything http related, certbot set to webroot mode.
+- Nginx now handles everything HTTP related -> certbot set to webroot mode.
 - Better checking to see if necessary files exist.
 - Will now request a certificate that includes all domain variants listed
-  at the `server_name` line.
+  on the `server_name` line.
 - More extensive documentation.
 
 ### 0.8
-- Ditch cron, it never liked me anway.  Just use `sleep` and a `while`
+- Ditch cron, it never liked me anyway.  Just use `sleep` and a `while`
   loop instead.
 
 ### 0.7
 - Complete rewrite, build this image on top of the `nginx` image, and run
-  `cron`/`certbot` alongside `nginx` so that we can have nginx configs
+  `cron`/`certbot` alongside `nginx` so that we can have Nginx configs
   dynamically enabled as we get SSL certificates.
 
 ### 0.6
 - Add `nginx_auto_enable.sh` script to `/etc/letsencrypt/` so that users can
-  bring nginx up before SSL certs are actually available.
+  bring Nginx up before SSL certs are actually available.
 
 ### 0.5
 - Change the name to `docker-certbot-cron`, update documentation, strip out
