@@ -109,7 +109,7 @@ Irregardless what option you chose above you run it with the following command:
 ```bash
 docker run -it -p 80:80 -p 443:443 \
            --env CERTBOT_EMAIL=your@email.org \
-           -v nginx_secrets:/etc/letsencrypt \
+           -v $(pwd)/nginx_secrets:/etc/letsencrypt \
            --name nginx-certbot jonasal/nginx-certbot:local
 ```
 
@@ -173,7 +173,7 @@ docker run -d -p 80:80 -p 443:443 \
            --name nginx-certbot jonasal/nginx-certbot:latest
 ```
 
-### Creating a server .conf file
+### Creating a server `.conf` file
 As an example of a barebone (but functional) SSL server in Nginx you can
 look at the file `example_server.conf` inside the `example/` directory. By
 replacing '`yourdomain.org`' with your own domain you can actually use this
@@ -181,8 +181,9 @@ config to quickly test if things are working properly.
 
 Place the modified config inside the `nginx_conf.d/` folder, `build` the
 container and then run it as described
-[above](#usage). Let the container do it's magic for a while, and then try to
-visit your domain. You should now be greeted with the string
+[above](#usage). Let the container do it's [magic](#diffie-hellman-parameters)
+for a while, and then try to visit your domain. You should now be greeted with
+the string \
 "`Let's Encrypt certificate successfully installed!`".
 
 ### How the script add domain names to certificate requests
