@@ -118,7 +118,7 @@ docker run -it -p 80:80 -p 443:443 \
 
 
 ## Run with `docker-compose`
-An example of a `docker-compose.yaml` file can be found in the `example/`
+An example of a `docker-compose.yaml` file can be found in the `examples/`
 folder. The default parameters that are found inside the `.env` file will be
 overwritten by any environment variables you set inside the `.yaml` file.
 
@@ -144,12 +144,13 @@ volumes:
   nginx_secrets:
 ```
 
-You then build and start with the following commands. Just remember to
-place any additional server configs you want inside the `nginx_conf.d/` folder
-beforehand.
+Move the this file into the `src/` folder, and then build and start with the
+following commands. Just remember to place any additional server configs you
+want inside the `nginx_conf.d/` folder beforehand.
 
 ```bash
-docker-compose up --build
+docker-compose build --pull
+docker-compose up
 ```
 
 
@@ -175,7 +176,7 @@ docker run -d -p 80:80 -p 443:443 \
 
 ### Creating a server `.conf` file
 As an example of a barebone (but functional) SSL server in Nginx you can
-look at the file `example_server.conf` inside the `example/` directory. By
+look at the file `example_server.conf` inside the `examples/` directory. By
 replacing '`yourdomain.org`' with your own domain you can actually use this
 config to quickly test if things are working properly.
 
@@ -259,7 +260,7 @@ where certbot would deem it necessary to update the certificates.
 ### Diffie-Hellman parameters
 Regarding the Diffie-Hellman parameter it is recommended that you have one for
 your server, and in Nginx you define it by including a line that starts with
-`ssl_dhparam` in the server block (see `example/example_server.conf`). However,
+`ssl_dhparam` in the server block (see `examples/example_server.conf`). However,
 you can make a config file without it and Nginx will work just fine with ciphers
 that don't rely on the Diffie-Hellman key exchange
 ([more info about ciphers](https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html)).
