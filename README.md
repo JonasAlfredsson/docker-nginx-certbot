@@ -119,8 +119,9 @@ docker run -it -p 80:80 -p 443:443 \
 
 ## Run with `docker-compose`
 An example of a `docker-compose.yaml` file can be found in the `examples/`
-folder. The default parameters that are found inside the `.env` file will be
-overwritten by any environment variables you set inside the `.yaml` file.
+folder. The default parameters that are found inside the `nginx-certbot.env`
+file will be overwritten by any environment variables you set inside the `.yaml`
+file.
 
 ```yaml
 version: '3'
@@ -134,6 +135,8 @@ services:
         - DHPARAM_SIZE=2048
         - RSA_KEY_SIZE=2048
         - RENEWAL_INTERVAL=8d
+    env_file:
+      - ./nginx-certbot.env
     ports:
       - 80:80
       - 443:443
@@ -144,9 +147,9 @@ volumes:
   nginx_secrets:
 ```
 
-Move the this file into the `src/` folder, and then build and start with the
-following commands. Just remember to place any additional server configs you
-want inside the `nginx_conf.d/` folder beforehand.
+Move these two files (if you are using the `.env` file) into the `src/` folder,
+and then build and start with the following commands. Just remember to place any
+additional server configs you want inside the `nginx_conf.d/` folder beforehand.
 
 ```bash
 docker-compose build --pull
