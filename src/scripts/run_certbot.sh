@@ -18,6 +18,9 @@ while [ true ]; do
         exit 1
     fi
 
+    # Check that all dhparam files exists.
+    $(cd $(dirname $0); pwd)/create_dhparams.sh
+
     echo "Run certbot!"
     # Go through all .conf files and find all domain names that should be added
     # to the certificate request.

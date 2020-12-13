@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Source in util.sh so we can have our nice tools.
+. $(cd $(dirname $0); pwd)/util.sh
+
 # This method may take an extremely long time to complete, be patient.
 # It should be possible to use the same dhparam file for all sites, just
 # specify the same file path under the "ssl_dhparam" parameter in the Nginx
@@ -36,11 +39,6 @@ create_dhparam() {
     % >>>>>   Diffie-Hellman parameter creation done!   <<<<< %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     "
-}
-
-# Return all unique "dhparam" file paths.
-parse_dhparams() {
-    sed -n -r -e 's&^\s*ssl_dhparam\s+(.*);.*&\1&p' "$1" | xargs -n1 echo | uniq
 }
 
 # Find any mentions of Diffie-Hellman parameters and create them if missing.
