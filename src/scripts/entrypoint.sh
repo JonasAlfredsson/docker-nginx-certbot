@@ -24,15 +24,6 @@ trap "clean_exit" EXIT
 # This will temporarily disable any misconfigured servers.
 auto_enable_configs
 
-# Run any startup scripts found in the startup/ folder.
-for f in /scripts/startup/*.sh; do
-    if [ -x "$f" ]; then
-        echo "Running startup script $f"
-        $f
-    fi
-done
-echo "Done with startup scripts"
-
 # Start Nginx without its daemon mode (and save its PID).
 echo "Starting the Nginx service"
 nginx -g "daemon off;" &
