@@ -54,5 +54,6 @@ VOLUME /etc/letsencrypt
 EXPOSE 80
 EXPOSE 443
 
-# Change the container's start command to launch our entrypoint script.
-CMD ["/bin/bash", "/scripts/entrypoint.sh"]
+# Change the container's start command to launch our Nginx and certbot
+# management script.
+CMD ["/bin/bash", "/scripts/start_nginx_certbot.sh"]
