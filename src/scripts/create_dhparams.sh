@@ -32,7 +32,7 @@ create_dhparam() {
     % A message will be displayed when this process finishes. %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     "
-    echo "Output file > $1"
+    echo "Will now output to the following file: $1"
     openssl dhparam -out $1 $DHPARAM_SIZE
     echo "
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
