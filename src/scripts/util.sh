@@ -90,37 +90,3 @@ auto_enable_configs() {
         fi
     done
 }
-
-# Helper function to ask certbot to request a certificate for the given
-# domain(s). The CERTBOT_EMAIL environment variable must be defined, so that
-# Let's Encrypt may contact you in case of security issues.
-get_certificate() {
-    echo "Getting certificate for domain $1 on behalf of user $2"
-    PRODUCTION_URL='https://acme-v02.api.letsencrypt.org/directory'
-    STAGING_URL='https://acme-staging-v02.api.letsencrypt.org/directory'
-
-    if [ "${STAGING}" = "1" ]; then
-        letsencrypt_url=$STAGING_URL
-        echo "Using staging environment..."
-    else
-        letsencrypt_url=$PRODUCTION_URL
-        echo "Using production environment..."
-    fi
-
-    if [ -z "$RSA_KEY_SIZE" ]; then
-        echo "RSA_KEY_SIZE unset, defaulting to 2048"
-        RSA_KEY_SIZE=2048
-    fi
-
-    echo "Running certbot... $letsencrypt_url $1 $2"
-    certbot certonly \
-        --agree-tos --keep -n --text \
-        -a webroot --webroot-path=/var/www/letsencrypt \
-        --rsa-key-size $RSA_KEY_SIZE \
-        --preferred-challenges http-01 \
-        --email $2 \
-        --server $letsencrypt_url \
-        --cert-name $1 \
-        $3 \
-        --debug
-}
