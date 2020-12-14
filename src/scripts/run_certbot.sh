@@ -33,16 +33,16 @@ fi
 # domain(s). The CERTBOT_EMAIL environment variable must be defined, so that
 # Let's Encrypt may contact you in case of security issues.
 get_certificate() {
-    echo "Getting certificate for domain $1 on behalf of user $2"
+    echo "Getting certificate for domain $1"
     certbot certonly \
         --agree-tos --keep -n --text \
         -a webroot --webroot-path=/var/www/letsencrypt \
         --rsa-key-size $RSA_KEY_SIZE \
         --preferred-challenges http-01 \
-        --email $2 \
+        --email $CERTBOT_EMAIL \
         --server $letsencrypt_url \
         --cert-name $1 \
-        $3 \
+        $2 \
         --debug
 }
 
@@ -61,7 +61,7 @@ for conf_file in /etc/nginx/conf.d/*.conf*; do
 
         # Hand over all the info required for the certificate request, and
         # let certbot decide if it is necessary to update the certificate.
-        if ! get_certificate $primary_domain $CERTBOT_EMAIL "$domain_request"; then
+        if ! get_certificate $primary_domain "$domain_request"; then
             error "Certbot failed for $primary_domain. Check the logs for details."
         fi
     done
