@@ -10,11 +10,12 @@ clean_exit() {
     done
 }
 
-# Make bash listen to the SIGTERM and SIGINT kill signals, and make them trigger
-# a normal "exit" command in this script. Then we tell bash to execute the
-# "clean_exit" function, seen above, in the case an "exit" command is triggered.
-# This is done to give the child processes a chance to exit gracefully.
-trap "exit" TERM INT
+# Make bash listen to the SIGTERM, SIGINT and SIGQUIT kill signals, and make
+# them trigger a normal "exit" command in this script. Then we tell bash to
+# execute the "clean_exit" function, seen above, in the case an "exit" command
+# is triggered. This is done to give the child processes a chance to exit
+# gracefully.
+trap "exit" TERM INT QUIT
 trap "clean_exit" EXIT
 
 # Source "util.sh" so we can have our nice tools.
