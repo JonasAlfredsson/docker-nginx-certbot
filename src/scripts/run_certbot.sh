@@ -1,4 +1,5 @@
 #!/bin/bash
+echo "Starting certificate renewal process"
 
 # URLs used when requesting certificates.
 CERTBOT_PRODUCTION_URL='https://acme-v02.api.letsencrypt.org/directory'
@@ -13,26 +14,26 @@ if [ -z "$CERTBOT_EMAIL" ]; then
     exit 1
 fi
 
+# Use the correct challenge URL depending on if we want staging or not.
+if [ "${STAGING}" = "1" ]; then
+    letsencrypt_url=$CERTBOT_STAGING_URL
+    echo "Using staging environment"
+else
+    letsencrypt_url=$CERTBOT_PRODUCTION_URL
+    echo "Using production environment"
+fi
+
+# Ensure that a key size is set.
+if [ -z "$RSA_KEY_SIZE" ]; then
+    echo "RSA_KEY_SIZE unset, defaulting to 2048"
+    RSA_KEY_SIZE=2048
+fi
+
 # Helper function to ask certbot to request a certificate for the given
 # domain(s). The CERTBOT_EMAIL environment variable must be defined, so that
 # Let's Encrypt may contact you in case of security issues.
 get_certificate() {
     echo "Getting certificate for domain $1 on behalf of user $2"
-
-    if [ "${STAGING}" = "1" ]; then
-        letsencrypt_url=$CERTBOT_STAGING_URL
-        echo "Using staging environment..."
-    else
-        letsencrypt_url=$CERTBOT_PRODUCTION_URL
-        echo "Using production environment..."
-    fi
-
-    if [ -z "$RSA_KEY_SIZE" ]; then
-        echo "RSA_KEY_SIZE unset, defaulting to 2048"
-        RSA_KEY_SIZE=2048
-    fi
-
-    echo "Running certbot... $letsencrypt_url $1 $2"
     certbot certonly \
         --agree-tos --keep -n --text \
         -a webroot --webroot-path=/var/www/letsencrypt \
@@ -45,7 +46,6 @@ get_certificate() {
         --debug
 }
 
-echo "Starting certbot"
 # Go through all .conf files and find all domain names that should be added
 # to the certificate request.
 for conf_file in /etc/nginx/conf.d/*.conf*; do
