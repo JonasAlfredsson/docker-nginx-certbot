@@ -39,6 +39,7 @@ fi
 # Instead of trying to run 'cron' or something like that, just sleep and
 # call on certbot after the defined interval.
 (
+set -e
 while [ true ]; do
     # Check that all dhparam files exists.
     $(cd $(dirname $0); pwd)/create_dhparams.sh

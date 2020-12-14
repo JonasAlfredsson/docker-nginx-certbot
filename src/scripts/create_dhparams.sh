@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # Source in util.sh so we can have our nice tools.
 . $(cd $(dirname $0); pwd)/util.sh

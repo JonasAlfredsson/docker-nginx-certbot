@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 echo "Starting certificate renewal process"
 
 # URLs used when requesting certificates.
