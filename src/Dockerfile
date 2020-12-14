@@ -50,8 +50,8 @@ RUN chmod +x -R /scripts
 # Create a volume to have persistent storage for the obtained certificates.
 VOLUME /etc/letsencrypt
 
-# These ports are used by Nginx.
-EXPOSE 80
+# The Nginx parent Docker image already expose port 80, so we only need to add
+# port 443 here.
 EXPOSE 443
 
 # Change the container's start command to launch our Nginx and certbot
