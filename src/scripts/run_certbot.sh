@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# URLs used when requesting certificates.
+CERTBOT_PRODUCTION_URL='https://acme-v02.api.letsencrypt.org/directory'
+CERTBOT_STAGING_URL='https://acme-staging-v02.api.letsencrypt.org/directory'
+
 # Source in util.sh so we can have our nice tools.
 . $(cd $(dirname $0); pwd)/util.sh
 
@@ -14,14 +18,12 @@ fi
 # Let's Encrypt may contact you in case of security issues.
 get_certificate() {
     echo "Getting certificate for domain $1 on behalf of user $2"
-    PRODUCTION_URL='https://acme-v02.api.letsencrypt.org/directory'
-    STAGING_URL='https://acme-staging-v02.api.letsencrypt.org/directory'
 
     if [ "${STAGING}" = "1" ]; then
-        letsencrypt_url=$STAGING_URL
+        letsencrypt_url=$CERTBOT_STAGING_URL
         echo "Using staging environment..."
     else
-        letsencrypt_url=$PRODUCTION_URL
+        letsencrypt_url=$CERTBOT_PRODUCTION_URL
         echo "Using production environment..."
     fi
 
