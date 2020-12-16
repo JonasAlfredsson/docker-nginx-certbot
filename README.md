@@ -14,26 +14,24 @@ Diffie-Hellman parameters used during the initial handshake of some ciphers.
 
 # Acknowledgments and Thanks
 
-This container requests SSL certificates from
-[Let's Encrypt](https://letsencrypt.org/), with the help of their
-[*certbot*](https://github.com/certbot/certbot) script, which they provide for
-the absolutely bargain price of free!
-If you like what they do, please [donate](https://letsencrypt.org/donate/).
+This container requests SSL certificates from [Let's Encrypt][1], with the help
+of their [*certbot*][2] script, which they provide for the absolutely bargain
+price of free! If you like what they do, please [donate][3].
 
-
-This repository was originally forked from `@henridwyer` by `@staticfloat`,
-and is now forked again by me! I thought the container could be more autonomous
-and stricter when it comes to checking that all files exist. In addition,
-this container also allows for multiple server names when requesting
-certificates (i.e. both `example.com` and `www.example.com` will be included in
-the same certificate request if they are defined in the Nginx configuration
-files).
+This repository was originally forked from [`@henridwyer`][4] by
+[`@staticfloat`][5], and is now forked again by me! I thought the container
+could be more autonomous and stricter when it comes to checking that all files
+exist. In addition, this container also allows for multiple server names when
+requesting certificates (i.e. both `example.com` and `www.example.com` will be
+included in the same certificate request if they are defined in the Nginx
+configuration files). It is also possible to easily
+[force renewal](#manualforce-renewal) of certificates if necessary.
 
 
 
 # Usage
 
-## Before you start
+## Before You Start
 1. This guide expects you to already own a domain which points at the correct
    IP address, and that you have both port `80` and `443` correctly forwarded if
    you are behind NAT.
@@ -90,7 +88,8 @@ This option is for if you make your own `Dockerfile`.
 
 This image exist on Docker Hub under `jonasal/nginx-certbot`, which means you
 can make your own `Dockerfile` for a cleaner folder structure. Just add a
-command where you copy in your own server configuration files.
+command where you copy in your own server configuration files (make sure
+that none of your files replace those already present).
 
 ```Dockerfile
 FROM jonasal/nginx-certbot:latest
@@ -103,7 +102,7 @@ Don't forget to build it!
 docker build --tag jonasal/nginx-certbot:local .
 ```
 
-### The `run` command
+### The `run` Command
 Irregardless what option you chose above you run it with the following command:
 
 ```bash
@@ -123,31 +122,7 @@ folder. The default parameters that are found inside the `nginx-certbot.env`
 file will be overwritten by any environment variables you set inside the `.yaml`
 file.
 
-```yaml
-version: '3'
-services:
-  nginx-certbot:
-    build: .
-    restart: unless-stopped
-    environment:
-        - CERTBOT_EMAIL=your@email.org
-        - STAGING=0
-        - DHPARAM_SIZE=2048
-        - RSA_KEY_SIZE=2048
-        - RENEWAL_INTERVAL=8d
-    env_file:
-      - ./nginx-certbot.env
-    ports:
-      - 80:80
-      - 443:443
-    volumes:
-      - nginx_secrets:/etc/letsencrypt
-
-volumes:
-  nginx_secrets:
-```
-
-Move these two files (if you are using the `.env` file) into the `src/` folder,
+Move the `.yaml` file (and optionally the `.env` file) into the `src/` folder,
 and then build and start with the following commands. Just remember to place any
 additional server configs you want inside the `nginx_conf.d/` folder beforehand.
 
@@ -160,14 +135,12 @@ docker-compose up
 
 # Good to Know
 
-### Initial testing
+## Initial Testing
 In case you are just experimenting with setting this up I suggest you set the
 environment variable `STAGING=1`, since this will change the challenge URL to
 the staging one. This will not give you "*proper*" certificates, but it has
-ridiculous high
-[rate limits](https://letsencrypt.org/docs/staging-environment/) compared to
-the non-staging
-[production certificates](https://letsencrypt.org/docs/rate-limits/).
+ridiculous high [rate limits][6] compared to the non-staging
+[production certificates][7].
 
 Include it like this:
 ```bash
@@ -177,20 +150,19 @@ docker run -d -p 80:80 -p 443:443 \
            --name nginx-certbot jonasal/nginx-certbot:latest
 ```
 
-### Creating a server `.conf` file
+## Creating a Server `.conf` File
 As an example of a barebone (but functional) SSL server in Nginx you can
 look at the file `example_server.conf` inside the `examples/` directory. By
 replacing '`yourdomain.org`' with your own domain you can actually use this
 config to quickly test if things are working properly.
 
 Place the modified config inside the `nginx_conf.d/` folder, `build` the
-container and then run it as described
-[above](#usage). Let the container do it's [magic](#diffie-hellman-parameters)
-for a while, and then try to visit your domain. You should now be greeted with
-the string \
+container and then run it as described [above](#usage). Let the container do
+it's [magic](#diffie-hellman-parameters) for a while, and then try to visit
+your domain. You should now be greeted with the string \
 "`Let's Encrypt certificate successfully installed!`".
 
-### How the script add domain names to certificate requests
+## How the Script add Domain Names to Certificate Requests
 The included script will go trough all configuration files (`*.conf*`) it
 finds inside Nginx's `/etc/nginx/conf.d/` folder, and create requests from the
 file's content. In every unique file it will find any line that says:
@@ -230,7 +202,7 @@ something like this (duplicates will be removed):
 certbot ... -d yourdomain.org -d www.yourdomain.org -d sub.yourdomain.org
 ```
 
-### Renewal check interval
+## Renewal Check Interval
 This container will automatically start a certbot certificate renewal check
 after the time duration that is defined in the environmental variable
 `RENEWAL_INTERVAL` has passed. After certbot has done its stuff, the code will
@@ -248,25 +220,22 @@ done
 
 So when setting the environmental variable, it is possible to use any string
 that is recognized by `sleep`, e.g. `3600` or `60m` or `1h`. Read more about
-which values that are allowed in its
-[manual](http://man7.org/linux/man-pages/man1/sleep.1.html).
+which values that are allowed in its [manual][8].
 
 The default is `8d`, since this allows for multiple retries per month, while
 keeping the output in the logs at a very low level. If nothing needs to be
 renewed certbot won't do anything, so it should be no problem setting it lower
 if you want to. The only thing to think about is to not to make it longer than
-one month, because then you would
-[miss the window](https://community.letsencrypt.org/t/solved-how-often-to-renew/13678)
-where certbot would deem it necessary to update the certificates.
+one month, because then you would [miss the window][9] where certbot would deem
+it necessary to update the certificates.
 
-
-### Diffie-Hellman parameters
+## Diffie-Hellman Parameters
 Regarding the Diffie-Hellman parameter it is recommended that you have one for
 your server, and in Nginx you define it by including a line that starts with
 `ssl_dhparam` in the server block (see `examples/example_server.conf`). However,
 you can make a config file without it and Nginx will work just fine with ciphers
 that don't rely on the Diffie-Hellman key exchange
-([more info about ciphers](https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html)).
+([more info about ciphers][10]).
 
 The larger you make these parameters the longer it will take to generate them.
 I was unlucky and it took me 65 minutes to generate a 4096 bit parameter on an
@@ -279,15 +248,12 @@ website's lifetime). To modify the size of the parameter you may set the
 
 It is also possible to have **all** your server configs point to **the same**
 Diffie-Hellman parameter on disk. There is no negative effects in doing this for
-home use
-[[1](https://security.stackexchange.com/questions/70831/does-dh-parameter-file-need-to-be-unique-per-private-key)]
-[[2](https://security.stackexchange.com/questions/94390/whats-the-purpose-of-dh-parameters)].
-For persistence you should place it inside the dedicated folder
-`/etc/letsencrypt/dhparams/`, which is inside the predefined Docker
-[volume](#volumes). There is however no requirement to do so, since a missing
-parameter will be created where the config file expects the file to be. But this
-would mean that the script will have to re-create these every time you restart
-the container, which may become a little bit tedious.
+home use ([source 1][11] & [source 2][12]). For persistence you should place it
+inside the dedicated folder `/etc/letsencrypt/dhparams/`, which is inside the
+predefined Docker [volume](#volumes). There is, however, no requirement to do
+so, since a missing parameter will be created where the config file expects the
+file to be. But this would mean that the script will have to re-create these
+every time you restart the container, which may become a little bit tedious.
 
 You can also create this file on a completely different (faster?) computer and
 just mount/copy the created file into this container. This is perfectly fine,
@@ -295,6 +261,27 @@ since it is nothing "private/personal" about this file. The only thing to
 think about in that case would perhaps be to use a folder that is not under
 `/etc/letsencrypt/`, since that would otherwise cause a double mount.
 
+### Manual/Force Renewal
+It might be of interest to manually trigger a renewal of the certificates, and
+that is why the `run_certbot.sh` script is possible to run standalone at any
+time.
+
+The fastest way to execute a manual renewal is to just run the following
+command:
+
+```bash
+docker exec -it <container_name> /scripts/run_certbot.sh
+```
+
+However, sometimes it might be necessary to **force** a renewal of the
+certificates, even though certbot thinks it could keep them for a while longer
+(like when [this][13] happened). It is therefore possible to add "force" to the
+end of the command above to have the script append the `--force--renewal` flag
+to the requests made.
+
+```bash
+docker exec -it <container_name> /scripts/run_certbot.sh force
+```
 
 
 # Changelog
@@ -302,8 +289,7 @@ think about in that case would perhaps be to use a folder that is not under
 ### 0.14
 - Made so that the container now exits gracefully and reports the correct exit
   code.
-  - More details can be found in the commit message:
-    [43dde6e](https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/43dde6ec24f399fe49729b28ba4892665e3d7078)
+  - More details can be found in the commit message: [43dde6e][14]
 - Bash script now correctly monitors **both** the Nginx and the certbot renewal
   process PIDs.
   - If either one of these processes dies, the container will exit with the same
@@ -398,3 +384,23 @@ think about in that case would perhaps be to use a folder that is not under
 
 ### 0.1
 - Initial release
+
+
+
+
+
+
+[1]: https://letsencrypt.org/
+[2]: https://github.com/certbot/certbot
+[3]: https://letsencrypt.org/donate/
+[4]: https://github.com/henridwyer/docker-letsencrypt-cron
+[5]: https://github.com/staticfloat/docker-nginx-certbot
+[6]: https://letsencrypt.org/docs/staging-environment/
+[7]: https://letsencrypt.org/docs/rate-limits/
+[8]: http://man7.org/linux/man-pages/man1/sleep.1.html
+[9]: https://community.letsencrypt.org/t/solved-how-often-to-renew/13678
+[10]: https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html
+[11]: https://security.stackexchange.com/questions/70831/does-dh-parameter-file-need-to-be-unique-per-private-key
+[12]: https://security.stackexchange.com/questions/94390/whats-the-purpose-of-dh-parameters
+[13]: https://community.letsencrypt.org/t/revoking-certain-certificates-on-march-4/114864
+[14]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/43dde6ec24f399fe49729b28ba4892665e3d7078
