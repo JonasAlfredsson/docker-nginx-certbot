@@ -30,6 +30,11 @@ if [ -z "$RSA_KEY_SIZE" ]; then
     RSA_KEY_SIZE=2048
 fi
 
+if [ "$1" = "force" ]; then
+    echo "Forcing renewal of certificates"
+    force_renew="--force-renewal"
+fi
+
 # Helper function to ask certbot to request a certificate for the given
 # domain(s). The CERTBOT_EMAIL environment variable must be defined, so that
 # Let's Encrypt may contact you in case of security issues.
@@ -44,7 +49,7 @@ get_certificate() {
         --server $letsencrypt_url \
         --cert-name $1 \
         $2 \
-        --debug
+        --debug $force_renew
 }
 
 # Go through all .conf files and find all domain names that should be added
