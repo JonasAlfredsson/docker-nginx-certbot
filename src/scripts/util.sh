@@ -61,15 +61,15 @@ parse_dhparams() {
 allfiles_exist() {
     all_exist=0
     for type in keyfile fullchain chain dhparam; do
-        for file in $(parse_"$type"s $1); do
-            if [ ! -f $file ]; then
-                error "Couldn't find $type $file for $1"
+        for file in $(parse_"${type}"s $1); do
+            if [ ! -f ${file} ]; then
+                error "Couldn't find ${type} ${file} for $1"
                 all_exist=1
             fi
         done
     done
 
-    return $all_exist
+    return ${all_exist}
 }
 
 # Helper function that sifts through /etc/nginx/conf.d/, looking for configs
@@ -77,15 +77,15 @@ allfiles_exist() {
 # has been set up correctly. This also activates them afterwards.
 auto_enable_configs() {
     for conf_file in /etc/nginx/conf.d/*.conf*; do
-        if allfiles_exist $conf_file; then
-            if [ ${conf_file##*.} = nokey ]; then
-                echo "Found all the necessary files for $conf_file, enabling..."
-                mv $conf_file ${conf_file%.*}
+        if allfiles_exist ${conf_file}; then
+            if [ "${conf_file##*.}" = "nokey" ]; then
+                echo "Found all the necessary files for ${conf_file}, enabling..."
+                mv "${conf_file}" "${conf_file%.*}"
             fi
         else
-            if [ ${conf_file##*.} = conf ]; then
-                error "Important file(s) for $conf_file are missing, disabling..."
-                mv $conf_file $conf_file.nokey
+            if [ "${conf_file##*.}" = "conf" ]; then
+                error "Important file(s) for ${conf_file} are missing, disabling..."
+                mv "${conf_file}" "${conf_file}.nokey"
             fi
         fi
     done

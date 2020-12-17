@@ -2,10 +2,10 @@
 
 # Helper function to gracefully shut down our child processes when we exit.
 clean_exit() {
-    for PID in $NGINX_PID $CERTBOT_LOOP_PID; do
-        if kill -0 $PID 2>/dev/null; then
-            kill -SIGTERM "$PID"
-            wait "$PID"
+    for PID in ${NGINX_PID} ${CERTBOT_LOOP_PID}; do
+        if kill -0 ${PID} 2>/dev/null; then
+            kill -SIGTERM "${PID}"
+            wait "${PID}"
         fi
     done
 }
@@ -31,7 +31,7 @@ nginx -g "daemon off;" &
 NGINX_PID=$!
 
 # Make sure a renewal interval is set before continuing.
-if [ -z "$RENEWAL_INTERVAL" ]; then
+if [ -z "${RENEWAL_INTERVAL}" ]; then
     echo "RENEWAL_INTERVAL unset, using default of '8d'"
     RENEWAL_INTERVAL='8d'
 fi
@@ -50,7 +50,7 @@ while [ true ]; do
     # Finally we sleep for the defined time interval before checking the
     # certificates again.
     echo "Certbot will now sleep..."
-    sleep "$RENEWAL_INTERVAL"
+    sleep "${RENEWAL_INTERVAL}"
 done
 ) &
 CERTBOT_LOOP_PID=$!
@@ -58,5 +58,5 @@ CERTBOT_LOOP_PID=$!
 # Nginx and the certbot update-loop process are now our children. As a parent
 # we will wait for both of their PIDs, and if one of them exits we will follow
 # suit and use the same status code as the program which exited first.
-wait -n $NGINX_PID $CERTBOT_LOOP_PID
+wait -n ${NGINX_PID} ${CERTBOT_LOOP_PID}
 exit $?

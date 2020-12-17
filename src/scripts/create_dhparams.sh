@@ -11,7 +11,7 @@ set -e
 # The created file should be stored somewhere under /etc/letsencrypt/dhparams/
 # to ensure persistence between restarts.
 create_dhparam() {
-    if [ -z "$DHPARAM_SIZE" ]; then
+    if [ -z "${DHPARAM_SIZE}" ]; then
         echo "DHPARAM_SIZE unset, using default of 2048 bits"
         DHPARAM_SIZE=2048
     fi
@@ -20,7 +20,7 @@ create_dhparam() {
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %                        ATTENTION!                       %
     %                                                         %
-    % This script will now create a $DHPARAM_SIZE bit Diffie-Hellman   %
+    % This script will now create a ${DHPARAM_SIZE} bit Diffie-Hellman   %
     % parameter to use during the SSL handshake.              %
     %                                                         %
     % >>>>>      This MIGHT take a VERY long time!      <<<<< %
@@ -34,7 +34,7 @@ create_dhparam() {
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     "
     echo "Will now output to the following file: $1"
-    openssl dhparam -out $1 $DHPARAM_SIZE
+    openssl dhparam -out "$1" "${DHPARAM_SIZE}"
     echo "
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % >>>>>   Diffie-Hellman parameter creation done!   <<<<< %
@@ -44,11 +44,11 @@ create_dhparam() {
 
 # Find any mentions of Diffie-Hellman parameters and create them if missing.
 for conf_file in /etc/nginx/conf.d/*.conf*; do
-    for dh_file in $(parse_dhparams $conf_file); do
-        if [ ! -f $dh_file ]; then
-            echo "Couldn't find the dhparam file $dh_file; creating it..."
-            create_dhparam $dh_file
-            chmod 600 $dh_file
+    for dh_file in $(parse_dhparams ${conf_file}); do
+        if [ ! -f "${dh_file}" ]; then
+            echo "Couldn't find the dhparam file ${dh_file}; creating it..."
+            create_dhparam "${dh_file}"
+            chmod 600 "${dh_file}"
         fi
     done
 done
