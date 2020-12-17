@@ -261,7 +261,7 @@ since it is nothing "private/personal" about this file. The only thing to
 think about in that case would perhaps be to use a folder that is not under
 `/etc/letsencrypt/`, since that would otherwise cause a double mount.
 
-### Manual/Force Renewal
+## Manual/Force Renewal
 It might be of interest to manually trigger a renewal of the certificates, and
 that is why the `run_certbot.sh` script is possible to run standalone at any
 time.
@@ -285,6 +285,27 @@ docker exec -it <container_name> /scripts/run_certbot.sh force
 
 
 # Changelog
+
+### 0.15
+- It is now possible to [manually trigger](#manualforce-renewal) a renewal of
+  certificates.
+  - It is also possible to include "force" to add `--force-renewal` to the
+    request.
+- The "clean exit" trap now handle that parent container changed to
+  [`SIGQUIT`][15] as stop signal.
+- The "certbot" server block (in Nginx) now prints to stdout by default.
+- Massive refactoring of both code and files:
+  - Our "start **command**" file is now called `start_nginx_certbot.sh` instead
+    of `entrypoint.sh`.
+  - Both `create_dhparams.sh` and `run_certbot.sh` can now be run by themselves
+    inside the container.
+  - I have added `set -e` in most of the files so the program exit as intended
+    when unexpected errors occurs.
+  - Added `{}` and `""` around most of the bash variables.
+  - Change some log messages and where they appear.
+- Our `/scripts/startup/` folder has been removed.
+  - The parent container will run any `*.sh` file found inside the
+    [`/docker-entryoint.d/`][16] folder.
 
 ### 0.14
 - Made so that the container now exits gracefully and reports the correct exit
@@ -404,3 +425,5 @@ docker exec -it <container_name> /scripts/run_certbot.sh force
 [12]: https://security.stackexchange.com/questions/94390/whats-the-purpose-of-dh-parameters
 [13]: https://community.letsencrypt.org/t/revoking-certain-certificates-on-march-4/114864
 [14]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/43dde6ec24f399fe49729b28ba4892665e3d7078
+[15]: https://github.com/nginxinc/docker-nginx/commit/3fb70ddd7094c1fdd50cc83d432643dc10ab6243
+[16]: https://github.com/nginxinc/docker-nginx/tree/master/entrypoint
