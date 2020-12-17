@@ -63,7 +63,7 @@ allfiles_exist() {
     for type in keyfile fullchain chain dhparam; do
         for file in $(parse_"${type}"s $1); do
             if [ ! -f ${file} ]; then
-                error "Couldn't find ${type} ${file} for $1"
+                error "Couldn't find ${type} '${file}' for '$1'"
                 all_exist=1
             fi
         done
@@ -79,12 +79,12 @@ auto_enable_configs() {
     for conf_file in /etc/nginx/conf.d/*.conf*; do
         if allfiles_exist ${conf_file}; then
             if [ "${conf_file##*.}" = "nokey" ]; then
-                echo "Found all the necessary files for ${conf_file}, enabling..."
+                echo "Found all the necessary files for '${conf_file}', enabling..."
                 mv "${conf_file}" "${conf_file%.*}"
             fi
         else
             if [ "${conf_file##*.}" = "conf" ]; then
-                error "Important file(s) for ${conf_file} are missing, disabling..."
+                error "Important file(s) for '${conf_file}' are missing, disabling..."
                 mv "${conf_file}" "${conf_file}.nokey"
             fi
         fi

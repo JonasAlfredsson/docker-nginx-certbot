@@ -30,6 +30,7 @@ echo "Starting the Nginx service"
 nginx -g "daemon off;" &
 NGINX_PID=$!
 
+echo "Starting the certbot autorenewal service"
 # Make sure a renewal interval is set before continuing.
 if [ -z "${RENEWAL_INTERVAL}" ]; then
     echo "RENEWAL_INTERVAL unset, using default of '8d'"
@@ -49,7 +50,7 @@ while [ true ]; do
 
     # Finally we sleep for the defined time interval before checking the
     # certificates again.
-    echo "Certbot will now sleep..."
+    echo "Certbot autorenewal service will now sleep ${RENEWAL_INTERVAL}"
     sleep "${RENEWAL_INTERVAL}"
 done
 ) &

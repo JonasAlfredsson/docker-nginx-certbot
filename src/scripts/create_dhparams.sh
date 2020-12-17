@@ -33,7 +33,7 @@ create_dhparam() {
     % A message will be displayed when this process finishes. %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     "
-    echo "Will now output to the following file: $1"
+    echo "Will now output to the following file: '$1'"
     openssl dhparam -out "$1" "${DHPARAM_SIZE}"
     echo "
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -46,7 +46,7 @@ create_dhparam() {
 for conf_file in /etc/nginx/conf.d/*.conf*; do
     for dh_file in $(parse_dhparams ${conf_file}); do
         if [ ! -f "${dh_file}" ]; then
-            echo "Couldn't find the dhparam file ${dh_file}; creating it..."
+            echo "Couldn't find the dhparam file '${dh_file}'; creating it..."
             create_dhparam "${dh_file}"
             chmod 600 "${dh_file}"
         fi
