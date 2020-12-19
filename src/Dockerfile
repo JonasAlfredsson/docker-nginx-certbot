@@ -5,7 +5,7 @@ LABEL maintainer="Jonas Alfredsson <jonas.alfredsson@protonmail.com>"
 RUN set -ex && \
 # Install all necessary packages.
     apt-get update && \
-    apt-get install -y \
+    apt-get install -y --no-install-recommends \
             build-essential \
             curl \
             libffi6 \
