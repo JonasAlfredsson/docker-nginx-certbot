@@ -11,9 +11,10 @@ RUN set -ex && \
             libffi6 \
             libffi-dev \
             libssl-dev \
+            openssl \
+            procps \
             python3 \
             python3-dev \
-            openssl \
     && \
 # Install certbot.
     curl -L 'https://bootstrap.pypa.io/get-pip.py' | python3 && \

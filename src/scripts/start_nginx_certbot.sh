@@ -50,14 +50,39 @@ while [ true ]; do
 
     # Finally we sleep for the defined time interval before checking the
     # certificates again.
+    # The "if" statement afterwards is to enable us to terminate this sleep
+    # process (via the HUP trap) without tripping the "set -e" setting.
     echo "Certbot autorenewal service will now sleep ${RENEWAL_INTERVAL}"
-    sleep "${RENEWAL_INTERVAL}"
+    sleep "${RENEWAL_INTERVAL}" || x=$?; if [ "${x}" -ne "143" ]; then exit "${x}"; fi
 done
 ) &
 CERTBOT_LOOP_PID=$!
 
+# A helper function to prematurely terminate the sleep process, inside the
+# autorenewal loop process, in order to immediately restart the loop again
+# and thus reload any configuration files.
+reload_configs() {
+    echo "Received SIGHUP signal; terminating the autorenewal sleep process"
+    if ! pkill -15 -P ${CERTBOT_LOOP_PID} -fx "sleep ${RENEWAL_INTERVAL}"; then
+        error "No sleep process found, this most likely means that a renewal process is currently running"
+    fi
+    # On success we return 128 + SIGHUP in order to reduce the complexity of
+    # the final wait loop.
+    return 129
+}
+
+# Create a trap that listens to SIGHUP and runs the reloader function in case
+# such a signal is received.
+trap "reload_configs" HUP
+
 # Nginx and the certbot update-loop process are now our children. As a parent
 # we will wait for both of their PIDs, and if one of them exits we will follow
 # suit and use the same status code as the program which exited first.
-wait -n ${NGINX_PID} ${CERTBOT_LOOP_PID}
-exit $?
+# The loop is necessary since the HUP trap will make any "wait" return
+# immediately when triggered, and to not exit the entire program we will have
+# to wait on the original PIDs again.
+while [ -z "${exit_code}" -o "${exit_code}" = "129" ]; do
+    wait -n ${NGINX_PID} ${CERTBOT_LOOP_PID}
+    exit_code=$?
+done
+exit ${exit_code}
