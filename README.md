@@ -264,24 +264,36 @@ think about in that case would perhaps be to use a folder that is not under
 ## Manual/Force Renewal
 It might be of interest to manually trigger a renewal of the certificates, and
 that is why the `run_certbot.sh` script is possible to run standalone at any
-time.
+time from within the container.
 
-The fastest way to execute a manual renewal is to just run the following
-command:
+However, the preferred way of requesting a reload of all the configuration files
+is to send in a `SIGHUP` to the container:
 
 ```bash
-docker exec -it <container_name> /scripts/run_certbot.sh
+docker kill --signal=HUP <container_name>
 ```
 
-However, sometimes it might be necessary to **force** a renewal of the
-certificates, even though certbot thinks it could keep them for a while longer
-(like when [this][13] happened). It is therefore possible to add "force" to the
-end of the command above to have the script append the `--force--renewal` flag
-to the requests made.
+This will terminate the [sleep timer](#renewal-check-interval) and make the
+renewal loop start again from the beginning.
+
+While this will be enough in the majority of the cases, it might sometimes be
+necessary to **force** a renewal of the certificates even though certbot thinks
+it could keep them for a while longer (like when [this][13] happened). It is
+therefore possible to add "force" as an argument, when calling the
+`run_certbot.sh` script, to have it append the `--force-renewal` flag to the
+requests made.
 
 ```bash
 docker exec -it <container_name> /scripts/run_certbot.sh force
 ```
+
+This will request new certificates irregardless of then they are set to expire.
+
+> NOTE: Using "force" will make new requests for **all** you certificates, so
+        don't run it too often since there are some limits to requesting
+        [production certificates][7].
+
+
 
 
 # Changelog
