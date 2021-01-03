@@ -19,12 +19,15 @@ of their [*certbot*][2] script, which they provide for the absolutely bargain
 price of free! If you like what they do, please [donate][3].
 
 This repository was originally forked from [`@henridwyer`][4] by
-[`@staticfloat`][5], and is now forked again by me! I thought the container
-could be more autonomous and stricter when it comes to checking that all files
-exist. In addition, this container also allows for multiple server names when
-requesting certificates (i.e. both `example.com` and `www.example.com` will be
-included in the same certificate request if they are defined in the Nginx
-configuration files). It is also possible to easily
+[`@staticfloat`][5], before it was forked again by me. However, the changes to
+the code has since become so significant that this has now been detached as its
+own independent repository (while still retaining all the history).
+
+I thought the container could be more autonomous and stricter when it comes to
+checking that all files exist. In addition, this container also allows for
+multiple server names when requesting certificates (i.e. both `example.com` and
+`www.example.com` will be included in the same certificate request if they are
+defined in the Nginx configuration files). It is also possible to easily
 [force renewal](#manualforce-renewal) of certificates if necessary.
 
 
@@ -298,6 +301,16 @@ This will request new certificates irregardless of then they are set to expire.
 
 # Changelog
 
+### 0.16
+- Container now listens to [`SIGHUP`](#manualforce-renewal) and will reload
+  all configs if this signal is received.
+  - More details can be found in the commit message: [bf2c135][18]
+- Made Docker image slightly smaller by including `--no-install-recommends`.
+- There is now also a [`dev` branch][17]/tag if you are brave and want to run
+  experimental builds.
+- JonasAlfredsson/docker-nginx-certbot is now its own independent repository
+  (i.e. no longer just a fork).
+
 ### 0.15
 - It is now possible to [manually trigger](#manualforce-renewal) a renewal of
   certificates.
@@ -439,3 +452,5 @@ This will request new certificates irregardless of then they are set to expire.
 [14]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/43dde6ec24f399fe49729b28ba4892665e3d7078
 [15]: https://github.com/nginxinc/docker-nginx/commit/3fb70ddd7094c1fdd50cc83d432643dc10ab6243
 [16]: https://github.com/nginxinc/docker-nginx/tree/master/entrypoint
+[17]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/dev
+[18]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/bf2c1354f55adffadc13b1f1792e205f9dd25f86
