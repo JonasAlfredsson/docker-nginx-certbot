@@ -89,8 +89,8 @@ docker build --tag jonasal/nginx-certbot:local .
 ### ...or get it from Docker Hub
 This option is for if you make your own `Dockerfile`.
 
-This image exist on Docker Hub under `jonasal/nginx-certbot`, which means you
-can make your own `Dockerfile` for a cleaner folder structure. Just add a
+This image exist on Docker Hub under [`jonasal/nginx-certbot`][20], which means
+you can make your own `Dockerfile` for a cleaner folder structure. Just add a
 command where you copy in your own server configuration files (make sure
 that none of your files replace those already present).
 
@@ -301,6 +301,22 @@ This will request new certificates irregardless of then they are set to expire.
 
 # Changelog
 
+### 1.0.0
+- Move over to [semantic versioning][19].
+  - The version number will now be given like this: `[MAJOR].[MINOR].[PATCH]`
+  - This is done to signify that I feel like this code is stable, since I have
+    been running this for quite a while.
+- Build from a defined version of Nginx.
+  - This is done to facilitate a way to lock this container to a more specific
+    version.
+  - This also allows us to more often trigger rebuilds of this container on
+    Dockerhub.
+- New tags are available on Dockerhub.
+  - There will now be tags on the following form:
+    - latest
+    - 1.0.0
+    - 1.0.0-nginx1.19.7
+
 ### 0.16
 - Container now listens to [`SIGHUP`](#manualforce-renewal) and will reload
   all configs if this signal is received.
@@ -454,3 +470,5 @@ This will request new certificates irregardless of then they are set to expire.
 [16]: https://github.com/nginxinc/docker-nginx/tree/master/entrypoint
 [17]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/dev
 [18]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/bf2c1354f55adffadc13b1f1792e205f9dd25f86
+[19]: https://semver.org/
+[20]: https://hub.docker.com/r/jonasal/nginx-certbot/tags?page=1&ordering=last_updated
