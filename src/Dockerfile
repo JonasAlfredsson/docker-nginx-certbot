@@ -45,8 +45,10 @@ RUN set -ex && \
 COPY nginx_conf.d/ /etc/nginx/conf.d/
 
 # Copy in all our scripts and make them executable.
+COPY docker-entrypoint.d/ /docker-entrypoint.d
 COPY scripts/ /scripts
 RUN chmod +x -R /scripts && \
+    chmod +x -R /docker-entrypoint.d && \
 # Make so that the parent's entrypoint script is properly triggered (issue #21).
     sed -ri '/^if \[ "\$1" = "nginx" -o "\$1" = "nginx-debug" \]; then$/,${s//if echo "$1" | grep -q "nginx"; then/;b};$q1' /docker-entrypoint.sh
 
