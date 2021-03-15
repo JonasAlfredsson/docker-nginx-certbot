@@ -44,9 +44,11 @@ RUN set -ex && \
     rm -f /etc/nginx/conf.d/*
 COPY nginx_conf.d/ /etc/nginx/conf.d/
 
-# Copy in our scripts and make them executable.
+# Copy in all our scripts and make them executable.
 COPY scripts/ /scripts
-RUN chmod +x -R /scripts
+RUN chmod +x -R /scripts && \
+# Make so that the parent's entrypoint script is properly triggered (issue #21).
+    sed -ri '/^if \[ "\$1" = "nginx" -o "\$1" = "nginx-debug" \]; then$/,${s//if echo "$1" | grep -q "nginx"; then/;b};$q1' /docker-entrypoint.sh
 
 # Create a volume to have persistent storage for the obtained certificates.
 VOLUME /etc/letsencrypt
@@ -57,4 +59,4 @@ EXPOSE 443
 
 # Change the container's start command to launch our Nginx and certbot
 # management script.
-CMD ["/bin/bash", "/scripts/start_nginx_certbot.sh"]
+CMD [ "/scripts/start_nginx_certbot.sh" ]
