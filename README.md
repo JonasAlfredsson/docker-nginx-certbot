@@ -115,8 +115,8 @@ docker run -it -p 80:80 -p 443:443 \
            --name nginx-certbot jonasal/nginx-certbot:local
 ```
 
-> You should be able to detach from the container by pressing
-  `Ctrl`+`p`+`Ctrl`+`o`
+> You should be able to detach from the container by holding `Ctrl` and pressing
+  `p` + `q` after each other.
 
 
 ## Run with `docker-compose`
@@ -301,6 +301,12 @@ This will request new certificates irregardless of then they are set to expire.
 
 # Changelog
 
+### 1.1.0
+- Fix that scripts inside [`/docker-entryoint.d/`][16] were never run
+  ([issue #21][21]).
+- Fix for issue where the script failed in case the `/etc/letsencrypt/dhparams`
+  folder was missing ([issue #20][22]).
+
 ### 1.0.0
 - Move over to [semantic versioning][19].
   - The version number will now be given like this: `[MAJOR].[MINOR].[PATCH]`
@@ -472,3 +478,5 @@ This will request new certificates irregardless of then they are set to expire.
 [18]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/bf2c1354f55adffadc13b1f1792e205f9dd25f86
 [19]: https://semver.org/
 [20]: https://hub.docker.com/r/jonasal/nginx-certbot/tags?page=1&ordering=last_updated
+[21]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/21
+[22]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/20
