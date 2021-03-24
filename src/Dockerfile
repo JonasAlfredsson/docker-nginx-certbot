@@ -1,4 +1,4 @@
-FROM nginx:1.19.7
+FROM nginx:1.19.8
 LABEL maintainer="Jonas Alfredsson <jonas.alfredsson@protonmail.com>"
 
 # Do a single run command to make the intermediary containers smaller.
