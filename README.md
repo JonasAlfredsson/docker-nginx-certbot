@@ -166,7 +166,7 @@ your domain. You should now be greeted with the string \
 "`Let's Encrypt certificate successfully installed!`".
 
 ## How the Script add Domain Names to Certificate Requests
-The included script will go trough all configuration files (`*.conf*`) it
+The included script will go through all configuration files (`*.conf*`) it
 finds inside Nginx's `/etc/nginx/conf.d/` folder, and create requests from the
 file's content. In every unique file it will find any line that says:
 
@@ -175,9 +175,15 @@ ssl_certificate_key /etc/letsencrypt/live/yourdomain.org/privkey.pem;
 ```
 
 and only extract the part which here says "`yourdomain.org`", and this will
-henceforth be used as the "primary domain" for this config file. It will then
-find all the lines that contain `server_name` and make a list of all the domain
-names that exist on the same line. So a file containing something like this:
+henceforth be used as the "primary domain" for this config file. 
+
+> :warning: **The certificate key's filename HAS to be privkey.pem!**
+
+> :info: You don't actually have to provide the certificate key. The library handles that for you.
+
+It will then find all the lines that contain `server_name` and make a list 
+of all the domain names that exist on the same line. So a file containing 
+something like this:
 
 ```
 server {
