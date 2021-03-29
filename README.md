@@ -179,7 +179,7 @@ henceforth be used as the "primary domain" for this config file.
 
 > :warning: **The certificate key's filename HAS to be privkey.pem!**
 
-> :info: You don't actually have to provide the certificate key. The library handles that for you.
+> :point_right: You don't actually have to provide the certificate key. The library handles that for you.
 
 It will then find all the lines that contain `server_name` and make a list 
 of all the domain names that exist on the same line. So a file containing 
