@@ -3,10 +3,11 @@ LABEL maintainer="Jonas Alfredsson <jonas.alfredsson@protonmail.com>"
 
 # Do a single run command to make the intermediary containers smaller.
 RUN set -ex && \
-# Install all necessary packages.
+# Install packages necessary during the build phase (for all architectures).
     apt-get update && \
     apt-get install -y --no-install-recommends \
             build-essential \
+            cargo \
             curl \
             libffi6 \
             libffi-dev \
@@ -16,13 +17,15 @@ RUN set -ex && \
             python3 \
             python3-dev \
     && \
-# Install certbot.
+# Install the latest version of PIP, Setuptools and Wheel.
     curl -L 'https://bootstrap.pypa.io/get-pip.py' | python3 && \
+# Install certbot.
     pip3 install -U cffi certbot \
     && \
 # Remove everything that is no longer necessary.
     apt-get remove --purge -y \
             build-essential \
+            cargo \
             curl \
             libffi-dev \
             libssl-dev \
@@ -31,6 +34,8 @@ RUN set -ex && \
     apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* \
+    rm -rf /root/.cache \
+    rm -rf /root/.cargo \
     && \
 # Create new directories and set correct permissions for them.
     mkdir -p /var/www/letsencrypt && \
