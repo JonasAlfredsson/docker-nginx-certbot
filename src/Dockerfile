@@ -1,6 +1,8 @@
 FROM nginx:1.19.8
 LABEL maintainer="Jonas Alfredsson <jonas.alfredsson@protonmail.com>"
 
+ARG BUILDX_QEMU_ENV
+
 # Do a single run command to make the intermediary containers smaller.
 RUN set -ex && \
 # Install packages necessary during the build phase (for all architectures).
@@ -19,6 +21,11 @@ RUN set -ex && \
     && \
 # Install the latest version of PIP, Setuptools and Wheel.
     curl -L 'https://bootstrap.pypa.io/get-pip.py' | python3 && \
+# Handle an extremely specific issue when building the cryptography package for
+# 32-bit architectures within QEMU running on a 64-bit host (issue #30).
+    if [ "${BUILDX_QEMU_ENV}" = "true" -a "$(getconf LONG_BIT)" = "32" ]; then \
+        pip3 install -U cryptography==3.3.2; \
+    fi && \
 # Install certbot.
     pip3 install -U cffi certbot \
     && \
