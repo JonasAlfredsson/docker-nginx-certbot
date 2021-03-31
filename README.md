@@ -337,6 +337,12 @@ something I have implemented in mine.
 
 # Changelog
 
+### 1.2.0
+- Fix dependencies so that it is possible to build in 32-bit ARM architectures
+  ([issue #24][25]).
+- Added GitHub Actions/Worflows so that each [tag][20] now is built for multiple
+  arches ([issue #28][26]).
+
 ### 1.1.0
 - Fix that scripts inside [`/docker-entrypoint.d/`][16] were never run
   ([issue #21][21]).
@@ -518,3 +524,5 @@ something I have implemented in mine.
 [22]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/20
 [23]: https://github.com/staticfloat/docker-nginx-certbot#templating
 [24]: https://github.com/docker-library/docs/tree/master/nginx#using-environment-variables-in-nginx-configuration-new-in-119
+[25]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/24
+[26]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/28
