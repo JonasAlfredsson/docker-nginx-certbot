@@ -21,14 +21,23 @@ price of free! If you like what they do, please [donate][3].
 This repository was originally forked from [`@henridwyer`][4] by
 [`@staticfloat`][5], before it was forked again by me. However, the changes to
 the code has since become so significant that this has now been detached as its
-own independent repository (while still retaining all the history).
+own independent repository (while still retaining all the history). Migration
+instructions, from `@staticfloat`'s image, can be found
+[here](#help-migrating-from-staticfloats-image).
 
-I thought the container could be more autonomous and stricter when it comes to
-checking that all files exist. In addition, this container also allows for
-multiple server names when requesting certificates (i.e. both `example.com` and
-`www.example.com` will be included in the same certificate request if they are
-defined in the Nginx configuration files). It is also possible to easily
-[force renewal](#manualforce-renewal) of certificates if necessary.
+Some of the more significant additions to this container:
+
+- Handles multiple server names when
+  [requesting certificates](#how-the-script-add-domain-names-to-certificate-requests)
+  (i.e. both `example.com` and `www.example.com`).
+- Will create [Diffie-Hellman parameters](#diffie-hellman-parameters) if they
+  are defined.
+- Uses the parent container's [`/docker-entrypoint.d/`][16] folder.
+- Will report correct [exit code][14] when stopped/killed/failed.
+- Stricter when it comes to checking that all files exist.
+- Easily to [force renewal](#manualforce-renewal) of certificates if necessary.
+- You can tune your own [renewal interval](#renewal-check-interval).
+- Builds for multiple architectures available on [DockerHub][20].
 
 
 
@@ -78,9 +87,9 @@ defined in the Nginx configuration files). It is also possible to easily
 ### Build it yourself...
 This option is for if you have downloaded this entire repository.
 
-Place any additional server configuration you desire inside the `nginx_conf.d/`
-folder and run the following command in your terminal while residing inside
-the `src/` folder.
+Place any additional server configuration you desire inside the
+[`nginx_conf.d/`](./src/nginx_conf.d) folder and run the following command in
+your terminal while residing inside the [`src/`](./src) folder.
 
 ```bash
 docker build --tag jonasal/nginx-certbot:local .
@@ -120,14 +129,15 @@ docker run -it -p 80:80 -p 443:443 \
 
 
 ## Run with `docker-compose`
-An example of a `docker-compose.yaml` file can be found in the `examples/`
-folder. The default parameters that are found inside the `nginx-certbot.env`
-file will be overwritten by any environment variables you set inside the `.yaml`
-file.
+An example of a `docker-compose.yaml` file can be found in the
+[`examples/`](./examples) folder. The default parameters that are found inside
+the `nginx-certbot.env` file will be overwritten by any environment variables
+you set inside the `.yaml` file.
 
-Move the `.yaml` file (and optionally the `.env` file) into the `src/` folder,
-and then build and start with the following commands. Just remember to place any
-additional server configs you want inside the `nginx_conf.d/` folder beforehand.
+Move the `.yaml` file (and optionally the `.env` file) into the [`src/`](./src)
+folder, and then build and start with the following commands. Just remember to
+place any additional server configs you want inside the
+[`nginx_conf.d/`](./src/nginx_conf.d) folder beforehand.
 
 ```bash
 docker-compose build --pull
@@ -155,14 +165,14 @@ docker run -d -p 80:80 -p 443:443 \
 
 ## Creating a Server `.conf` File
 As an example of a barebone (but functional) SSL server in Nginx you can
-look at the file `example_server.conf` inside the `examples/` directory. By
-replacing '`yourdomain.org`' with your own domain you can actually use this
-config to quickly test if things are working properly.
+look at the file `example_server.conf` inside the [`examples/`](./examples)
+directory. By replacing '`yourdomain.org`' with your own domain you can
+actually use this config to quickly test if things are working properly.
 
-Place the modified config inside the `nginx_conf.d/` folder, `build` the
-container and then run it as described [above](#usage). Let the container do
-it's [magic](#diffie-hellman-parameters) for a while, and then try to visit
-your domain. You should now be greeted with the string \
+Place the modified config inside the [`nginx_conf.d/`](./src/nginx_conf.d)
+folder, `build` the container and then run it as described [above](#usage).
+Let the container do it's [magic](#diffie-hellman-parameters) for a while, and
+then try to visit your domain. You should now be greeted with the string \
 "`Let's Encrypt certificate successfully installed!`".
 
 ## How the Script add Domain Names to Certificate Requests
@@ -235,10 +245,10 @@ it necessary to update the certificates.
 ## Diffie-Hellman Parameters
 Regarding the Diffie-Hellman parameter it is recommended that you have one for
 your server, and in Nginx you define it by including a line that starts with
-`ssl_dhparam` in the server block (see `examples/example_server.conf`). However,
-you can make a config file without it and Nginx will work just fine with ciphers
-that don't rely on the Diffie-Hellman key exchange
-([more info about ciphers][10]).
+`ssl_dhparam` in the server block (see
+[`examples/example_server.conf`](./src/nginx_conf.d)). However, you can make a
+config file without it and Nginx will work just fine with ciphers that don't
+rely on the Diffie-Hellman key exchange ([more info about ciphers][10]).
 
 The larger you make these parameters the longer it will take to generate them.
 I was unlucky and it took me 65 minutes to generate a 4096 bit parameter on an
@@ -297,12 +307,38 @@ This will request new certificates irregardless of then they are set to expire.
         [production certificates][7].
 
 
+## Help Migrating from `@staticfloat`'s Image
+The two images are not that different when it comes to building/running, since
+this repository was originally a fork. So just like in `@staticfloat`'s setup
+you need to get your own `*.conf` files into the container's
+`/etc/nginx/conf.d/` folder, and then you should be able to start this one
+just like you did with his.
+
+This can either be done by copying your own files into the container at
+[build time](#run-with-docker-run), or you can mount a local folder to the
+aforementioned location. In the latter case you need to make sure you include
+the two files present in this repository's
+[`src/nginx_conf.d/`](./src/nginx_conf.d/) folder, since these are required in
+order for certbot to request certificates.
+
+Why you need to include these files yourself is because this gives the user more
+freedom in how they can configure their server blocks, i.e. you can create
+your own "redirector" if you do not like mine.
+
+The default [Environment Variables](#available-environment-variables) are sane,
+in addition to the obligatory `CERTBOT_EMAIL` one, but it wouldn't hurt to take
+a quick look at them before you start.
+
+If you were using [templating][23] before, you should probably look into
+["template" files][24] used by the Nginx parent container, since this is not
+something I have implemented in mine.
+
 
 
 # Changelog
 
 ### 1.1.0
-- Fix that scripts inside [`/docker-entryoint.d/`][16] were never run
+- Fix that scripts inside [`/docker-entrypoint.d/`][16] were never run
   ([issue #21][21]).
 - Fix for issue where the script failed in case the `/etc/letsencrypt/dhparams`
   folder was missing ([issue #20][22]).
@@ -352,7 +388,7 @@ This will request new certificates irregardless of then they are set to expire.
   - Change some log messages and where they appear.
 - Our `/scripts/startup/` folder has been removed.
   - The parent container will run any `*.sh` file found inside the
-    [`/docker-entryoint.d/`][16] folder.
+    [`/docker-entrypoint.d/`][16] folder.
 
 ### 0.14
 - Made so that the container now exits gracefully and reports the correct exit
@@ -480,3 +516,5 @@ This will request new certificates irregardless of then they are set to expire.
 [20]: https://hub.docker.com/r/jonasal/nginx-certbot/tags?page=1&ordering=last_updated
 [21]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/21
 [22]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/20
+[23]: https://github.com/staticfloat/docker-nginx-certbot#templating
+[24]: https://github.com/docker-library/docs/tree/master/nginx#using-environment-variables-in-nginx-configuration-new-in-119
