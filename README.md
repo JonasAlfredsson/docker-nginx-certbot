@@ -32,12 +32,12 @@ Some of the more significant additions to this container:
   (i.e. both `example.com` and `www.example.com`).
 - Will create [Diffie-Hellman parameters](#diffie-hellman-parameters) if they
   are defined.
-- Uses the parent container's [`/docker-entrypoint.d/`][16] folder.
+- Uses the [parent container][27]'s [`/docker-entrypoint.d/`][16] folder.
 - Will report correct [exit code][14] when stopped/killed/failed.
 - Stricter when it comes to checking that all files exist.
 - Easily to [force renewal](#manualforce-renewal) of certificates if necessary.
 - You can tune your own [renewal interval](#renewal-check-interval).
-- Builds for multiple architectures available on [DockerHub][20].
+- Builds for multiple architectures available on [Docker Hub][20].
 
 
 
@@ -157,7 +157,7 @@ ridiculous high [rate limits][6] compared to the non-staging
 
 Include it like this:
 ```bash
-docker run -d -p 80:80 -p 443:443 \
+docker run -it -p 80:80 -p 443:443 \
            --env CERTBOT_EMAIL=your@email.org \
            --env STAGING=1 \
            --name nginx-certbot jonasal/nginx-certbot:latest
@@ -176,7 +176,7 @@ then try to visit your domain. You should now be greeted with the string \
 "`Let's Encrypt certificate successfully installed!`".
 
 ## How the Script add Domain Names to Certificate Requests
-The included script will go trough all configuration files (`*.conf*`) it
+The included script will go through all configuration files (`*.conf*`) it
 finds inside Nginx's `/etc/nginx/conf.d/` folder, and create requests from the
 file's content. In every unique file it will find any line that says:
 
@@ -199,7 +199,7 @@ server {
 
 server {
     listen              443 ssl;
-    server_name         sub.yourdomain.org www.yourdomain.org;
+    server_name         sub.yourdomain.org;
     ssl_certificate_key /etc/letsencrypt/live/yourdomain.org/privkey.pem;
     ...
 }
@@ -207,7 +207,7 @@ server {
 
 will share the same certificate file (the "primary domain"), but the certbot
 command will include all listed domain variants. The limitation is that you
-should write all your server blocks that have the same primary domain in the
+should write all your server blocks that have the same "primary domain" in the
 same file. The certificate request from the above file will then become
 something like this (duplicates will be removed):
 
@@ -325,13 +325,15 @@ Why you need to include these files yourself is because this gives the user more
 freedom in how they can configure their server blocks, i.e. you can create
 your own "redirector" if you do not like mine.
 
-The default [Environment Variables](#available-environment-variables) are sane,
-in addition to the obligatory `CERTBOT_EMAIL` one, but it wouldn't hurt to take
-a quick look at them before you start.
+The only obligatory environment variable for starting this container is the
+[`CERTBOT_EMAIL`](#required) one, just like in `@staticfloat`'s case, but I
+have exposed a [couple of more](#optional) that can be changed from their
+defaults if you like. Then there is of course any environment variables read by
+the [parent container][27] as well, but those are probably not as important.
 
 If you were using [templating][23] before, you should probably look into
 ["template" files][24] used by the Nginx parent container, since this is not
-something I have implemented in mine.
+something I have personally implemented in mine.
 
 
 
@@ -340,8 +342,8 @@ something I have implemented in mine.
 ### 1.2.0
 - Fix dependencies so that it is possible to build in 32-bit ARM architectures
   ([issue #24][25]).
-- Added GitHub Actions/Worflows so that each [tag][20] now is built for multiple
-  arches ([issue #28][26]).
+- Added [GitHub Actions/Workflows](./.github/workflows) so that each [tag][20]
+  now is built for multiple arches ([issue #28][26]).
 
 ### 1.1.0
 - Fix that scripts inside [`/docker-entrypoint.d/`][16] were never run
@@ -358,8 +360,8 @@ something I have implemented in mine.
   - This is done to facilitate a way to lock this container to a more specific
     version.
   - This also allows us to more often trigger rebuilds of this container on
-    Dockerhub.
-- New tags are available on Dockerhub.
+    Docker Hub.
+- New tags are available on [Docker Hub][20].
   - There will now be tags on the following form:
     - latest
     - 1.0.0
@@ -435,7 +437,7 @@ something I have implemented in mine.
 
 ### 0.11
 - Python 2 is EOL, so it's time to move over to Python 3.
-- From now on DockerHub will also automatically build with tags.
+- From now on [Docker Hub][20] will also automatically build with tags.
   - Lock the version by specifying the tag: `jonasal/nginx-certbot:0.11`
 
 ### 0.10
@@ -451,7 +453,7 @@ something I have implemented in mine.
   script.
 - Container will now die along with Nginx like it should.
 - The Diffie-Hellman parameters now have better permissions.
-- Container now exist on Docker Hub under `jonasal/nginx-certbot:latest`
+- Container now exist on [Docker Hub][20] under `jonasal/nginx-certbot:latest`
 - More documentation.
 
 ### 0.9-beta
@@ -526,3 +528,4 @@ something I have implemented in mine.
 [24]: https://github.com/docker-library/docs/tree/master/nginx#using-environment-variables-in-nginx-configuration-new-in-119
 [25]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/24
 [26]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/28
+[27]: https://github.com/nginxinc/docker-nginx
