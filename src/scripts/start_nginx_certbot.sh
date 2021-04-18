@@ -21,19 +21,22 @@ trap "clean_exit" EXIT
 # Source "util.sh" so we can have our nice tools.
 . $(cd $(dirname $0); pwd)/util.sh
 
+# If the environment variable `DEBUG=1` is set, then this message is printed.
+debug "Debug messages are enabled"
+
 # Immediately run 'auto_enable_configs' so that Nginx is in a runnable state
 # This will temporarily disable any misconfigured servers.
 auto_enable_configs
 
 # Start Nginx without its daemon mode (and save its PID).
-echo "Starting the Nginx service"
+info "Starting the Nginx service"
 nginx -g "daemon off;" &
 NGINX_PID=$!
 
-echo "Starting the certbot autorenewal service"
+info "Starting the certbot autorenewal service"
 # Make sure a renewal interval is set before continuing.
 if [ -z "${RENEWAL_INTERVAL}" ]; then
-    echo "RENEWAL_INTERVAL unset, using default of '8d'"
+    debug "RENEWAL_INTERVAL unset, using default of '8d'"
     RENEWAL_INTERVAL='8d'
 fi
 
@@ -52,7 +55,7 @@ while [ true ]; do
     # certificates again.
     # The "if" statement afterwards is to enable us to terminate this sleep
     # process (via the HUP trap) without tripping the "set -e" setting.
-    echo "Certbot autorenewal service will now sleep ${RENEWAL_INTERVAL}"
+    info "Certbot autorenewal service will now sleep ${RENEWAL_INTERVAL}"
     sleep "${RENEWAL_INTERVAL}" || x=$?; if [ "${x}" -ne "143" ]; then exit "${x}"; fi
 done
 ) &
@@ -62,7 +65,7 @@ CERTBOT_LOOP_PID=$!
 # autorenewal loop process, in order to immediately restart the loop again
 # and thus reload any configuration files.
 reload_configs() {
-    echo "Received SIGHUP signal; terminating the autorenewal sleep process"
+    info "Received SIGHUP signal; terminating the autorenewal sleep process"
     if ! pkill -15 -P ${CERTBOT_LOOP_PID} -fx "sleep ${RENEWAL_INTERVAL}"; then
         error "No sleep process found, this most likely means that a renewal process is currently running"
     fi

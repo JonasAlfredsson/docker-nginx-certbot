@@ -1,6 +1,5 @@
 #!/bin/bash
 set -e
-echo "Starting certificate renewal process"
 
 # URLs used when requesting certificates.
 CERTBOT_PRODUCTION_URL='https://acme-v02.api.letsencrypt.org/directory'
@@ -8,6 +7,8 @@ CERTBOT_STAGING_URL='https://acme-staging-v02.api.letsencrypt.org/directory'
 
 # Source in util.sh so we can have our nice tools.
 . $(cd $(dirname $0); pwd)/util.sh
+
+info "Starting certificate renewal process"
 
 # We require an email to be able to request a certificate.
 if [ -z "${CERTBOT_EMAIL}" ]; then
@@ -18,20 +19,20 @@ fi
 # Use the correct challenge URL depending on if we want staging or not.
 if [ "${STAGING}" = "1" ]; then
     letsencrypt_url=${CERTBOT_STAGING_URL}
-    echo "Using staging environment"
+    debug "Using staging environment"
 else
     letsencrypt_url=${CERTBOT_PRODUCTION_URL}
-    echo "Using production environment"
+    debug "Using production environment"
 fi
 
 # Ensure that a key size is set.
 if [ -z "${RSA_KEY_SIZE}" ]; then
-    echo "RSA_KEY_SIZE unset, defaulting to 2048"
+    debug "RSA_KEY_SIZE unset, defaulting to 2048"
     RSA_KEY_SIZE=2048
 fi
 
-if [ "$1" = "force" ]; then
-    echo "Forcing renewal of certificates"
+if [ "${1}" = "force" ]; then
+    info "Forcing renewal of certificates"
     force_renew="--force-renewal"
 fi
 
@@ -39,7 +40,7 @@ fi
 # domain(s). The CERTBOT_EMAIL environment variable must be defined, so that
 # Let's Encrypt may contact you in case of security issues.
 get_certificate() {
-    echo "Requesting certificate for the primary domain '$1'"
+    info "Requesting certificate for the primary domain '${1}'"
     certbot certonly \
         --agree-tos --keep -n --text \
         -a webroot --webroot-path=/var/www/letsencrypt \

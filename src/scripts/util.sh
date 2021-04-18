@@ -1,10 +1,23 @@
 #!/bin/bash
 
+# Helper function to output informational messages to STDOUT.
+debug() {
+    if [ 1 = "${DEBUG}" ]; then
+        echo "${1}"
+    fi
+}
+
+# Helper function to output debug messages to STDOUT if the `DEBUG` environment
+# variable is set to 1.
+info() {
+    echo "${1}"
+}
+
 # Helper function to output error messages to STDERR, with red text.
 error() {
     (set +x; tput -Tscreen bold
     tput -Tscreen setaf 1
-    echo $*
+    echo "${1}"
     tput -Tscreen sgr0) >&2
 }
 
@@ -79,7 +92,7 @@ auto_enable_configs() {
     for conf_file in /etc/nginx/conf.d/*.conf*; do
         if allfiles_exist ${conf_file}; then
             if [ "${conf_file##*.}" = "nokey" ]; then
-                echo "Found all the necessary files for '${conf_file}', enabling..."
+                info "Found all the necessary files for '${conf_file}', enabling..."
                 mv "${conf_file}" "${conf_file%.*}"
             fi
         else

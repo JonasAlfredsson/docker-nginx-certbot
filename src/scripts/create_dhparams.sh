@@ -12,11 +12,11 @@ set -e
 # to ensure persistence between restarts.
 create_dhparam() {
     if [ -z "${DHPARAM_SIZE}" ]; then
-        echo "DHPARAM_SIZE unset, using default of 2048 bits"
+        debug "DHPARAM_SIZE unset, using default of 2048 bits"
         DHPARAM_SIZE=2048
     fi
 
-    echo "
+    info "
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %                        ATTENTION!                       %
     %                                                         %
@@ -33,9 +33,9 @@ create_dhparam() {
     % A message will be displayed when this process finishes. %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     "
-    echo "Will now output to the following file: '$1'"
-    openssl dhparam -out "$1" "${DHPARAM_SIZE}"
-    echo "
+    info "Will now output to the following file: '${1}'"
+    openssl dhparam -out "${1}" "${DHPARAM_SIZE}"
+    info "
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % >>>>>   Diffie-Hellman parameter creation done!   <<<<< %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -46,7 +46,7 @@ create_dhparam() {
 for conf_file in /etc/nginx/conf.d/*.conf*; do
     for dh_file in $(parse_dhparams ${conf_file}); do
         if [ ! -f "${dh_file}" ]; then
-            echo "Couldn't find the dhparam file '${dh_file}'; creating it..."
+            info "Couldn't find the dhparam file '${dh_file}'; creating it..."
             create_dhparam "${dh_file}"
             chmod 600 "${dh_file}"
         fi
