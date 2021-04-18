@@ -72,11 +72,15 @@ parse_dhparams() {
 # Given a config file path, return 0 if all SSL related files exist (or there
 # are no files needed to be found). Return 1 otherwise (i.e. error exit code).
 allfiles_exist() {
-    all_exist=0
+    local all_exist=0
     for type in keyfile fullchain chain dhparam; do
-        for file in $(parse_"${type}"s $1); do
-            if [[ $file != data:* ]] && [[ $file != engine:* ]] && [ ! -f ${file} ]; then
-                error "Couldn't find ${type} '${file}' for '$1'"
+        for path in $(parse_"${type}"s $1); do
+            if [[ "${path}" == data:* ]]; then
+                debug "Ignoring ${type} path starting with 'data:' in '${1}'"
+            elif [[ "${path}" == engine:* ]]; then
+                debug "Ignoring ${type} path starting with 'engine:' in '${1}'"
+            elif [ ! -f "${path}" ]; then
+                error "Could not find ${type} file '${path}' in '${1}'"
                 all_exist=1
             fi
         done
