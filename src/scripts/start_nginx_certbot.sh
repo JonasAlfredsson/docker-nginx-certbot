@@ -29,9 +29,15 @@ debug "Debug messages are enabled"
 auto_enable_configs
 
 # Start Nginx without its daemon mode (and save its PID).
-info "Starting the Nginx service"
-nginx -g "daemon off;" &
-NGINX_PID=$!
+if [ 1 = "${DEBUG}" ]; then
+    info "Starting the Nginx service in debug mode"
+    nginx-debug -g "daemon off;" &
+    NGINX_PID=$!
+else
+    info "Starting the Nginx service"
+    nginx -g "daemon off;" &
+    NGINX_PID=$!
+fi
 
 info "Starting the certbot autorenewal service"
 # Make sure a renewal interval is set before continuing.
