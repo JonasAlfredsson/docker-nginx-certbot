@@ -62,7 +62,7 @@ allfiles_exist() {
     all_exist=0
     for type in keyfile fullchain chain dhparam; do
         for file in $(parse_"${type}"s $1); do
-            if [[ $file != data:* ]] && [ ! -f ${file} ]; then
+            if [[ $file != data:* ]] && [[ $file != engine:* ]] && [ ! -f ${file} ]; then
                 error "Couldn't find ${type} '${file}' for '$1'"
                 all_exist=1
             fi
