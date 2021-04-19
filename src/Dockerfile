@@ -48,7 +48,9 @@ RUN set -ex && \
     mkdir -p /var/www/letsencrypt && \
     chown www-data:www-data -R /var/www && \
     mkdir -p /etc/letsencrypt/dhparams && \
-    chmod 700 /etc/letsencrypt/dhparams \
+    chmod 700 /etc/letsencrypt/dhparams && \
+    mkdir -p /etc/nginx_conf && \
+    chmod 700 /etc/nginx_conf \
     && \
 # Copy in our "default" Nginx server configurations, which make sure that the
 # ACME challenge requests are correctly forwarded to certbot and then redirects

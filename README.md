@@ -80,6 +80,8 @@ Some of the more significant additions to this container:
 ## Volumes
 - `/etc/letsencrypt`: Stores the obtained certificates and the Diffie-Hellman
                       parameters
+- `/etc/nginx_conf`:  For providing server configuration files at the time of
+                      starting the container
 
 
 ## Run with `docker run`

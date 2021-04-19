@@ -24,6 +24,11 @@ trap "clean_exit" EXIT
 # If the environment variable `DEBUG=1` is set, then this message is printed.
 debug "Debug messages are enabled"
 
+# Copy custom configuration files to the nginx conf.d folder
+if [ -d "/etc/nginx_conf" ]; then
+    cp /etc/nginx_conf/* /etc/nginx/conf.d/
+fi
+
 # Immediately run 'auto_enable_configs' so that Nginx is in a runnable state
 # This will temporarily disable any misconfigured servers.
 auto_enable_configs
