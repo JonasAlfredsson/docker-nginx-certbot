@@ -39,6 +39,9 @@ fi
 # Helper function to ask certbot to request a certificate for the given
 # domain(s). The CERTBOT_EMAIL environment variable must be defined, so that
 # Let's Encrypt may contact you in case of security issues.
+#
+# $1: The name of the certificate file (e.g. domain.org)
+# $2: String with all requested domains (e.g. -d domain.org -d www.domain.org)
 get_certificate() {
     info "Requesting certificate for the primary domain '${1}'"
     certbot certonly \

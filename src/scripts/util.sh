@@ -1,6 +1,8 @@
 #!/bin/bash
 
 # Helper function to output informational messages to STDOUT.
+#
+# $1: String to be printed.
 debug() {
     if [ 1 = "${DEBUG}" ]; then
         echo "${1}"
@@ -9,11 +11,15 @@ debug() {
 
 # Helper function to output debug messages to STDOUT if the `DEBUG` environment
 # variable is set to 1.
+#
+# $1: String to be printed.
 info() {
     echo "${1}"
 }
 
 # Helper function to output error messages to STDERR, with red text.
+#
+# $1: String to be printed.
 error() {
     (set +x; tput -Tscreen bold
     tput -Tscreen setaf 1
@@ -29,6 +35,7 @@ error() {
 # * Each keyfile must be stored at the default location of
 #   /etc/letsencrypt/live/<primary_domain_name>/privkey.pem
 #
+# $1: Path to a Nginx configuration file.
 parse_primary_domains() {
     sed -n -r -e 's&^\s*ssl_certificate_key\s+\/etc/letsencrypt/live/(.*)/privkey.pem;.*&\1&p' "$1" | xargs -n1 echo | uniq
 }
@@ -45,32 +52,43 @@ parse_primary_domains() {
 #   different primary domains in the same .conf file it will cause some weird
 #   certificates. Should however work fine but is not best practice.
 #
+# $1: Path to a Nginx configuration file.
 parse_server_names() {
     sed -n -r -e 's&^\s*server_name\s+(.*);.*&\1&p' "$1" | xargs -n1 echo | uniq
 }
 
 # Return all unique "ssl_certificate_key" file paths.
+#
+# $1: Path to a Nginx configuration file.
 parse_keyfiles() {
     sed -n -r -e 's&^\s*ssl_certificate_key\s+(.*);.*&\1&p' "$1" | xargs -n1 echo | uniq
 }
 
 # Return all unique "ssl_certificate" file paths.
+#
+# $1: Path to a Nginx configuration file.
 parse_fullchains() {
     sed -n -r -e 's&^\s*ssl_certificate\s+(.*);.*&\1&p' "$1" | xargs -n1 echo | uniq
 }
 
 # Return all unique "ssl_trusted_certificate" file paths.
+#
+# $1: Path to a Nginx configuration file.
 parse_chains() {
     sed -n -r -e 's&^\s*ssl_trusted_certificate\s+(.*);.*&\1&p' "$1" | xargs -n1 echo | uniq
 }
 
 # Return all unique "dhparam" file paths.
+#
+# $1: Path to a Nginx configuration file.
 parse_dhparams() {
     sed -n -r -e 's&^\s*ssl_dhparam\s+(.*);.*&\1&p' "$1" | xargs -n1 echo | uniq
 }
 
 # Given a config file path, return 0 if all SSL related files exist (or there
 # are no files needed to be found). Return 1 otherwise (i.e. error exit code).
+#
+# $1: Path to a Nginx configuration file.
 allfiles_exist() {
     local all_exist=0
     for type in keyfile fullchain chain dhparam; do
