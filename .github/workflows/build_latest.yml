@@ -8,6 +8,12 @@ on:
     paths:
       - "src/**"
       - ".github/workflows/**"
+  pull_request:
+    branches:
+      - "main"
+      - "master"
+    paths:
+      - "src/**"
 
 jobs:
   docker_buildx:
