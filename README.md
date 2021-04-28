@@ -75,6 +75,8 @@ Some of the more significant additions to this container:
 - `RSA_KEY_SIZE`: The size of the RSA encryption keys (default: `2048`)
 - `RENEWAL_INTERVAL`: Time interval between certbot's
                       [renewal checks](#renewal-check-interval) (default: `8d`)
+- `DEBUG`: Set to `1` to enable debug messages and use the [`nginx-debug`][29]
+           binary (default: `0`).
 
 
 ## Volumes
@@ -160,6 +162,7 @@ Include it like this:
 docker run -it -p 80:80 -p 443:443 \
            --env CERTBOT_EMAIL=your@email.org \
            --env STAGING=1 \
+           --env DEBUG=1 \
            --name nginx-certbot jonasal/nginx-certbot:latest
 ```
 
@@ -338,6 +341,12 @@ something I have personally implemented in mine.
 
 
 # Changelog
+
+### 1.3.0
+- Ignore values starting with `data:` and `engine:` when verifying that all
+  files exists ([pull request 32][28]).
+- Add a debug mode which is enabled by setting the environment variable
+  `DEBUG=1`.
 
 ### 1.2.0
 - Fix dependencies so that it is possible to build in 32-bit ARM architectures
@@ -529,3 +538,5 @@ something I have personally implemented in mine.
 [25]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/24
 [26]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/28
 [27]: https://github.com/nginxinc/docker-nginx
+[28]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/32
+[29]: https://github.com/docker-library/docs/tree/master/nginx#running-nginx-in-debug-mode
