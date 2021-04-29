@@ -73,7 +73,7 @@ CERTBOT_LOOP_PID=$!
 reload_configs() {
     info "Received SIGHUP signal; terminating the autorenewal sleep process"
     if ! pkill -15 -P ${CERTBOT_LOOP_PID} -fx "sleep ${RENEWAL_INTERVAL}"; then
-        error "No sleep process found, this most likely means that a renewal process is currently running"
+        warning "No sleep process found, this most likely means that a renewal process is currently running"
     fi
     # On success we return 128 + SIGHUP in order to reduce the complexity of
     # the final wait loop.

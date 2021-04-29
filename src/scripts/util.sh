@@ -17,6 +17,16 @@ info() {
     echo "${1}"
 }
 
+# Helper function to output warning messages to STDOUT, with yellow text.
+#
+# $1: String to be printed.
+warning() {
+    (set +x; tput -Tscreen bold
+    tput -Tscreen setaf 3
+    echo "${1}"
+    tput -Tscreen sgr0)
+}
+
 # Helper function to output error messages to STDERR, with red text.
 #
 # $1: String to be printed.
@@ -98,7 +108,7 @@ allfiles_exist() {
             elif [[ "${path}" == engine:* ]]; then
                 debug "Ignoring ${type} path starting with 'engine:' in '${1}'"
             elif [ ! -f "${path}" ]; then
-                error "Could not find ${type} file '${path}' in '${1}'"
+                warning "Could not find ${type} file '${path}' in '${1}'"
                 all_exist=1
             fi
         done
