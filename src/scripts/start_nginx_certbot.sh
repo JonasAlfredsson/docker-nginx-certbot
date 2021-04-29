@@ -90,7 +90,7 @@ trap "reload_configs" HUP
 # The loop is necessary since the HUP trap will make any "wait" return
 # immediately when triggered, and to not exit the entire program we will have
 # to wait on the original PIDs again.
-while [ -z "${exit_code}" -o "${exit_code}" = "129" ]; do
+while [ -z "${exit_code}" ] || [ "${exit_code}" = "129" ]; do
     wait -n ${NGINX_PID} ${CERTBOT_LOOP_PID}
     exit_code=$?
 done

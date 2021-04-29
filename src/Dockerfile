@@ -23,7 +23,7 @@ RUN set -ex && \
     curl -L 'https://bootstrap.pypa.io/get-pip.py' | python3 && \
 # Handle an extremely specific issue when building the cryptography package for
 # 32-bit architectures within QEMU running on a 64-bit host (issue #30).
-    if [ "${BUILDX_QEMU_ENV}" = "true" -a "$(getconf LONG_BIT)" = "32" ]; then \
+    if [ "${BUILDX_QEMU_ENV}" = "true" ] && [ "$(getconf LONG_BIT)" = "32" ]; then \
         pip3 install -U cryptography==3.3.2; \
     fi && \
 # Install certbot.
