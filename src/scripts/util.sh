@@ -117,6 +117,43 @@ allfiles_exist() {
     return ${all_exist}
 }
 
+# Creates symlinks from /etc/nginx/conf.d/ to all the files found inside
+# /etc/nginx/user_conf.d/. This will also remove broken links.
+symlink_user_configs() {
+    debug "Creating symlinks to any files found in /etc/nginx/user_conf.d/"
+
+    # Remove any broken symlinks that point back to the user_conf.d/ folder.
+    while IFS= read -r -d $'\0' symlink; do
+        info "Removing broken symlink '${symlink}' to '$(realpath "${symlink}")'"
+        rm "${symlink}"
+    done < <(find /etc/nginx/conf.d/ -maxdepth 1 -xtype l -lname '/etc/nginx/user_conf.d/*' -print0)
+
+    # Go through all files and directories in the user_conf.d/ folder and create
+    # a symlink to them inside the conf.d/ folder.
+    while IFS= read -r -d $'\0' source_file; do
+        local symlinks_found=0
+
+        # See if there already exist a symlink to this source file.
+        while IFS= read -r -d $'\0' symlink; do
+            debug "The file '${source_file}' is already symlinked by '${symlink}'"
+            symlinks_found=$((${symlinks_found} + 1))
+        done < <(find -L /etc/nginx/conf.d/ -maxdepth 1 -samefile "${source_file}" -print0)
+
+        if [ "${symlinks_found}" -eq "1" ]; then
+            # One symlink found, then we have nothing more to do.
+            continue
+        elif [ "${symlinks_found}" -gt "1" ]; then
+            warning "Found more than one symlink to the file '${source_file}' inside '/etc/nginx/conf.d/'"
+            continue
+        fi
+
+        # No symlinks to this file found, lets create one.
+        local link="/etc/nginx/conf.d/$(basename -- ${source_file})"
+        info "Creating symlink '${link}' to '${source_file}'"
+        ln -s "${source_file}" "${link}"
+    done < <(find /etc/nginx/user_conf.d/ -maxdepth 1 -type f -print0)
+}
+
 # Helper function that sifts through /etc/nginx/conf.d/, looking for configs
 # that don't have their necessary files yet, and disables them until everything
 # has been set up correctly. This also activates them afterwards.

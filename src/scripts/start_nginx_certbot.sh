@@ -51,6 +51,9 @@ fi
 (
 set -e
 while [ true ]; do
+    # Create symlinks from conf.d/ to user_conf.d/ if necessary.
+    symlink_user_configs
+
     # Check that all dhparam files exists.
     "$(cd "$(dirname "$0")"; pwd)/create_dhparams.sh"
 

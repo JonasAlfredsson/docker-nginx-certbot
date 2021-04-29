@@ -47,6 +47,7 @@ RUN set -ex && \
 # Create new directories and set correct permissions for them.
     mkdir -p /var/www/letsencrypt && \
     chown www-data:www-data -R /var/www && \
+    mkdir -p /etc/nginx/user_conf.d && \
     mkdir -p /etc/letsencrypt/dhparams && \
     chmod 700 /etc/letsencrypt/dhparams \
     && \
