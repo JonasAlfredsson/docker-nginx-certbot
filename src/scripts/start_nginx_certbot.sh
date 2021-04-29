@@ -2,8 +2,8 @@
 
 # Helper function to gracefully shut down our child processes when we exit.
 clean_exit() {
-    for PID in ${NGINX_PID} ${CERTBOT_LOOP_PID}; do
-        if kill -0 ${PID} 2>/dev/null; then
+    for PID in "${NGINX_PID}" "${CERTBOT_LOOP_PID}"; do
+        if kill -0 "${PID}" 2>/dev/null; then
             kill -SIGTERM "${PID}"
             wait "${PID}"
         fi
@@ -19,7 +19,7 @@ trap "exit" TERM INT QUIT
 trap "clean_exit" EXIT
 
 # Source "util.sh" so we can have our nice tools.
-. $(cd $(dirname $0); pwd)/util.sh
+. "$(cd "$(dirname "$0")"; pwd)/util.sh"
 
 # If the environment variable `DEBUG=1` is set, then this message is printed.
 debug "Debug messages are enabled"
@@ -52,10 +52,10 @@ fi
 set -e
 while [ true ]; do
     # Check that all dhparam files exists.
-    $(cd $(dirname $0); pwd)/create_dhparams.sh
+    "$(cd "$(dirname "$0")"; pwd)/create_dhparams.sh"
 
     # Run certbot to check if any certificates needs renewal.
-    $(cd $(dirname $0); pwd)/run_certbot.sh
+    "$(cd "$(dirname "$0")"; pwd)/run_certbot.sh"
 
     # Finally we sleep for the defined time interval before checking the
     # certificates again.

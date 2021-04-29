@@ -6,7 +6,7 @@ CERTBOT_PRODUCTION_URL='https://acme-v02.api.letsencrypt.org/directory'
 CERTBOT_STAGING_URL='https://acme-staging-v02.api.letsencrypt.org/directory'
 
 # Source in util.sh so we can have our nice tools.
-. $(cd $(dirname $0); pwd)/util.sh
+. "$(cd "$(dirname "$0")"; pwd)/util.sh"
 
 info "Starting certificate renewal process"
 
@@ -47,11 +47,11 @@ get_certificate() {
     certbot certonly \
         --agree-tos --keep -n --text \
         -a webroot --webroot-path=/var/www/letsencrypt \
-        --rsa-key-size ${RSA_KEY_SIZE} \
+        --rsa-key-size "${RSA_KEY_SIZE}" \
         --preferred-challenges http-01 \
-        --email ${CERTBOT_EMAIL} \
-        --server ${letsencrypt_url} \
-        --cert-name $1 \
+        --email "${CERTBOT_EMAIL}" \
+        --server "${letsencrypt_url}" \
+        --cert-name "$1" \
         $2 \
         --debug ${force_renew}
 }
@@ -59,13 +59,13 @@ get_certificate() {
 # Go through all .conf files and find all domain names that should be added
 # to the certificate request.
 for conf_file in /etc/nginx/conf.d/*.conf*; do
-    for primary_domain in $(parse_primary_domains ${conf_file}); do
+    for primary_domain in $(parse_primary_domains "${conf_file}"); do
         # At minimum we will make a request for the primary domain.
         domain_request="-d ${primary_domain}"
 
         # Find all 'server_names' in this .conf file and add them to the
         # same request.
-        for server_name in $(parse_server_names ${conf_file}); do
+        for server_name in $(parse_server_names "${conf_file}"); do
             domain_request="${domain_request} -d ${server_name}"
         done
 

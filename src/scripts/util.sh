@@ -92,7 +92,7 @@ parse_dhparams() {
 allfiles_exist() {
     local all_exist=0
     for type in keyfile fullchain chain dhparam; do
-        for path in $(parse_"${type}"s $1); do
+        for path in $(parse_"${type}"s "$1"); do
             if [[ "${path}" == data:* ]]; then
                 debug "Ignoring ${type} path starting with 'data:' in '${1}'"
             elif [[ "${path}" == engine:* ]]; then
@@ -112,7 +112,7 @@ allfiles_exist() {
 # has been set up correctly. This also activates them afterwards.
 auto_enable_configs() {
     for conf_file in /etc/nginx/conf.d/*.conf*; do
-        if allfiles_exist ${conf_file}; then
+        if allfiles_exist "${conf_file}"; then
             if [ "${conf_file##*.}" = "nokey" ]; then
                 info "Found all the necessary files for '${conf_file}', enabling..."
                 mv "${conf_file}" "${conf_file%.*}"

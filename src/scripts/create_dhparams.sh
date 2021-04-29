@@ -2,7 +2,7 @@
 set -e
 
 # Source in util.sh so we can have our nice tools.
-. $(cd $(dirname $0); pwd)/util.sh
+. "$(cd "$(dirname "$0")"; pwd)/util.sh"
 
 # This method may take an extremely long time to complete, be patient.
 # It should be possible to use the same dhparam file for all sites, just
@@ -44,7 +44,7 @@ create_dhparam() {
 
 # Find any mentions of Diffie-Hellman parameters and create them if missing.
 for conf_file in /etc/nginx/conf.d/*.conf*; do
-    for dh_file in $(parse_dhparams ${conf_file}); do
+    for dh_file in $(parse_dhparams "${conf_file}"); do
         if [ ! -f "${dh_file}" ]; then
             info "Couldn't find the dhparam file '${dh_file}'; creating it..."
             create_dhparam "${dh_file}"
