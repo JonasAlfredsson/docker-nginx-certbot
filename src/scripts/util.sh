@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# Helper function to output informational messages to STDOUT.
+# Helper function to output debug messages to STDOUT if the `DEBUG` environment
+# variable is set to 1.
 #
 # $1: String to be printed.
 debug() {
@@ -9,15 +10,14 @@ debug() {
     fi
 }
 
-# Helper function to output debug messages to STDOUT if the `DEBUG` environment
-# variable is set to 1.
+# Helper function to output informational messages to STDOUT.
 #
 # $1: String to be printed.
 info() {
     echo "${1}"
 }
 
-# Helper function to output warning messages to STDOUT, with yellow text.
+# Helper function to output warning messages to STDOUT, with bold yellow text.
 #
 # $1: String to be printed.
 warning() {
@@ -27,7 +27,7 @@ warning() {
     tput -Tscreen sgr0)
 }
 
-# Helper function to output error messages to STDERR, with red text.
+# Helper function to output error messages to STDERR, with bold red text.
 #
 # $1: String to be printed.
 error() {
