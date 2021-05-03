@@ -175,7 +175,7 @@
 [manualforce-renewal]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/master/docs/good_to_know.md#manualforce-renewal
 
 [1]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/32
-[2]: https://hub.docker.com/r/jonasal/nginx-certbot/tags?page=1&ordering=last_updated
+[2]: https://hub.docker.com/r/jonasal/nginx-certbot
 [3]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/28
 [4]: https://github.com/nginxinc/docker-nginx/tree/master/entrypoint
 [5]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/21

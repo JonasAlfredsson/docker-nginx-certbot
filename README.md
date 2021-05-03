@@ -171,7 +171,7 @@ bullet points to what has changed between the releases.
 [5]: https://github.com/staticfloat/docker-nginx-certbot
 [6]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/43dde6ec24f399fe49729b28ba4892665e3d7078
 [7]: https://github.com/nginxinc/docker-nginx/tree/master/entrypoint
-[8]: https://hub.docker.com/r/jonasal/nginx-certbot/tags?page=1&ordering=last_updated
+[8]: https://hub.docker.com/r/jonasal/nginx-certbot
 [9]: https://github.com/nginxinc/docker-nginx
 [10]: https://github.com/docker-library/docs/tree/master/nginx#running-nginx-in-debug-mode
 [11]: https://docs.docker.com/engine/install/
