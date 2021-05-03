@@ -24,7 +24,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: Login to DockerHub
+      - name: Login to Docker Hub
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -48,3 +48,14 @@ jobs:
             jonasal/nginx-certbot:${{ steps.tagger.outputs.APP_MAJOR }}.${{ steps.tagger.outputs.APP_MINOR }}
             jonasal/nginx-certbot:${{ steps.tagger.outputs.APP_MAJOR }}.${{ steps.tagger.outputs.APP_MINOR }}.${{ steps.tagger.outputs.APP_PATCH }}
             jonasal/nginx-certbot:${{ steps.tagger.outputs.APP_MAJOR }}.${{ steps.tagger.outputs.APP_MINOR }}.${{ steps.tagger.outputs.APP_PATCH }}-nginx${{ steps.tagger.outputs.NGINX_VERSION }}
+
+      - name: Create Docker Hub documentation
+        run: cat docs/dockerhub_tags.md > tmp.md && cat README.md >> tmp.md
+
+      - name: Upload Docker Hub description
+        uses: peter-evans/dockerhub-description@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          repository: jonasal/nginx-certbot
+          readme-filepath: ./tmp.md
