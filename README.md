@@ -65,25 +65,18 @@ Some of the more significant additions to this container:
 ## Available Environment Variables
 
 ### Required
-- `CERTBOT_EMAIL`: Your e-mail address. Used by Let's Encrypt to contact you in
-                   case of security issues.
+- `CERTBOT_EMAIL`: Your e-mail address. Used by Let's Encrypt to contact you in case of security issues.
 
 ### Optional
-- `STAGING`: Set to `1` to use Let's Encrypt's
-             [staging servers][initial-testing] (default: `0`)
-- `DHPARAM_SIZE`: The size of the
-                  [Diffie-Hellman parameters][diffie-hellman-parameters]
-                  (default: `2048`)
+- `STAGING`: Set to `1` to use Let's Encrypt's [staging servers][initial-testing] (default: `0`)
+- `DHPARAM_SIZE`: The size of the [Diffie-Hellman parameters][diffie-hellman-parameters] (default: `2048`)
 - `RSA_KEY_SIZE`: The size of the RSA encryption keys (default: `2048`)
-- `RENEWAL_INTERVAL`: Time interval between certbot's
-                      [renewal checks][renewal-check-interval] (default: `8d`)
-- `DEBUG`: Set to `1` to enable debug messages and use the [`nginx-debug`][10]
-           binary (default: `0`).
+- `RENEWAL_INTERVAL`: Time interval between certbot's [renewal checks][renewal-check-interval] (default: `8d`)
+- `DEBUG`: Set to `1` to enable debug messages and use the [`nginx-debug`][10] binary (default: `0`).
 
 
 ## Volumes
-- `/etc/letsencrypt`: Stores the obtained certificates and the Diffie-Hellman
-                      parameters
+- `/etc/letsencrypt`: Stores the obtained certificates and the Diffie-Hellman parameters
 
 
 ## Run with `docker run`
