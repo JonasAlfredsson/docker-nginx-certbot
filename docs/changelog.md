@@ -1,5 +1,21 @@
 # Changelog
 
+### 2.0.0
+- Big change on how we recommend users to get their `.conf` files into the
+  container.
+  - Created a script that [creates symlinks][10] from `conf.d/` to the files
+    in `user_conf.d/`.
+  - Users can now [start the container][run-with-docker-run] without having
+    to build anything.
+  - Still compatible with [the old way][build-it-yourself], but I still think
+    it's a "major" change.
+- Examples are updated to reflect changes.
+- Add more logging.
+- Add more `"` around variables for extra safety.
+- Big overhaul of how the documentation is structured.
+- Even more tags now available on Docker Hub!
+  - See [dockerhub_tags.md][14] for the list.
+
 ### 1.3.0
 - Ignore values starting with `data:` and `engine:` when verifying that all
   files exists ([pull request 32][1]).
@@ -187,3 +203,4 @@
 [11]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/24
 [12]: https://github.com/nginxinc/docker-nginx/commit/3fb70ddd7094c1fdd50cc83d432643dc10ab6243
 [13]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/bf2c1354f55adffadc13b1f1792e205f9dd25f86
+[14]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/master/docs/dockerhub_tags.md

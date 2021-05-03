@@ -8,6 +8,7 @@ The less specific tags will move as those more specific are updated.
 
 | Major | Minor | Patch | Nginx              |
 | ----: | ----: | ----: | :----------------- |
+| 2     | 2.0   | 2.0.0 | 2.0.0-nginx1.19.10 |
 |       |       | 1.3.0 | 1.3.0-nginx1.19.10 |
 |       |       |       | 1.3.0-nginx1.19.9  |
 |       |       | 1.2.0 | 1.2.0-nginx1.19.9  |
