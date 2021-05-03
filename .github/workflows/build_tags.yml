@@ -44,5 +44,7 @@ jobs:
           push: true
           build-args: BUILDX_QEMU_ENV=true
           tags: |
-            jonasal/nginx-certbot:${{ steps.tagger.outputs.APP_VERSION }}
-            jonasal/nginx-certbot:${{ steps.tagger.outputs.APP_VERSION }}-nginx${{ steps.tagger.outputs.NGINX_VERSION }}
+            jonasal/nginx-certbot:${{ steps.tagger.outputs.APP_MAJOR }}
+            jonasal/nginx-certbot:${{ steps.tagger.outputs.APP_MAJOR }}.${{ steps.tagger.outputs.APP_MINOR }}
+            jonasal/nginx-certbot:${{ steps.tagger.outputs.APP_MAJOR }}.${{ steps.tagger.outputs.APP_MINOR }}.${{ steps.tagger.outputs.APP_PATCH }}
+            jonasal/nginx-certbot:${{ steps.tagger.outputs.APP_MAJOR }}.${{ steps.tagger.outputs.APP_MINOR }}.${{ steps.tagger.outputs.APP_PATCH }}-nginx${{ steps.tagger.outputs.NGINX_VERSION }}
