@@ -35,7 +35,9 @@ Some of the more significant additions to this container:
 - Uses the [parent container][27]'s [`/docker-entrypoint.d/`][16] folder.
 - Will report correct [exit code][14] when stopped/killed/failed.
 - Stricter when it comes to checking that all files exist.
-- Easily to [force renewal](#manualforce-renewal) of certificates if necessary.
+- Easy to [force renewal](#manualforce-renewal) of certificates if necessary.
+- You can do a live reload of configs by
+  [sending in a `SIGHUP`](#manualforce-renewal) signal.
 - You can tune your own [renewal interval](#renewal-check-interval).
 - Builds for multiple architectures available on [Docker Hub][20].
 
@@ -47,17 +49,18 @@ Some of the more significant additions to this container:
 1. This guide expects you to already own a domain which points at the correct
    IP address, and that you have both port `80` and `443` correctly forwarded if
    you are behind NAT.
-   Otherwise I recommend [DuckDNS](https://www.duckdns.org/) as a Dynamic DNS
-   provider, and then either search on how to port forward on your router or
-   maybe find it [here](https://portforward.com/router.htm).
+   Otherwise I recommend [DuckDNS][31] as a Dynamic DNS provider, and then
+   either search on how to port forward on your router or maybe find it
+   [here][32].
 
-2. Tips on how to make a proper server config file, and how to create a simple
-   test, can be found under the [Good to Know](#good-to-know) section.
+2. I suggest you read at least the first two sub-sections in the
+   [Good to Know](#good-to-know) section, since this will give you some
+   important tips on how to create a basic server config, and how to use
+   the Let's Encrypt staging servers in order to not get rate limited.
 
 3. I don't think it is necessary to mention if you managed to find this
-   repository, however, I have been proven wrong before so I want to make it
-   clear that this is a Dockerfile which requires
-   [Docker](https://www.docker.com/) to function.
+   repository, but you will need to have [Docker][30] installed for this to
+   function.
 
 
 ## Available Environment Variables
@@ -85,49 +88,31 @@ Some of the more significant additions to this container:
 
 
 ## Run with `docker run`
-
-### Build it yourself...
-This option is for if you have downloaded this entire repository.
-
-Place any additional server configuration you desire inside the
-[`nginx_conf.d/`](./src/nginx_conf.d) folder and run the following command in
-your terminal while residing inside the [`src/`](./src) folder.
-
-```bash
-docker build --tag jonasal/nginx-certbot:local .
-```
-
-### ...or get it from Docker Hub
-This option is for if you make your own `Dockerfile`.
-
-This image exist on Docker Hub under [`jonasal/nginx-certbot`][20], which means
-you can make your own `Dockerfile` for a cleaner folder structure. Just add a
-command where you copy in your own server configuration files (make sure
-that none of your files replace those already present).
-
-```Dockerfile
-FROM jonasal/nginx-certbot:latest
-COPY conf.d/* /etc/nginx/conf.d/
-```
-
-Don't forget to build it!
-
-```bash
-docker build --tag jonasal/nginx-certbot:local .
-```
-
-### The `run` Command
-Irregardless what option you chose above you run it with the following command:
+Create your own [`user_conf.d/`](#the-user_conf.d-folder) folder, and place all
+of you custom server config files in there. When done you can just start the
+container with the following command:
 
 ```bash
 docker run -it -p 80:80 -p 443:443 \
            --env CERTBOT_EMAIL=your@email.org \
            -v $(pwd)/nginx_secrets:/etc/letsencrypt \
-           --name nginx-certbot jonasal/nginx-certbot:local
+           -v $(pwd)/user_conf.d:/etc/nginx/user_conf.d:ro \
+           --name nginx-certbot jonasal/nginx-certbot:latest
 ```
 
 > You should be able to detach from the container by holding `Ctrl` and pressing
   `p` + `q` after each other.
+
+As was mentioned in the introduction; the very first time this container is
+started it might take a long time before before it is ready to
+[respond to requests](#diffie-hellman-parameters), please be a little bit
+patient. If you change any of the config files after the container is ready,
+you can just [send in a `SIGHUP`](#manualforce-renewal) to tell my scripts and
+Nginx to reload everything.
+
+```bash
+docker kill --signal=HUP <container_name>
+```
 
 
 ## Run with `docker-compose`
@@ -136,34 +121,50 @@ An example of a `docker-compose.yaml` file can be found in the
 the `nginx-certbot.env` file will be overwritten by any environment variables
 you set inside the `.yaml` file.
 
-Move the `.yaml` file (and optionally the `.env` file) into the [`src/`](./src)
-folder, and then build and start with the following commands. Just remember to
-place any additional server configs you want inside the
-[`nginx_conf.d/`](./src/nginx_conf.d) folder beforehand.
+Like in the example above, you just need to place your custom server configs
+inside your [`user_conf.d/`](#the-user_conf.d-folder) folder beforehand. Then
+you start it all with the following command.
 
 ```bash
-docker-compose build --pull
 docker-compose up
 ```
 
+
+## Build It Yourself
+This option is for if you make your own `Dockerfile`. Check out which tags that
+are available on Docker Hub under [`jonasal/nginx-certbot`][20].
+
+In this case it is possible to completely skip the
+[`user_conf.d/`](#the-user_conf.d-folder) folder, and write your files directly
+into Nginx's `conf.d/` folder. This way you can replace the files I have built
+[into the image](./src/nginx_conf.d) with your own. However, if you do that
+please take a moment to understand what they do, and what you need to include
+in order for certbot to continue working.
+
+```Dockerfile
+FROM jonasal/nginx-certbot:latest
+COPY conf.d/* /etc/nginx/conf.d/
+```
 
 
 # Good to Know
 
 ## Initial Testing
 In case you are just experimenting with setting this up I suggest you set the
-environment variable `STAGING=1`, since this will change the challenge URL to
-the staging one. This will not give you "*proper*" certificates, but it has
-ridiculous high [rate limits][6] compared to the non-staging
-[production certificates][7].
+environment variable `STAGING=1`, since this will change the Let's Encrypt
+challenge URL to their staging one. This will not give you "*proper*"
+certificates, but it has ridiculous high [rate limits][6] compared to the
+non-staging [production certificates][7] so you can do more mistakes without
+having to worry. You can also add `DEBUG=1` for more verbose logging to better
+understand what is going on.
 
-Include it like this:
+Include them like this:
 ```bash
 docker run -it -p 80:80 -p 443:443 \
            --env CERTBOT_EMAIL=your@email.org \
            --env STAGING=1 \
            --env DEBUG=1 \
-           --name nginx-certbot jonasal/nginx-certbot:latest
+           jonasal/nginx-certbot:latest
 ```
 
 ## Creating a Server `.conf` File
@@ -172,11 +173,26 @@ look at the file `example_server.conf` inside the [`examples/`](./examples)
 directory. By replacing '`yourdomain.org`' with your own domain you can
 actually use this config to quickly test if things are working properly.
 
-Place the modified config inside the [`nginx_conf.d/`](./src/nginx_conf.d)
-folder, `build` the container and then run it as described [above](#usage).
-Let the container do it's [magic](#diffie-hellman-parameters) for a while, and
-then try to visit your domain. You should now be greeted with the string \
+Place the modified config inside your [`user_conf.d/`](#the-user_conf.d-folder)
+folder, and then run it as described [above](#run-with-docker-run). Let the
+container do it's [magic](#diffie-hellman-parameters) for a while, and then try
+to visit your domain. You should now be greeted with the string \
 "`Let's Encrypt certificate successfully installed!`".
+
+## The `user_conf.d` Folder
+Nginx will, by default, load any file ending with `.conf` from within the
+`/etc/nginx/conf.d/` folder. However, this image makes use of two important
+[configuration files](./src/nginx_conf.d/) which need to be present (unless you
+know how to replace them with your own), and host mounting a local folder to
+the aforementioned location would shadow these important files.
+
+To solve this problem we therefore suggest users to host mount a local folder
+to `/etc/nginx/user_conf.d/` instead, and a part of the management scripts will
+[create symlinks][33] from `conf.d/` to the files in `user_conf.d/`. This way
+we give users a simple way to just start the container, without having to build
+a local image first, while still giving them the opportunity to keep doing it
+in the old way like how `@staticfloat`'s image worked.
+
 
 ## How the Script add Domain Names to Certificate Requests
 The included script will go through all configuration files (`*.conf*`) it
@@ -290,7 +306,8 @@ docker kill --signal=HUP <container_name>
 ```
 
 This will terminate the [sleep timer](#renewal-check-interval) and make the
-renewal loop start again from the beginning.
+renewal loop start again from the beginning, which includes a lot of other
+checks than just the certificates.
 
 While this will be enough in the majority of the cases, it might sometimes be
 necessary to **force** a renewal of the certificates even though certbot thinks
@@ -318,15 +335,12 @@ you need to get your own `*.conf` files into the container's
 just like you did with his.
 
 This can either be done by copying your own files into the container at
-[build time](#run-with-docker-run), or you can mount a local folder to the
-aforementioned location. In the latter case you need to make sure you include
-the two files present in this repository's
-[`src/nginx_conf.d/`](./src/nginx_conf.d/) folder, since these are required in
-order for certbot to request certificates.
-
-Why you need to include these files yourself is because this gives the user more
-freedom in how they can configure their server blocks, i.e. you can create
-your own "redirector" if you do not like mine.
+[build time](#build-it-yourself), or you can mount a local folder to
+[`/etc/nginx/user_conf.d/`](#the-user_conf.d-folder) and
+[run it directly](#run-with-docker-run). In the former case you need
+to make sure you do not accidentally overwrite the two files present in this
+repository's [`src/nginx_conf.d/`](./src/nginx_conf.d/) folder, since these are
+required in order for certbot to request certificates.
 
 The only obligatory environment variable for starting this container is the
 [`CERTBOT_EMAIL`](#required) one, just like in `@staticfloat`'s case, but I
@@ -540,3 +554,7 @@ something I have personally implemented in mine.
 [27]: https://github.com/nginxinc/docker-nginx
 [28]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/32
 [29]: https://github.com/docker-library/docs/tree/master/nginx#running-nginx-in-debug-mode
+[30]: https://docs.docker.com/engine/install/
+[31]: https://www.duckdns.org/
+[32]: https://portforward.com/router.htm
+[33]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/91f8ecaa613f1e7c0dc4ece38fa8f38a004f61ec
