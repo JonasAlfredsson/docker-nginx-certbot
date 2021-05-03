@@ -27,7 +27,7 @@ look at the file `example_server.conf` inside the [`examples/`][examples]
 directory. By replacing '`yourdomain.org`' with your own domain you can
 actually use this config to quickly test if things are working properly.
 
-Place the modified config inside your [`user_conf.d/`](#the-user_conf.d-folder)
+Place the modified config inside your [`user_conf.d/`](#the-user_confd-folder)
 folder, and then run it as described [in the main README][run-with-docker-run].
 Let the container do it's [magic](#diffie-hellman-parameters) for a while, and
 then try to visit your domain. You should now be greeted with the string \
@@ -190,7 +190,7 @@ just like you did with his.
 
 This can either be done by copying your own files into the container at
 [build time][build-it-yourself], or you can mount a local folder to
-[`/etc/nginx/user_conf.d/`](#the-user_conf.d-folder) and
+[`/etc/nginx/user_conf.d/`](#the-user_confd-folder) and
 [run it directly][run-with-docker-run]. In the former case you need
 to make sure you do not accidentally overwrite the two files present in this
 repository's [`src/nginx_conf.d/`][nginx_confd] folder, since these are

@@ -161,7 +161,7 @@ bullet points to what has changed between the releases.
 [manualforce-renewal]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/master/docs/good_to_know.md#manualforce-renewal
 [renewal-check-interval]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/master/docs/good_to_know.md#renewal-check-interval
 [initial-testing]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/master/docs/good_to_know.md#initial-testing
-[the-user_conf.d-folder]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/master/docs/good_to_know.md#the-user_conf.d-folder
+[the-user_conf.d-folder]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/master/docs/good_to_know.md#the-user_confd-folder
 [changelog]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/master/docs/changelog.md
 
 [1]: https://letsencrypt.org/

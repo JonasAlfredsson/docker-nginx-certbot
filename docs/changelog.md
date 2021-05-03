@@ -37,7 +37,7 @@
 ### 0.16
 - Container now listens to [`SIGHUP`][manualforce-renewal] and will reload
   all configs if this signal is received.
-  - More details can be found in the commit message: [bf2c135][18]
+  - More details can be found in the commit message: [bf2c135][13]
 - Made Docker image slightly smaller by including `--no-install-recommends`.
 - There is now also a [`dev` branch][9]/tag if you are brave and want to run
   experimental builds.
@@ -186,3 +186,4 @@
 [10]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/91f8ecaa613f1e7c0dc4ece38fa8f38a004f61ec
 [11]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/24
 [12]: https://github.com/nginxinc/docker-nginx/commit/3fb70ddd7094c1fdd50cc83d432643dc10ab6243
+[13]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/bf2c1354f55adffadc13b1f1792e205f9dd25f86
