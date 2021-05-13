@@ -3,12 +3,22 @@ The `latest` tag will always build the head of the
 [master branch][master-branch], so please use a more specific one if you can
 since master should not be considered "stable".
 
-The less specific tags will move as those more specific are updated.
+All the tags since `2.0.0` are built for the following architectures:
+
+- linux/amd64
+- linux/386
+- linux/arm64
+- linux/arm/v7
+
+and it is possible to append `-alpine` to any tag from `2.0.1` to get an Alpine
+based image instead. The less specific tags will move as those more specific
+are updated.
 
 
 | Major | Minor | Patch | Nginx              |
 | ----: | ----: | ----: | :----------------- |
-| 2     | 2.0   | 2.0.0 | 2.0.0-nginx1.19.10 |
+| 2     | 2.0   | 2.0.1 | 2.0.1-nginx1.19.10 |
+|       |       | 2.0.0 | 2.0.0-nginx1.19.10 |
 |       |       | 1.3.0 | 1.3.0-nginx1.19.10 |
 |       |       |       | 1.3.0-nginx1.19.9  |
 |       |       | 1.2.0 | 1.2.0-nginx1.19.9  |

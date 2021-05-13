@@ -1,9 +1,10 @@
 # docker-nginx-certbot
 
-Automatically create and renew website SSL certificates using the Let's Encrypt
-free certificate authority and its client *certbot*. Built on top of the Nginx
-server running on Debian. OpenSSL is used to automatically create the
-Diffie-Hellman parameters used during the initial handshake of some ciphers.
+Automatically create and renew website SSL certificates using the
+[Let's Encrypt][1] free certificate authority and its client [*certbot*][2].
+Built on top of the [official Nginx Docker images][9] (both Debian and Alpine),
+and uses OpenSSL/LibreSSL to automatically create the Diffie-Hellman parameters
+used during the initial handshake of some ciphers.
 
 > :information_source: The very first time this container is started it might
   take a long time before before it is ready to respond to requests. Read more
@@ -27,19 +28,14 @@ instructions, from `@staticfloat`'s image, can be found
 
 Some of the more significant additions to this container:
 
-- Handles multiple server names when
-  [requesting certificates][how-the-script-add-domain-names-to-certificate-requests]
-  (i.e. both `example.com` and `www.example.com`).
-- Will create [Diffie-Hellman parameters][diffie-hellman-parameters] if they
-  are defined.
+- Handles multiple server names when [requesting certificates][how-the-script-add-domain-names-to-certificate-requests] (i.e. both `example.com` and `www.example.com`).
+- Will create [Diffie-Hellman parameters][diffie-hellman-parameters] if they are defined.
 - Uses the [parent container][9]'s [`/docker-entrypoint.d/`][7] folder.
 - Will report correct [exit code][6] when stopped/killed/failed.
-- Stricter when it comes to checking that all files exist.
+- You can do a live reload of configs by [sending in a `SIGHUP`][manualforce-renewal] signal (no container restart needed).
 - Easy to [force renewal][manualforce-renewal] of certificates if necessary.
-- You can do a live reload of configs by
-  [sending in a `SIGHUP`][manualforce-renewal] signal.
 - You can tune your own [renewal interval][renewal-check-interval].
-- Builds for multiple architectures available on [Docker Hub][8].
+- Both [Debian and Alpine][dockerhub_tags] images built for [multiple architectures][14].
 
 
 
@@ -82,7 +78,7 @@ Some of the more significant additions to this container:
 ## Run with `docker run`
 Create your own [`user_conf.d/`][the-user_conf.d-folder] folder and place all
 of you custom server config files in there. When done you can just start the
-container with the following command:
+container with the following command ([available tags][dockerhub_tags]):
 
 ```bash
 docker run -it -p 80:80 -p 443:443 \
@@ -124,14 +120,15 @@ docker-compose up
 
 ## Build It Yourself
 This option is for if you make your own `Dockerfile`. Check out which tags that
-are available on Docker Hub under [`jonasal/nginx-certbot`][8].
+are available in [this document][dockerhub_tags], or on [Docker Hub][8], and
+then choose how specific you want to be.
 
 In this case it is possible to completely skip the
-[`user_conf.d/`][the-user_conf.d-folder] folder, and write your files directly
-into Nginx's `conf.d/` folder. This way you can replace the files I have built
-[into the image](./src/nginx_conf.d) with your own. However, if you do that
-please take a moment to understand what they do, and what you need to include
-in order for certbot to continue working.
+[`user_conf.d/`][the-user_conf.d-folder] folder and just write your files
+directly into Nginx's `conf.d/` folder. This way you can replace the files I
+have built [into the image](./src/nginx_conf.d) with your own. However, if you
+do that please take a moment to understand what they do, and what you need to
+include in order for certbot to continue working.
 
 ```Dockerfile
 FROM jonasal/nginx-certbot:latest
@@ -141,13 +138,16 @@ COPY conf.d/* /etc/nginx/conf.d/
 
 
 # More Resources
+Here is a collection of links to other resources that provide useful
+information.
 
 ### Good to Know
-[Document][good-to-know] with a lot of good to know stuff about this image.
+[Document][good-to-know] with a lot of good to know stuff about this image and
+the features it provides.
 
 ### Changelog
-[Document][changelog] with all the tagged versions of this repository, as well as
-bullet points to what has changed between the releases.
+[Document][changelog] with all the tagged versions of this repository, as well
+as bullet points to what has changed between the releases.
 
 
 
@@ -163,6 +163,7 @@ bullet points to what has changed between the releases.
 [initial-testing]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/master/docs/good_to_know.md#initial-testing
 [the-user_conf.d-folder]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/master/docs/good_to_know.md#the-user_confd-folder
 [changelog]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/master/docs/changelog.md
+[dockerhub_tags]: https://github.com/JonasAlfredsson/docker-nginx-certbot/blob/master/docs/dockerhub_tags.md
 
 [1]: https://letsencrypt.org/
 [2]: https://github.com/certbot/certbot
@@ -177,3 +178,4 @@ bullet points to what has changed between the releases.
 [11]: https://docs.docker.com/engine/install/
 [12]: https://www.duckdns.org/
 [13]: https://portforward.com/router.htm
+[14]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/28

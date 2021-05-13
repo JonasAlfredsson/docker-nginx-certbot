@@ -1,5 +1,18 @@
 # Changelog
 
+### 2.0.1
+- There now exist a Dockerfile for building from the Nginx Alpine image as well.
+  - It is possible to use the Alpine version by appending `-alpine` to any
+    of the tags from now on.
+  - There are now so many tags available, see [dockerhub_tags.md][14] for the
+    possible combinations.
+  - NOTE: There exists a bug in Bash 5.1.0, which is described in detail [here].
+- Small fix to the `create_dhparams.sh` script to handle the use of libressl
+  in Alpine.
+- Added a small sleep in order to mitigate a rare race condition between Nginx
+  startup and the symlink script.
+- Fix an ugly printout in the case when the sleep function exited naturally.
+
 ### 2.0.0
 - Big change on how we recommend users to get their `.conf` files into the
   container.
@@ -204,3 +217,4 @@
 [12]: https://github.com/nginxinc/docker-nginx/commit/3fb70ddd7094c1fdd50cc83d432643dc10ab6243
 [13]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/bf2c1354f55adffadc13b1f1792e205f9dd25f86
 [14]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/master/docs/dockerhub_tags.md
+[15]: https://github.com/JonasAlfredsson/bash_fail-to-wait
