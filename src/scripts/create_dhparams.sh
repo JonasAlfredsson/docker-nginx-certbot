@@ -34,7 +34,13 @@ create_dhparam() {
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     "
     info "Will now output to the following file: '${1}'"
-    openssl dhparam -out "${1}" "${DHPARAM_SIZE}"
+    if command -v libressl >/dev/null 2>&1; then
+        debug "Using libressl for creating the dhparams"
+        libressl dhparam -out "${1}" "${DHPARAM_SIZE}"
+    else
+        debug "Using openssl for creating the dhparams"
+        openssl dhparam -out "${1}" "${DHPARAM_SIZE}"
+    fi
     info "
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % >>>>>   Diffie-Hellman parameter creation done!   <<<<< %
