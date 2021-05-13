@@ -8,7 +8,7 @@ on:
       - "v[1-9].[0-9]+.[0-9]+-nginx[1-9].[0-9]+.[0-9]+"
 
 jobs:
-  docker_buildx:
+  docker_buildx_debian:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
@@ -30,7 +30,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push all images
+      - name: Build and push all Debian images
         uses: docker/build-push-action@v2.4.0
         with:
           context: ./src
@@ -48,6 +48,53 @@ jobs:
             jonasal/nginx-certbot:${{ steps.tagger.outputs.APP_MAJOR }}.${{ steps.tagger.outputs.APP_MINOR }}
             jonasal/nginx-certbot:${{ steps.tagger.outputs.APP_MAJOR }}.${{ steps.tagger.outputs.APP_MINOR }}.${{ steps.tagger.outputs.APP_PATCH }}
             jonasal/nginx-certbot:${{ steps.tagger.outputs.APP_MAJOR }}.${{ steps.tagger.outputs.APP_MINOR }}.${{ steps.tagger.outputs.APP_PATCH }}-nginx${{ steps.tagger.outputs.NGINX_VERSION }}
+
+  docker_buildx_alpine:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2.3.4
+
+      - name: Extract version numbers from GitHub reference
+        id: tagger
+        run: bash .github/version_extractor.sh ${GITHUB_REF}
+
+      - name: Set up QEMU environment
+        uses: docker/setup-qemu-action@v1.1.0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1.3.0
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1.9.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push all Alpine images
+        uses: docker/build-push-action@v2.4.0
+        with:
+          context: ./src
+          platforms: |
+            linux/amd64
+            linux/386
+            linux/arm64
+            linux/arm/v7
+          pull: true
+          no-cache: true
+          push: true
+          tags: |
+            jonasal/nginx-certbot:${{ steps.tagger.outputs.APP_MAJOR }}-alpine
+            jonasal/nginx-certbot:${{ steps.tagger.outputs.APP_MAJOR }}.${{ steps.tagger.outputs.APP_MINOR }}-alpine
+            jonasal/nginx-certbot:${{ steps.tagger.outputs.APP_MAJOR }}.${{ steps.tagger.outputs.APP_MINOR }}.${{ steps.tagger.outputs.APP_PATCH }}-alpine
+            jonasal/nginx-certbot:${{ steps.tagger.outputs.APP_MAJOR }}.${{ steps.tagger.outputs.APP_MINOR }}.${{ steps.tagger.outputs.APP_PATCH }}-nginx${{ steps.tagger.outputs.NGINX_VERSION }}-alpine
+
+  update_docker_hub_docs:
+    needs: [docker_buildx_debian, docker_buildx_alpine]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2.3.4
 
       - name: Create Docker Hub documentation
         run: cat docs/dockerhub_tags.md > tmp.md && cat README.md >> tmp.md
