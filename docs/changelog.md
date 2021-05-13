@@ -6,7 +6,8 @@
     of the tags from now on.
   - There are now so many tags available, see [dockerhub_tags.md][14] for the
     possible combinations.
-  - NOTE: There exists a bug in Bash 5.1.0, which is described in detail [here].
+  - NOTE: There exists a bug in Bash 5.1.0, which is described in detail
+    [here][15].
 - Small fix to the `create_dhparams.sh` script to handle the use of libressl
   in Alpine.
 - Added a small sleep in order to mitigate a rare race condition between Nginx
