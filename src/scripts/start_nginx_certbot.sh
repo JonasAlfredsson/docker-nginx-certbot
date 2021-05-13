@@ -65,7 +65,7 @@ while [ true ]; do
     # The "if" statement afterwards is to enable us to terminate this sleep
     # process (via the HUP trap) without tripping the "set -e" setting.
     info "Certbot autorenewal service will now sleep ${RENEWAL_INTERVAL}"
-    sleep "${RENEWAL_INTERVAL}" || x=$?; if [ "${x}" -ne "143" ]; then exit "${x}"; fi
+    sleep "${RENEWAL_INTERVAL}" || x=$?; if [ -n "${x}" ] && [ "${x}" -ne "143" ]; then exit "${x}"; fi
 done
 ) &
 CERTBOT_LOOP_PID=$!
