@@ -38,6 +38,7 @@ else
     nginx -g "daemon off;" &
     NGINX_PID=$!
 fi
+sleep 1
 
 info "Starting the certbot autorenewal service"
 # Make sure a renewal interval is set before continuing.
