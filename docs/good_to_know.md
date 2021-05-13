@@ -33,6 +33,11 @@ Let the container do it's [magic](#diffie-hellman-parameters) for a while, and
 then try to visit your domain. You should now be greeted with the string \
 "`Let's Encrypt certificate successfully installed!`".
 
+The files [already present][nginx_confd] inside the container's config folder
+are there to handle redirection to HTTPS for all incoming requests that are not
+part of the certbot challenge requests, so be careful to not overwrite these
+unless you know what you are doing.
+
 ## The `user_conf.d` Folder
 Nginx will, by default, load any file ending with `.conf` from within the
 `/etc/nginx/conf.d/` folder. However, this image makes use of two important
@@ -40,8 +45,8 @@ Nginx will, by default, load any file ending with `.conf` from within the
 know how to replace them with your own), and host mounting a local folder to
 the aforementioned location would shadow these important files.
 
-To solve this problem we therefore suggest users to host mount a local folder
-to `/etc/nginx/user_conf.d/` instead, and a part of the management scripts will
+To solve this problem I therefore suggest you host mount a local folder to
+`/etc/nginx/user_conf.d/` instead, and a part of the management scripts will
 [create symlinks][3] from `conf.d/` to the files in `user_conf.d/`. This way
 we give users a simple way to just start the container, without having to build
 a local image first, while still giving them the opportunity to keep doing it
