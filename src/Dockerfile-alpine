@@ -1,0 +1,70 @@
+FROM nginx:1.19.10-alpine
+LABEL maintainer="Jonas Alfredsson <jonas.alfredsson@protonmail.com>"
+
+# Do a single run command to make the intermediary containers smaller.
+RUN set -ex && \
+# Install packages necessary during the build phase (for all architectures).
+    apk add --no-cache \
+        cargo \
+        curl \
+        findutils \
+        libffi \
+        libffi-dev \
+        libressl \
+        libressl-dev \
+        ncurses \
+        procps \
+        python3 \
+        python3-dev \
+        sed \
+    && \
+# Because of the bug mentioned in issue #42 we must use Bash <5.1.x for now.
+    echo 'http://dl-cdn.alpinelinux.org/alpine/v3.12/main' >> /etc/apk/repositories && \
+    apk add --no-cache 'bash<5.1' && \
+# Install the latest version of PIP, Setuptools and Wheel.
+    curl -L 'https://bootstrap.pypa.io/get-pip.py' | python3 && \
+# Install certbot.
+    pip3 install -U cffi certbot \
+    && \
+# Remove everything that is no longer necessary.
+    apk del \
+        cargo \
+        curl \
+        libffi-dev \
+        libressl-dev \
+        python3-dev \
+    && \
+    rm -rf /root/.cache \
+    rm -rf /root/.cargo \
+    && \
+# Create new directories and set correct permissions for them.
+    mkdir -p /var/www/letsencrypt && \
+    chown 82:82 -R /var/www && \
+    mkdir -p /etc/nginx/user_conf.d && \
+    mkdir -p /etc/letsencrypt/dhparams && \
+    chmod 700 /etc/letsencrypt/dhparams \
+    && \
+# Copy in our "default" Nginx server configurations, which make sure that the
+# ACME challenge requests are correctly forwarded to certbot and then redirects
+# everything else to HTTPS.
+    rm -f /etc/nginx/conf.d/*
+COPY nginx_conf.d/ /etc/nginx/conf.d/
+
+# Copy in all our scripts and make them executable.
+COPY docker-entrypoint.d/ /docker-entrypoint.d
+COPY scripts/ /scripts
+RUN chmod +x -R /scripts && \
+    chmod +x -R /docker-entrypoint.d && \
+# Make so that the parent's entrypoint script is properly triggered (issue #21).
+    sed -ri '/^if \[ "\$1" = "nginx" -o "\$1" = "nginx-debug" \]; then$/,${s//if echo "$1" | grep -q "nginx"; then/;b};$q1' /docker-entrypoint.sh
+
+# Create a volume to have persistent storage for the obtained certificates.
+VOLUME /etc/letsencrypt
+
+# The Nginx parent Docker image already expose port 80, so we only need to add
+# port 443 here.
+EXPOSE 443
+
+# Change the container's start command to launch our Nginx and certbot
+# management script.
+CMD [ "/scripts/start_nginx_certbot.sh" ]
