@@ -1,5 +1,13 @@
 # Changelog
 
+### 2.1.0
+- Made the `create_dhparams.sh` script capable of creating missing directories.
+  - Our small [`/docker-entrypoint.d/40-create-dhparam-folder.sh`][17] script
+    is therefore no longer necessary.
+- Made so that we run `symlink_user_configs` at startup so we do not run into
+  a [race condition][16] with Nginx.
+- Some minor cleanup in the Dockerfiles related to the above changes.
+
 ### 2.0.1
 - There now exist a Dockerfile for building from the Nginx Alpine image as well.
   - It is possible to use the Alpine version by appending `-alpine` to any
@@ -219,3 +227,5 @@
 [13]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/bf2c1354f55adffadc13b1f1792e205f9dd25f86
 [14]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/master/docs/dockerhub_tags.md
 [15]: https://github.com/JonasAlfredsson/bash_fail-to-wait
+[16]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/7c5e2108c89c9da5effda1c499fff6ff84f8b1d3
+[17]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/9dfa927cda7244768445067993dc42e23b4e78da
