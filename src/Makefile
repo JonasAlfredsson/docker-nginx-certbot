@@ -11,6 +11,10 @@ build: Makefile Dockerfile
 	$(DOCKER_BUILD) -t jonasal/nginx-certbot:local .
 	@echo "Done!  Use docker run jonasal/nginx-certbot:local to run"
 
+build-alpine: Makefile Dockerfile
+	$(DOCKER_BUILD) -t jonasal/nginx-certbot:local-alpine -f ./Dockerfile-alpine .
+	@echo "Done!  Use docker run jonasal/nginx-certbot:local-alpine to run"
+
 # These commands are primarily used for development, see link for more info:
 # https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/28
 dev:
