@@ -57,7 +57,6 @@ RUN set -ex && \
 COPY nginx_conf.d/ /etc/nginx/conf.d/
 
 # Copy in all our scripts and make them executable.
-COPY docker-entrypoint.d/ /docker-entrypoint.d
 COPY scripts/ /scripts
 RUN chmod +x -R /scripts && \
     chmod +x -R /docker-entrypoint.d && \
