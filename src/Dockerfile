@@ -43,12 +43,10 @@ RUN set -ex && \
     rm -rf /var/lib/apt/lists/* && \
     rm -rf /root/.cache && \
     rm -rf /root/.cargo && \
-# Create new directories and set correct permissions for them.
+# Create new directories and set correct permissions.
     mkdir -p /var/www/letsencrypt && \
-    chown www-data:www-data -R /var/www && \
     mkdir -p /etc/nginx/user_conf.d && \
-    mkdir -p /etc/letsencrypt/dhparams && \
-    chmod 700 /etc/letsencrypt/dhparams \
+    chown www-data:www-data -R /var/www \
     && \
 # Copy in our "default" Nginx server configurations, which make sure that the
 # ACME challenge requests are correctly forwarded to certbot and then redirects
