@@ -48,16 +48,17 @@ RUN set -ex && \
     mkdir -p /etc/nginx/user_conf.d && \
     chown www-data:www-data -R /var/www \
     && \
+# Make sure there are no surprise config files inside the config folder.
+    rm -f /etc/nginx/conf.d/*
+
 # Copy in our "default" Nginx server configurations, which make sure that the
 # ACME challenge requests are correctly forwarded to certbot and then redirects
 # everything else to HTTPS.
-    rm -f /etc/nginx/conf.d/*
 COPY nginx_conf.d/ /etc/nginx/conf.d/
 
 # Copy in all our scripts and make them executable.
 COPY scripts/ /scripts
 RUN chmod +x -R /scripts && \
-    chmod +x -R /docker-entrypoint.d && \
 # Make so that the parent's entrypoint script is properly triggered (issue #21).
     sed -ri '/^if \[ "\$1" = "nginx" -o "\$1" = "nginx-debug" \]; then$/,${s//if echo "$1" | grep -q "nginx"; then/;b};$q1' /docker-entrypoint.sh
 
