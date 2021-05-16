@@ -53,6 +53,7 @@ for conf_file in /etc/nginx/conf.d/*.conf*; do
     for dh_file in $(parse_dhparams "${conf_file}"); do
         if [ ! -f "${dh_file}" ]; then
             warning "Couldn't find the dhparam file '${dh_file}'; creating it..."
+            mkdir -vp "$(dirname "${dh_file}")"
             create_dhparam "${dh_file}"
             chmod 600 "${dh_file}"
         fi
