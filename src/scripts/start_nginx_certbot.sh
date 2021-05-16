@@ -24,8 +24,10 @@ trap "clean_exit" EXIT
 # If the environment variable `DEBUG=1` is set, then this message is printed.
 debug "Debug messages are enabled"
 
-# Immediately run 'auto_enable_configs' so that Nginx is in a runnable state
+# Immediately symlink files to the correct locations and then run
+# 'auto_enable_configs' so that Nginx is in a runnable state
 # This will temporarily disable any misconfigured servers.
+symlink_user_configs
 auto_enable_configs
 
 # Start Nginx without its daemon mode (and save its PID).
@@ -38,7 +40,6 @@ else
     nginx -g "daemon off;" &
     NGINX_PID=$!
 fi
-sleep 1
 
 info "Starting the certbot autorenewal service"
 # Make sure a renewal interval is set before continuing.
