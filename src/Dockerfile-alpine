@@ -34,9 +34,8 @@ RUN set -ex && \
         libressl-dev \
         python3-dev \
     && \
-    rm -rf /root/.cache \
-    rm -rf /root/.cargo \
-    && \
+    rm -rf /root/.cache && \
+    rm -rf /root/.cargo && \
 # Create new directories and set correct permissions for them.
     mkdir -p /var/www/letsencrypt && \
     chown 82:82 -R /var/www && \

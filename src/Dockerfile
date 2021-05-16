@@ -40,10 +40,9 @@ RUN set -ex && \
     && \
     apt-get autoremove -y && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/* \
-    rm -rf /root/.cache \
-    rm -rf /root/.cargo \
-    && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /root/.cache && \
+    rm -rf /root/.cargo && \
 # Create new directories and set correct permissions for them.
     mkdir -p /var/www/letsencrypt && \
     chown www-data:www-data -R /var/www && \
