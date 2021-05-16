@@ -10,6 +10,7 @@ services:
       - DHPARAM_SIZE
       - RSA_KEY_SIZE
       - RENEWAL_INTERVAL
+      - DEBUG
     env_file:
       - ./nginx-certbot.env
     ports:
