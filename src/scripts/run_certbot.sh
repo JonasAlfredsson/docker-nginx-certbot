@@ -18,11 +18,11 @@ fi
 
 # Use the correct challenge URL depending on if we want staging or not.
 if [ "${STAGING}" = "1" ]; then
-    letsencrypt_url=${CERTBOT_STAGING_URL}
     debug "Using staging environment"
+    letsencrypt_url=${CERTBOT_STAGING_URL}
 else
-    letsencrypt_url=${CERTBOT_PRODUCTION_URL}
     debug "Using production environment"
+    letsencrypt_url=${CERTBOT_PRODUCTION_URL}
 fi
 
 # Ensure that a key size is set.
