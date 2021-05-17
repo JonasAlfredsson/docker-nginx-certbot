@@ -37,16 +37,13 @@ error() {
     tput -Tscreen sgr0) >&2
 }
 
-# Find lines that contain 'ssl_certificate_key', and try to extract a domain
-# name from each of these file paths. However, there are some strict rules that
-# apply for these keys:
-# * Each key must map to a valid domain.
-# * No wildcards (not supported by this method of authentication).
-# * Each keyfile must be stored at the default location of
-#   /etc/letsencrypt/live/<primary_domain_name>/privkey.pem
+# Find lines that contain 'ssl_certificate_key', and try to extract a name from
+# each of these file paths. Each keyfile must be stored at the default location
+# of /etc/letsencrypt/live/<cert_name>/privkey.pem, otherwise we ignore it since
+# it is most likely not a certificate that is managed by certbot.
 #
 # $1: Path to a Nginx configuration file.
-parse_primary_domains() {
+parse_cert_names() {
     sed -n -r -e 's&^\s*ssl_certificate_key\s+\/etc/letsencrypt/live/(.*)/privkey.pem;.*&\1&p' "$1" | xargs -n1 echo | uniq
 }
 

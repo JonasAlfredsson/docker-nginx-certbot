@@ -25,10 +25,16 @@ else
     letsencrypt_url=${CERTBOT_PRODUCTION_URL}
 fi
 
-# Ensure that a key size is set.
+# Ensure that an RSA key size is set.
 if [ -z "${RSA_KEY_SIZE}" ]; then
     debug "RSA_KEY_SIZE unset, defaulting to 2048"
     RSA_KEY_SIZE=2048
+fi
+
+# Ensure that an elliptic curve is set.
+if [ -z "${ELLIPTIC_CURVE}" ]; then
+    debug "ELLIPTIC_CURVE unset, defaulting to 'secp256r1'"
+    ELLIPTIC_CURVE="secp256r1"
 fi
 
 if [ "${1}" = "force" ]; then
@@ -36,43 +42,52 @@ if [ "${1}" = "force" ]; then
     force_renew="--force-renewal"
 fi
 
-# Helper function to ask certbot to request a certificate for the given
-# domain(s). The CERTBOT_EMAIL environment variable must be defined, so that
+# Helper function to ask certbot to request a certificate for the given cert
+# name. The CERTBOT_EMAIL environment variable must be defined, so that
 # Let's Encrypt may contact you in case of security issues.
 #
-# $1: The name of the certificate file (e.g. domain.org)
+# $1: The name of the certificate (e.g. domain-rsa)
 # $2: String with all requested domains (e.g. -d domain.org -d www.domain.org)
+# $3: Type of key algorithm to use (rsa or ecdsa)
 get_certificate() {
-    info "Requesting certificate for the primary domain '${1}'"
+    info "Requesting an ${3^^} certificate for '${1}'"
     certbot certonly \
         --agree-tos --keep -n --text \
         -a webroot --webroot-path=/var/www/letsencrypt \
-        --rsa-key-size "${RSA_KEY_SIZE}" \
         --preferred-challenges http-01 \
         --email "${CERTBOT_EMAIL}" \
         --server "${letsencrypt_url}" \
-        --cert-name "$1" \
-        $2 \
+        --rsa-key-size "${RSA_KEY_SIZE}" \
+        --elliptic-curve "${ELLIPTIC_CURVE}" \
+        --key-type "${3}" \
+        --cert-name "${1}" \
+        ${2} \
         --debug ${force_renew}
 }
 
-# Go through all .conf files and find all domain names that should be added
-# to the certificate request.
+# Go through all .conf files and find all cert names for which we should create
+# certificate requests.
 for conf_file in /etc/nginx/conf.d/*.conf*; do
-    for primary_domain in $(parse_primary_domains "${conf_file}"); do
-        # At minimum we will make a request for the primary domain.
-        domain_request="-d ${primary_domain}"
+    for cert_name in $(parse_cert_names "${conf_file}"); do
+        # Determine which type of key algorithm to use for this certificate
+        # request.
+        if [ "${USE_ECDSA}" == "1" ]; then
+            key_type="ecdsa"
+        else
+            key_type="rsa"
+        fi
 
-        # Find all 'server_names' in this .conf file and add them to the
-        # same request.
+        # Find all 'server_names' in this .conf file and assemble the list of
+        # domains to be included in the request.
+        domain_request=""
         for server_name in $(parse_server_names "${conf_file}"); do
             domain_request="${domain_request} -d ${server_name}"
         done
 
         # Hand over all the info required for the certificate request, and
         # let certbot decide if it is necessary to update the certificate.
-        if ! get_certificate "${primary_domain}" "${domain_request}"; then
-            error "Certbot failed for '${primary_domain}'. Check the logs for details."
+        if ! get_certificate "${cert_name}" "${domain_request}" "${key_type}"; then
+            error "Certbot failed for '${cert_name}'. Check the logs for details."
         fi
     done
 done
