@@ -59,38 +59,42 @@ finds inside Nginx's `/etc/nginx/conf.d/` folder, and create requests from the
 file's content. In every unique file it will find any line that says:
 
 ```
-ssl_certificate_key /etc/letsencrypt/live/yourdomain.org/privkey.pem;
+ssl_certificate_key /etc/letsencrypt/live/test-name/privkey.pem;
 ```
 
-and only extract the part which here says "`yourdomain.org`", and this will
-henceforth be used as the "primary domain" for this config file. It will then
-find all the lines that contain `server_name` and make a list of all the domain
-names that exist on the same line. So a file containing something like this:
+and only extract the part which here says "`test-name`". This is the value that
+will be provided to the [`--cert-name`][14] argument for certbot, so while you
+may set basically any name you want here I suggest you keep it descriptive for
+your own sake.
+
+After this the script will find all the lines that contain `server_name` and
+make a list of all the domain names that exist on the same line. So a file
+containing something like this:
 
 ```
 server {
     listen              443 ssl;
     server_name         yourdomain.org www.yourdomain.org;
-    ssl_certificate_key /etc/letsencrypt/live/yourdomain.org/privkey.pem;
+    ssl_certificate_key /etc/letsencrypt/live/test-name/privkey.pem;
     ...
 }
 
 server {
     listen              443 ssl;
     server_name         sub.yourdomain.org;
-    ssl_certificate_key /etc/letsencrypt/live/yourdomain.org/privkey.pem;
+    ssl_certificate_key /etc/letsencrypt/live/test-name/privkey.pem;
     ...
 }
 ```
 
-will share the same certificate file (the "primary domain"), but the certbot
-command will include all listed domain variants. The limitation is that you
-should write all your server blocks that have the same "primary domain" in the
-same file. The certificate request from the above file will then become
-something like this (duplicates will be removed):
+will share the same certificate file (i.e. the "test-name" certificate), and
+all listed domain variants will be included as valid [alt names][15]. The
+limitation is that you should write all your server blocks that use the same
+"test-name" certificate in the same file. The certificate request from the
+above file will then become something like this:
 
 ```
-certbot ... -d yourdomain.org -d www.yourdomain.org -d sub.yourdomain.org
+certbot --cert-name "test-name" ... -d yourdomain.org -d www.yourdomain.org -d sub.yourdomain.org
 ```
 
 ## Renewal Check Interval
@@ -237,3 +241,5 @@ something I have personally implemented in mine.
 [11]: https://github.com/nginxinc/docker-nginx
 [12]: https://github.com/staticfloat/docker-nginx-certbot#templating
 [13]: https://github.com/docker-library/docs/tree/master/nginx#using-environment-variables-in-nginx-configuration-new-in-119
+[14]: https://certbot.eff.org/docs/using.html#where-are-my-certificates
+[15]: https://www.digicert.com/faq/subject-alternative-name.htm
