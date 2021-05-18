@@ -26,6 +26,9 @@ As an example of a barebone (but functional) SSL server in Nginx you can
 look at the file `example_server.conf` inside the [`examples/`][examples]
 directory. By replacing '`yourdomain.org`' with your own domain you can
 actually use this config to quickly test if things are working properly.
+When doing this for real you should also change the certificate paths'
+["test-name"](#how-the-script-add-domain-names-to-certificate-requests)
+to something more descriptive.
 
 Place the modified config inside your [`user_conf.d/`](#the-user_confd-folder)
 folder, and then run it as described [in the main README][run-with-docker-run].

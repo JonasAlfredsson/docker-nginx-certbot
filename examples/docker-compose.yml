@@ -9,6 +9,8 @@ services:
       - STAGING
       - DHPARAM_SIZE
       - RSA_KEY_SIZE
+      - ELLIPTIC_CURVE
+      - USE_ECDSA
       - RENEWAL_INTERVAL
       - DEBUG
     env_file:
