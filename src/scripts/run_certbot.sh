@@ -70,8 +70,18 @@ get_certificate() {
 for conf_file in /etc/nginx/conf.d/*.conf*; do
     for cert_name in $(parse_cert_names "${conf_file}"); do
         # Determine which type of key algorithm to use for this certificate
-        # request.
-        if [ "${USE_ECDSA}" == "1" ]; then
+        # request. Having the algorithm specified in the certificate name will
+        # take precedence over the environmental variable.
+        if [[ "${cert_name,,}" =~ ^.*(-|\.)ecdsa.*$ ]]; then
+            debug "Found variant of 'ECDSA' in name '${cert_name}"
+            key_type="ecdsa"
+        elif [[ "${cert_name,,}" =~ ^.*(-|\.)ecc.*$ ]]; then
+            debug "Found variant of 'ECC' in name '${cert_name}"
+            key_type="ecdsa"
+        elif [[ "${cert_name,,}" =~ ^.*(-|\.)rsa.*$ ]]; then
+            debug "Found variant of 'RSA' in name '${cert_name}"
+            key_type="rsa"
+        elif [ "${USE_ECDSA}" == "1" ]; then
             key_type="ecdsa"
         else
             key_type="rsa"
