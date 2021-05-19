@@ -13,7 +13,7 @@ on:
       - "main"
       - "master"
     paths:
-      - "src/**"
+      - "src/Dockerfile*"
 
 jobs:
   docker_buildx_debian:
