@@ -100,6 +100,48 @@ above file will then become something like this:
 certbot --cert-name "test-name" ... -d yourdomain.org -d www.yourdomain.org -d sub.yourdomain.org
 ```
 
+## ECDSA and RSA Certificates
+[ECDSA (or ECC)][16] certificates use a newer encryption algorithm than the well
+established RSA certificates, and are supposedly more secure while being much
+smaller. The downside with these is that they are not supported by all clients
+yet, but if you don't expect to serve anything outisde the "Modern" row in
+[Mozillas compatibility table][17] you should not hesitate to configure certbot
+to request these types of certificates.
+
+This is achieved by setting the [environment variable][optional] `USE_ECDSA=1`,
+and you can optionally tune which [curve][18] to use with `ELLIPTIC_CURVE`.
+If you already have RSA certificates downloaded you will either have to wait
+until they expire, or [force](#manualforce-renewal) a renewal, before this
+change takes affect.
+
+With this option you will use only one of these types for all of your server
+configurations, however, I should mention that there is a way to configure
+Nginx to serve both ECDSA and RSA certificates at the same time.
+[The setup][21] is a bit more complicated, but the
+[`example_server_multicert.conf`](../examples/example_server_multicert.conf)
+file should be configured so you should only have to edit the "yourdomain.org"
+statements at the top.
+
+How this works is that Nginx is able to [load multiple certificate files][19]
+for each server block, and you then configure the cipher suites in an order
+that prefers ECDSA certificates. The scripts running inside the container then
+looks for some (case insensitive) variant of these strings in the
+[`--cert-name`](#how-the-script-add-domain-names-to-certificate-requests)
+argument:
+
+- `-rsa`
+- `.rsa`
+- `-ecc`
+- `.ecc`
+- `-ecdsa`
+- `.ecdsa`
+
+and makes a certificate request with the correct type set. See the
+[actual commit][20] for more details, but what you need to know is that
+these options override the environment variable. This way you can both use
+the most modern encryption, while still supporting semi-old devices.
+
+
 ## Renewal Check Interval
 This container will automatically start a certbot certificate renewal check
 after the time duration that is defined in the environmental variable
@@ -246,3 +288,9 @@ something I have personally implemented in mine.
 [13]: https://github.com/docker-library/docs/tree/master/nginx#using-environment-variables-in-nginx-configuration-new-in-119
 [14]: https://certbot.eff.org/docs/using.html#where-are-my-certificates
 [15]: https://www.digicert.com/faq/subject-alternative-name.htm
+[16]: https://sectigostore.com/blog/ecdsa-vs-rsa-everything-you-need-to-know/
+[17]: https://wiki.mozilla.org/Security/Server_Side_TLS
+[18]: https://security.stackexchange.com/questions/31772/what-elliptic-curves-are-supported-by-browsers/104991#104991
+[19]: https://scotthelme.co.uk/hybrid-rsa-and-ecdsa-certificates-with-nginx/
+[20]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/9195bf02cb200dcec8206b46da971734b1d6669f
+[21]: https://medium.com/hackernoon/rsa-and-ecdsa-hybrid-nginx-setup-with-letsencrypt-certificates-ee422695d7d3

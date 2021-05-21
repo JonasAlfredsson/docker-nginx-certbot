@@ -29,7 +29,7 @@ instructions, from `@staticfloat`'s image, can be found
 Some of the more significant additions to this container:
 
 - Handles multiple server names when [requesting certificates][how-the-script-add-domain-names-to-certificate-requests] (i.e. both `example.com` and `www.example.com`).
-- Can request both [RSA and ECDSA][15] keys.
+- Can request both [RSA and ECDSA][15] keys ([at the same time][ecdsa-and-rsa-certificates]).
 - Will create [Diffie-Hellman parameters][diffie-hellman-parameters] if they are defined.
 - Uses the [parent container][9]'s [`/docker-entrypoint.d/`][7] folder.
 - Will report correct [exit code][6] when stopped/killed/failed.
@@ -69,7 +69,7 @@ Some of the more significant additions to this container:
 - `DHPARAM_SIZE`: The size of the [Diffie-Hellman parameters][diffie-hellman-parameters] (default: `2048`)
 - `RSA_KEY_SIZE`: The size of the RSA encryption keys (default: `2048`)
 - `ELLIPTIC_CURVE`: The size/[curve][16] of the ECDSA keys (default: `secp256r1`)
-- `USE_ECDSA`: Set to `1` to have certbot use ECDSA keys instead of RSA (default: `0`)
+- `USE_ECDSA`: Set to `1` to have certbot use [ECDSA keys instead of RSA][ecdsa-and-rsa-certificates] (default: `0`)
 - `RENEWAL_INTERVAL`: Time interval between certbot's [renewal checks][renewal-check-interval] (default: `8d`)
 - `DEBUG`: Set to `1` to enable debug messages and use the [`nginx-debug`][10] binary (default: `0`)
 
@@ -167,6 +167,7 @@ as bullet points to what has changed between the releases.
 [the-user_conf.d-folder]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/master/docs/good_to_know.md#the-user_confd-folder
 [changelog]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/master/docs/changelog.md
 [dockerhub_tags]: https://github.com/JonasAlfredsson/docker-nginx-certbot/blob/master/docs/dockerhub_tags.md
+[ecdsa-and-rsa-certificates]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/master/docs/good_to_know.md#ecdsa-and-rsa-certificates
 
 [1]: https://letsencrypt.org/
 [2]: https://github.com/certbot/certbot
@@ -182,5 +183,5 @@ as bullet points to what has changed between the releases.
 [12]: https://www.duckdns.org/
 [13]: https://portforward.com/router.htm
 [14]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/28
-[15]: https://medium.com/hackernoon/rsa-and-ecdsa-hybrid-nginx-setup-with-letsencrypt-certificates-ee422695d7d3
+[15]: https://sectigostore.com/blog/ecdsa-vs-rsa-everything-you-need-to-know/
 [16]: https://security.stackexchange.com/a/104991
