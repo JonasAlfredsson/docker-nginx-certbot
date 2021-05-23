@@ -1,5 +1,14 @@
 # Changelog
 
+### 2.2.0
+- Listen to IPv6 in the [redirector.conf](../src/nginx_conf.d/redirector.conf)
+  in addition to IPv4.
+  - PR by [@staticfloat][25].
+- Add `reuseport` in the [redirector.conf](../src/nginx_conf.d/redirector.conf),
+  which improves latency and parallelization.
+  - PR by [@staticfloat][26].
+- Add mentions in the changelog to people who have helped with issues.
+
 ### 2.1.0
 - Made the `create_dhparams.sh` script capable of creating missing directories.
   - Our small [`/docker-entrypoint.d/40-create-dhparam-folder.sh`][17] script
@@ -244,3 +253,5 @@
 [22]: https://github.com/JonasAlfredsson/docker-nginx-certbot
 [23]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/33
 [24]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/35
+[25]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/44
+[26]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/45
