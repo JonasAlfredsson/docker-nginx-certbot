@@ -16,6 +16,7 @@
     possible combinations.
   - NOTE: There exists a bug in Bash 5.1.0, which is described in detail
     [here][15].
+  - Suggested by [@tudddorrr][24].
 - Small fix to the `create_dhparams.sh` script to handle the use of libressl
   in Alpine.
 - Added a small sleep in order to mitigate a rare race condition between Nginx
@@ -31,6 +32,7 @@
     to build anything.
   - Still compatible with [the old way][build-it-yourself], but I still think
     it's a "major" change.
+  - Suggested by [@MauriceNino][23].
 - Examples are updated to reflect changes.
 - Add more logging.
 - Add more `"` around variables for extra safety.
@@ -40,21 +42,26 @@
 
 ### 1.3.0
 - Ignore values starting with `data:` and `engine:` when verifying that all
-  files exists ([pull request 32][1]).
+  files exists.
+  - PR by [@bblanchon][1].
 - Add a debug mode which is enabled by setting the environment variable
   `DEBUG=1`.
 
 ### 1.2.0
-- Fix dependencies so that it is possible to build in 32-bit ARM architectures
-  ([issue #24][11]).
+- Fix dependencies so that it is possible to build in 32-bit ARM architectures.
+  - Reported by [RtKelleher][11].
+- Added [Dependabot][20] to monitor and update the Dockerfiles.
+  - PR by [@odin568][19].
 - Added [GitHub Actions/Workflows][workflows] so that each [tag][2]
   now is built for multiple arches ([issue #28][3]).
 
 ### 1.1.0
 - Fix that scripts inside [`/docker-entrypoint.d/`][4] were never run
   ([issue #21][5]).
+  - Found while helping [@isomerpages][21] move from @staticfloats image.
 - Fix for issue where the script failed in case the `/etc/letsencrypt/dhparams`
-  folder was missing ([issue #20][6]).
+  folder was missing.
+  - Reported by [@pmkyl][6].
 
 ### 1.0.0
 - Move over to [semantic versioning][7].
@@ -79,8 +86,8 @@
 - Made Docker image slightly smaller by including `--no-install-recommends`.
 - There is now also a [`dev` branch][9]/tag if you are brave and want to run
   experimental builds.
-- JonasAlfredsson/docker-nginx-certbot is now its own independent repository
-  (i.e. no longer just a fork).
+- [JonasAlfredsson/docker-nginx-certbot][22] is now its own independent
+  repository (i.e. no longer just a fork).
 
 ### 0.15
 - It is now possible to [manually trigger][manualforce-renewal] a renewal of
@@ -147,6 +154,7 @@
 
 ### 0.10
 - Update to new ACME v2 servers.
+  - PR by [@seaneshbaugh][18].
 
 ### 0.9
 - I am now confident enough to remove the version suffixes.
@@ -229,3 +237,10 @@
 [15]: https://github.com/JonasAlfredsson/bash_fail-to-wait
 [16]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/7c5e2108c89c9da5effda1c499fff6ff84f8b1d3
 [17]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/9dfa927cda7244768445067993dc42e23b4e78da
+[18]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/11
+[19]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/22
+[20]: https://dependabot.com/
+[21]: https://github.com/isomerpages/isomer-redirection/pull/143
+[22]: https://github.com/JonasAlfredsson/docker-nginx-certbot
+[23]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/33
+[24]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/35
