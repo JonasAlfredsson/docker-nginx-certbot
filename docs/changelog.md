@@ -1,5 +1,14 @@
 # Changelog
 
+### 2.3.0
+- Add support for [ECDSA][27] certificates.
+  - It is possible to have Nginx serve both ECDSA and RSA certificates at the
+    same time for the same server. Read more in its [good to know section][28].
+- Made so that the the "primary domain"/"cert name" can be [whatever][29] you
+  want.
+  - This was actually already possible from `v0.12`, but it is first now we
+    allow it.
+
 ### 2.2.0
 - Listen to IPv6 in the [redirector.conf](../src/nginx_conf.d/redirector.conf)
   in addition to IPv4.
@@ -255,3 +264,6 @@
 [24]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/35
 [25]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/44
 [26]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/45
+[27]: https://sectigostore.com/blog/ecdsa-vs-rsa-everything-you-need-to-know/
+[28]: https://github.com/JonasAlfredsson/docker-nginx-certbot/blob/master/docs/good_to_know.md#ecdsa-and-rsa-certificates
+[29]: https://github.com/JonasAlfredsson/docker-nginx-certbot/blob/master/docs/good_to_know.md#how-the-script-add-domain-names-to-certificate-requests
