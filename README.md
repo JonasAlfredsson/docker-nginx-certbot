@@ -11,6 +11,17 @@ used during the initial handshake of some ciphers.
   about this in the [Diffie-Hellman parameters][diffie-hellman-parameters]
   section.
 
+### Noteworthy Features
+- Handles multiple server names when [requesting certificates][how-the-script-add-domain-names-to-certificate-requests] (i.e. both `example.com` and `www.example.com`).
+- Can request both [RSA and ECDSA][15] keys ([at the same time][ecdsa-and-rsa-certificates]).
+- Will create [Diffie-Hellman parameters][diffie-hellman-parameters] if they are defined.
+- Uses the [parent container][9]'s [`/docker-entrypoint.d/`][7] folder.
+- Will report correct [exit code][6] when stopped/killed/failed.
+- You can do a live reload of configs by [sending in a `SIGHUP`][manualforce-renewal] signal (no container restart needed).
+- Easy to [force renewal][manualforce-renewal] of certificates if necessary.
+- You can tune your own [renewal interval][renewal-check-interval].
+- Both [Debian and Alpine][dockerhub_tags] images built for [multiple architectures][14].
+
 
 
 # Acknowledgments and Thanks
@@ -25,18 +36,6 @@ the code has since become so significant that this has now been detached as its
 own independent repository (while still retaining all the history). Migration
 instructions, from `@staticfloat`'s image, can be found
 [here][help-migrating-from-staticfloats-image].
-
-Some of the more significant additions to this container:
-
-- Handles multiple server names when [requesting certificates][how-the-script-add-domain-names-to-certificate-requests] (i.e. both `example.com` and `www.example.com`).
-- Can request both [RSA and ECDSA][15] keys ([at the same time][ecdsa-and-rsa-certificates]).
-- Will create [Diffie-Hellman parameters][diffie-hellman-parameters] if they are defined.
-- Uses the [parent container][9]'s [`/docker-entrypoint.d/`][7] folder.
-- Will report correct [exit code][6] when stopped/killed/failed.
-- You can do a live reload of configs by [sending in a `SIGHUP`][manualforce-renewal] signal (no container restart needed).
-- Easy to [force renewal][manualforce-renewal] of certificates if necessary.
-- You can tune your own [renewal interval][renewal-check-interval].
-- Both [Debian and Alpine][dockerhub_tags] images built for [multiple architectures][14].
 
 
 
@@ -151,6 +150,9 @@ the features it provides.
 ### Changelog
 [Document][changelog] with all the tagged versions of this repository, as well
 as bullet points to what has changed between the releases.
+
+### DockerHub Tags
+[Document][dockerhub_tags] with all the tags available from Docker Hub.
 
 
 
