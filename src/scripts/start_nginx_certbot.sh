@@ -41,7 +41,7 @@ else
     NGINX_PID=$!
 fi
 
-info "Starting the certbot autorenewal service"
+info "Starting the autorenewal service"
 # Make sure a renewal interval is set before continuing.
 if [ -z "${RENEWAL_INTERVAL}" ]; then
     debug "RENEWAL_INTERVAL unset, using default of '8d'"
@@ -59,14 +59,19 @@ while [ true ]; do
     # Check that all dhparam files exists.
     "$(cd "$(dirname "$0")"; pwd)/create_dhparams.sh"
 
-    # Run certbot to check if any certificates needs renewal.
-    "$(cd "$(dirname "$0")"; pwd)/run_certbot.sh"
+    if [ 1 = ${USE_LOCAL_CA} ]; then
+        # Renew all certificates with the help of the local CA.
+        "$(cd "$(dirname "$0")"; pwd)/run_local_ca.sh"
+    else
+        # Run certbot to check if any certificates needs renewal.
+        "$(cd "$(dirname "$0")"; pwd)/run_certbot.sh"
+    fi
 
     # Finally we sleep for the defined time interval before checking the
     # certificates again.
     # The "if" statement afterwards is to enable us to terminate this sleep
     # process (via the HUP trap) without tripping the "set -e" setting.
-    info "Certbot autorenewal service will now sleep ${RENEWAL_INTERVAL}"
+    info "Autorenewal service will now sleep ${RENEWAL_INTERVAL}"
     sleep "${RENEWAL_INTERVAL}" || x=$?; if [ -n "${x}" ] && [ "${x}" -ne "143" ]; then exit "${x}"; fi
 done
 ) &
