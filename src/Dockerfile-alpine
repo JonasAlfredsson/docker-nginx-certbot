@@ -41,6 +41,9 @@ RUN set -ex && \
     mkdir -p /etc/nginx/user_conf.d && \
     chown 82:82 -R /var/www \
     && \
+# Symlink libressl so it is invoked when "openssl" is called by the scripts.
+    ln -s /usr/bin/libressl /usr/bin/openssl \
+    && \
 # Make sure there are no surprise config files inside the config folder.
     rm -f /etc/nginx/conf.d/*
 
