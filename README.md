@@ -8,19 +8,19 @@ used during the initial handshake of some ciphers.
 
 > :information_source: The very first time this container is started it might
   take a long time before before it is ready to respond to requests. Read more
-  about this in the [Diffie-Hellman parameters][diffie-hellman-parameters]
+  about this in the
+  [Diffie-Hellman parameters](./docs/good_to_know.md#diffie-hellman-parameters)
   section.
 
 ### Noteworthy Features
-- Handles multiple server names when [requesting certificates][how-the-script-add-domain-names-to-certificate-requests] (i.e. both `example.com` and `www.example.com`).
-- Can request both [RSA and ECDSA][15] keys ([at the same time][ecdsa-and-rsa-certificates]).
-- Will create [Diffie-Hellman parameters][diffie-hellman-parameters] if they are defined.
+- Handles multiple server names when [requesting certificates](./docs/good_to_know.md#how-the-script-add-domain-names-to-certificate-requests) (i.e. both `example.com` and `www.example.com`).
+- Can request both [RSA and ECDSA](./docs/good_to_know.md#ecdsa-and-rsa-certificates) certificates ([at the same time](./docs/advanced_usage.md#multi-certificate-setup)).
+- Will create [Diffie-Hellman parameters](./docs/good_to_know.md#diffie-hellman-parameters) if they are defined.
 - Uses the [parent container][9]'s [`/docker-entrypoint.d/`][7] folder.
 - Will report correct [exit code][6] when stopped/killed/failed.
-- You can do a live reload of configs by [sending in a `SIGHUP`][manualforce-renewal] signal (no container restart needed).
-- Easy to [force renewal][manualforce-renewal] of certificates if necessary.
-- You can tune your own [renewal interval][renewal-check-interval].
-- Both [Debian and Alpine][dockerhub_tags] images built for [multiple architectures][14].
+- You can do a live reload of configs by [sending in a `SIGHUP`](./docs/advanced_usage.md#manualforce-renewal) signal (no container restart needed).
+- Possibility to use this image **offline** with the help of a [local CA](./docs/advanced_usage.md#local-ca).
+- Both [Debian and Alpine](./docs/dockerhub_tags.md) images built for [multiple architectures][14].
 
 
 
@@ -35,7 +35,7 @@ This repository was originally forked from [`@henridwyer`][4] by
 the code has since become so significant that this has now been detached as its
 own independent repository (while still retaining all the history). Migration
 instructions, from `@staticfloat`'s image, can be found
-[here][help-migrating-from-staticfloats-image].
+[here](./docs/good_to_know.md#help-migrating-from-staticfloats-image).
 
 
 
@@ -43,15 +43,15 @@ instructions, from `@staticfloat`'s image, can be found
 
 ## Before You Start
 1. This guide expects you to already own a domain which points at the correct
-   IP address, and that you have both port `80` and `443` correctly forwarded if
-   you are behind NAT. Otherwise I recommend [DuckDNS][12] as a Dynamic DNS
+   IP address, and that you have both port `80` and `443` correctly forwarded
+   if you are behind NAT. Otherwise I recommend [DuckDNS][12] as a Dynamic DNS
    provider, and then either search on how to port forward on your router or
    maybe find it [here][13].
 
 2. I suggest you read at least the first two sections in the
-   [Good to Know][good-to-know] documentation, since this will give you some
-   important tips on how to create a basic server config, and how to use
-   the Let's Encrypt staging servers in order to not get rate limited.
+   [Good to Know](./docs/good_to_know.md) documentation, since this will give
+   you some important tips on how to create a basic server config, and how to
+   use the Let's Encrypt staging servers in order to not get rate limited.
 
 3. I don't think it is necessary to mention if you managed to find this
    repository, but you will need to have [Docker][11] installed for this to
@@ -64,13 +64,16 @@ instructions, from `@staticfloat`'s image, can be found
 - `CERTBOT_EMAIL`: Your e-mail address. Used by Let's Encrypt to contact you in case of security issues.
 
 ### Optional
-- `STAGING`: Set to `1` to use Let's Encrypt's [staging servers][initial-testing] (default: `0`)
-- `DHPARAM_SIZE`: The size of the [Diffie-Hellman parameters][diffie-hellman-parameters] (default: `2048`)
+- `STAGING`: Set to `1` to use Let's Encrypt's [staging servers](./docs/good_to_know.md#initial-testing) (default: `0`)
+- `DHPARAM_SIZE`: The size of the [Diffie-Hellman parameters](./docs/good_to_know.md#diffie-hellman-parameters) (default: `2048`)
 - `RSA_KEY_SIZE`: The size of the RSA encryption keys (default: `2048`)
-- `ELLIPTIC_CURVE`: The size/[curve][16] of the ECDSA keys (default: `secp256r1`)
-- `USE_ECDSA`: Set to `1` to have certbot use [ECDSA keys instead of RSA][ecdsa-and-rsa-certificates] (default: `0`)
-- `RENEWAL_INTERVAL`: Time interval between certbot's [renewal checks][renewal-check-interval] (default: `8d`)
+- `ELLIPTIC_CURVE`: The size/[curve][15] of the ECDSA keys (default: `secp256r1`)
+- `USE_ECDSA`: Set to `1` to have certbot use [ECDSA instead of RSA](./docs/good_to_know.md#ecdsa-and-rsa-certificates) (default: `0`)
+- `RENEWAL_INTERVAL`: Time interval between certbot's [renewal checks](./docs/good_to_know.md#renewal-check-interval) (default: `8d`)
+
+### Advanced
 - `DEBUG`: Set to `1` to enable debug messages and use the [`nginx-debug`][10] binary (default: `0`)
+- `USE_LOCAL_CA`: Set to `1` to enable the use of a [local certificate authority](./docs/advanced_usage.md#local-ca) (default: `0`)
 
 
 ## Volumes
@@ -78,9 +81,10 @@ instructions, from `@staticfloat`'s image, can be found
 
 
 ## Run with `docker run`
-Create your own [`user_conf.d/`][the-user_conf.d-folder] folder and place all
-of you custom server config files in there. When done you can just start the
-container with the following command ([available tags][dockerhub_tags]):
+Create your own [`user_conf.d/`](./docs/good_to_know.md#the-user_confd-folder)
+folder and place all of you custom server config files in there. When done you
+can just start the container with the following command
+([available tags](./docs/dockerhub_tags.md)):
 
 ```bash
 docker run -it -p 80:80 -p 443:443 \
@@ -95,10 +99,11 @@ docker run -it -p 80:80 -p 443:443 \
 
 As was mentioned in the introduction; the very first time this container is
 started it might take a long time before before it is ready to
-[respond to requests][diffie-hellman-parameters], please be a little bit
-patient. If you change any of the config files after the container is ready,
-you can just [send in a `SIGHUP`][manualforce-renewal] to tell my scripts and
-Nginx to reload everything.
+[respond to requests](./docs/good_to_know.md#diffie-hellman-parameters), please
+be a little bit patient. If you change any of the config files after the
+container is ready, you can just
+[send in a `SIGHUP`](./docs/advanced_usage.md#manualforce-renewal) to tell
+the scripts and Nginx to reload everything.
 
 ```bash
 docker kill --signal=HUP <container_name>
@@ -106,14 +111,15 @@ docker kill --signal=HUP <container_name>
 
 
 ## Run with `docker-compose`
-An example of a `docker-compose.yaml` file can be found in the
-[`examples/`](./examples) folder. The default parameters that are found inside
-the `nginx-certbot.env` file will be overwritten by any environment variables
-you set inside the `.yaml` file.
+An example of a [`docker-compose.yaml`](./examples/docker-compose.yml) file can
+be found in the [`examples/`](./examples) folder. The default parameters that
+are found inside the [`nginx-certbot.env`](./examples/nginx-certbot.env) file
+will be overwritten by any environment variables you set inside the `.yaml`
+file.
 
 Like in the example above, you just need to place your custom server configs
-inside your [`user_conf.d/`][the-user_conf.d-folder] folder beforehand. Then
-you start it all with the following command.
+inside your [`user_conf.d/`](./docs/good_to_know.md#the-user_confd-folder)
+folder beforehand. Then you start it all with the following command.
 
 ```bash
 docker-compose up
@@ -122,15 +128,15 @@ docker-compose up
 
 ## Build It Yourself
 This option is for if you make your own `Dockerfile`. Check out which tags that
-are available in [this document][dockerhub_tags], or on [Docker Hub][8], and
-then choose how specific you want to be.
+are available in [this document](./docs/dockerhub_tags.md), or on
+[Docker Hub][8], and then choose how specific you want to be.
 
 In this case it is possible to completely skip the
-[`user_conf.d/`][the-user_conf.d-folder] folder and just write your files
-directly into Nginx's `conf.d/` folder. This way you can replace the files I
-have built [into the image](./src/nginx_conf.d) with your own. However, if you
-do that please take a moment to understand what they do, and what you need to
-include in order for certbot to continue working.
+[`user_conf.d/`](./docs/good_to_know.md#the-user_confd-folder) folder and just
+write your files directly into Nginx's `conf.d/` folder. This way you can
+replace the files I have built [into the image](./src/nginx_conf.d) with your
+own. However, if you do that please take a moment to understand what they do,
+and what you need to include in order for certbot to continue working.
 
 ```Dockerfile
 FROM jonasal/nginx-certbot:latest
@@ -143,33 +149,26 @@ COPY conf.d/* /etc/nginx/conf.d/
 Here is a collection of links to other resources that provide useful
 information.
 
-### Good to Know
-[Document][good-to-know] with a lot of good to know stuff about this image and
-the features it provides.
+#### Good to Know
+[Document](./docs/good_to_know.md) with a lot of good to know stuff about this
+image and the features it provides.
 
-### Changelog
-[Document][changelog] with all the tagged versions of this repository, as well
-as bullet points to what has changed between the releases.
+#### Changelog
+[Document](./docs/changelog.md) with all the tagged versions of this repository,
+as well as bullet points to what has changed between the releases.
 
-### DockerHub Tags
-[Document][dockerhub_tags] with all the tags available from Docker Hub.
+#### DockerHub Tags
+[Document](./docs/dockerhub_tags.md) with all the tags available from Docker
+Hub.
+
+#### Advanced Usage
+[Document](./docs/advanced_usage.md) with information about the more advanced
+features this image provides.
 
 
 
 
 
-
-[good-to-know]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/master/docs/good_to_know.md
-[diffie-hellman-parameters]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/master/docs/good_to_know.md#diffie-hellman-parameters
-[help-migrating-from-staticfloats-image]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/master/docs/good_to_know.md#help-migrating-from-staticfloats-image
-[how-the-script-add-domain-names-to-certificate-requests]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/master/docs/good_to_know.md#how-the-script-add-domain-names-to-certificate-requests
-[manualforce-renewal]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/master/docs/good_to_know.md#manualforce-renewal
-[renewal-check-interval]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/master/docs/good_to_know.md#renewal-check-interval
-[initial-testing]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/master/docs/good_to_know.md#initial-testing
-[the-user_conf.d-folder]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/master/docs/good_to_know.md#the-user_confd-folder
-[changelog]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/master/docs/changelog.md
-[dockerhub_tags]: https://github.com/JonasAlfredsson/docker-nginx-certbot/blob/master/docs/dockerhub_tags.md
-[ecdsa-and-rsa-certificates]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/master/docs/good_to_know.md#ecdsa-and-rsa-certificates
 
 [1]: https://letsencrypt.org/
 [2]: https://github.com/certbot/certbot
@@ -185,5 +184,4 @@ as bullet points to what has changed between the releases.
 [12]: https://www.duckdns.org/
 [13]: https://portforward.com/router.htm
 [14]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/28
-[15]: https://sectigostore.com/blog/ecdsa-vs-rsa-everything-you-need-to-know/
-[16]: https://security.stackexchange.com/a/104991
+[15]: https://security.stackexchange.com/a/104991

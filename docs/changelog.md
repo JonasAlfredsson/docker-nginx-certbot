@@ -3,11 +3,13 @@
 ### 2.3.0
 - Add support for [ECDSA][27] certificates.
   - It is possible to have Nginx serve both ECDSA and RSA certificates at the
-    same time for the same server. Read more in its [good to know section][28].
-- Made so that the the "primary domain"/"cert name" can be [whatever][29] you
-  want.
-  - This was actually already possible from `v0.12`, but it is first now we
-    allow it.
+    same time for the same server. Read more in its
+    [good to know section](./good_to_know.md#ecdsa-and-rsa-certificates).
+- Made so that the the "primary domain"/"cert name" can be
+  [whatever](./good_to_know.md#how-the-script-add-domain-names-to-certificate-requests)
+  you want.
+  - This was actually already possible from [`v0.12`](#012), but it is first
+    now we allow it.
 
 ### 2.2.0
 - Listen to IPv6 in the [redirector.conf](../src/nginx_conf.d/redirector.conf)
@@ -30,8 +32,8 @@
 - There now exist a Dockerfile for building from the Nginx Alpine image as well.
   - It is possible to use the Alpine version by appending `-alpine` to any
     of the tags from now on.
-  - There are now so many tags available, see [dockerhub_tags.md][14] for the
-    possible combinations.
+  - There are now so many tags available, see
+    [dockerhub_tags.md](./dockerhub_tags.md) for the possible combinations.
   - NOTE: There exists a bug in Bash 5.1.0, which is described in detail
     [here][15].
   - Suggested by [@tudddorrr][24].
@@ -46,17 +48,17 @@
   container.
   - Created a script that [creates symlinks][10] from `conf.d/` to the files
     in `user_conf.d/`.
-  - Users can now [start the container][run-with-docker-run] without having
-    to build anything.
-  - Still compatible with [the old way][build-it-yourself], but I still think
-    it's a "major" change.
+  - Users can now [start the container](../README.md#run-with-docker-run)
+    without having to build anything.
+  - Still compatible with [the old way](../README.md#build-it-yourself), but I
+    still think it's a "major" change.
   - Suggested by [@MauriceNino][23].
 - Examples are updated to reflect changes.
 - Add more logging.
 - Add more `"` around variables for extra safety.
 - Big overhaul of how the documentation is structured.
 - Even more tags now available on Docker Hub!
-  - See [dockerhub_tags.md][14] for the list.
+  - See [dockerhub_tags.md](./dockerhub_tags.md) for the list.
 
 ### 1.3.0
 - Ignore values starting with `data:` and `engine:` when verifying that all
@@ -70,7 +72,7 @@
   - Reported by [RtKelleher][11].
 - Added [Dependabot][20] to monitor and update the Dockerfiles.
   - PR by [@odin568][19].
-- Added [GitHub Actions/Workflows][workflows] so that each [tag][2]
+- Added [GitHub Actions/Workflows](../.github/workflows) so that each [tag][2]
   now is built for multiple arches ([issue #28][3]).
 
 ### 1.1.0
@@ -98,8 +100,8 @@
     - 1.0.0-nginx1.19.7
 
 ### 0.16
-- Container now listens to [`SIGHUP`][manualforce-renewal] and will reload
-  all configs if this signal is received.
+- Container now listens to [`SIGHUP`](./advanced_usage.md#manualforce-renewal)
+  and will reload all configs if this signal is received.
   - More details can be found in the commit message: [bf2c135][13]
 - Made Docker image slightly smaller by including `--no-install-recommends`.
 - There is now also a [`dev` branch][9]/tag if you are brave and want to run
@@ -108,7 +110,8 @@
   repository (i.e. no longer just a fork).
 
 ### 0.15
-- It is now possible to [manually trigger][manualforce-renewal] a renewal of
+- It is now possible to
+  [manually trigger](./advanced_usage.md#manualforce-renewal) a renewal of
   certificates.
   - It is also possible to include "force" to add `--force-renewal` to the
     request.
@@ -233,10 +236,6 @@
 
 
 
-[run-with-docker-run]: https://github.com/JonasAlfredsson/docker-nginx-certbot#run-with-docker-run
-[build-it-yourself]: https://github.com/JonasAlfredsson/docker-nginx-certbot#build-it-yourself
-[workflows]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/master/.github/workflows
-[manualforce-renewal]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/master/docs/good_to_know.md#manualforce-renewal
 
 [1]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/32
 [2]: https://hub.docker.com/r/jonasal/nginx-certbot
@@ -251,7 +250,7 @@
 [11]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/24
 [12]: https://github.com/nginxinc/docker-nginx/commit/3fb70ddd7094c1fdd50cc83d432643dc10ab6243
 [13]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/bf2c1354f55adffadc13b1f1792e205f9dd25f86
-[14]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/master/docs/dockerhub_tags.md
+
 [15]: https://github.com/JonasAlfredsson/bash_fail-to-wait
 [16]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/7c5e2108c89c9da5effda1c499fff6ff84f8b1d3
 [17]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/9dfa927cda7244768445067993dc42e23b4e78da

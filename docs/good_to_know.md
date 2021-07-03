@@ -1,4 +1,5 @@
 # Good to Know
+
 This document contains information about features and behavior that might be
 good to know before you start using this image. Feel free to read it all, but I
 recommend the first two sections for everyone.
@@ -23,28 +24,30 @@ docker run -it -p 80:80 -p 443:443 \
 
 ## Creating a Server `.conf` File
 As an example of a barebone (but functional) SSL server in Nginx you can
-look at the file `example_server.conf` inside the [`examples/`][examples]
-directory. By replacing '`yourdomain.org`' with your own domain you can
-actually use this config to quickly test if things are working properly.
-When doing this for real you should also change the certificate paths'
-["test-name"](#how-the-script-add-domain-names-to-certificate-requests)
-to something more descriptive.
+look at the file [`example_server.conf`](../examples/example_server.conf)
+inside the [`examples/`](../examples) directory. By replacing '`yourdomain.org`'
+with your own domain you can actually use this config to quickly test if things
+are working properly. When doing this for real you should also change the
+certificate paths'
+["test-name"](#how-the-script-add-domain-names-to-certificate-requests) to
+something more descriptive.
 
 Place the modified config inside your [`user_conf.d/`](#the-user_confd-folder)
-folder, and then run it as described [in the main README][run-with-docker-run].
-Let the container do it's [magic](#diffie-hellman-parameters) for a while, and
-then try to visit your domain. You should now be greeted with the string \
+folder, and then run it as described
+[in the main README](../README.md#run-with-docker-run). Let the container do
+it's [magic](#diffie-hellman-parameters) for a while, and then try to visit
+your domain. You should now be greeted with the string \
 "`Let's Encrypt certificate successfully installed!`".
 
-The files [already present][nginx_confd] inside the container's config folder
-are there to handle redirection to HTTPS for all incoming requests that are not
-part of the certbot challenge requests, so be careful to not overwrite these
-unless you know what you are doing.
+The files [already present](../src/nginx_conf.d) inside the container's config
+folder are there to handle redirection to HTTPS for all incoming requests that
+are not part of the certbot challenge requests, so be careful to not overwrite
+these unless you know what you are doing.
 
 ## The `user_conf.d` Folder
 Nginx will, by default, load any file ending with `.conf` from within the
 `/etc/nginx/conf.d/` folder. However, this image makes use of two important
-[configuration files][nginx_confd] which need to be present (unless you
+[configuration files](../src/nginx_conf.d) which need to be present (unless you
 know how to replace them with your own), and host mounting a local folder to
 the aforementioned location would shadow these important files.
 
@@ -108,38 +111,19 @@ yet, but if you don't expect to serve anything outisde the "Modern" row in
 [Mozillas compatibility table][17] you should not hesitate to configure certbot
 to request these types of certificates.
 
-This is achieved by setting the [environment variable][optional] `USE_ECDSA=1`,
-and you can optionally tune which [curve][18] to use with `ELLIPTIC_CURVE`.
-If you already have RSA certificates downloaded you will either have to wait
-until they expire, or [force](#manualforce-renewal) a renewal, before this
-change takes affect.
+This is achieved by setting the [environment variable](../README.md#optional)
+`USE_ECDSA=1`, and you can optionally tune which [curve][18] to use with
+`ELLIPTIC_CURVE`. If you already have RSA certificates downloaded you will
+either have to wait until they expire, or
+[force](./advanced_usage.md#manualforce-renewal) a renewal, before this change
+takes affect.
 
-With this option you will use only one of these types for all of your server
+With this option you will create only ECDSA certificates for all of your server
 configurations, however, I should mention that there is a way to configure
-Nginx to serve both ECDSA and RSA certificates at the same time.
-[The setup][21] is a bit more complicated, but the
-[`example_server_multicert.conf`](../examples/example_server_multicert.conf)
-file should be configured so you should only have to edit the "yourdomain.org"
-statements at the top.
+Nginx to serve both ECDSA and RSA certificates at the same time, but this
+is explained further in the
+[Advanced Usage](./advanced_usage.md#multi-certificate-setup) document.
 
-How this works is that Nginx is able to [load multiple certificate files][19]
-for each server block, and you then configure the cipher suites in an order
-that prefers ECDSA certificates. The scripts running inside the container then
-looks for some (case insensitive) variant of these strings in the
-[`--cert-name`](#how-the-script-add-domain-names-to-certificate-requests)
-argument:
-
-- `-rsa`
-- `.rsa`
-- `-ecc`
-- `.ecc`
-- `-ecdsa`
-- `.ecdsa`
-
-and makes a certificate request with the correct type set. See the
-[actual commit][20] for more details, but what you need to know is that
-these options override the environment variable. This way you can both use
-the most modern encryption, while still supporting semi-old devices.
 
 
 ## Renewal Check Interval
@@ -173,9 +157,9 @@ it necessary to update the certificates.
 Regarding the Diffie-Hellman parameter it is recommended that you have one for
 your server, and in Nginx you define it by including a line that starts with
 `ssl_dhparam` in the server block (see
-[`examples/example_server.conf`][nginx_confd]). However, you can make a
-config file without it and Nginx will work just fine with ciphers that don't
-rely on the Diffie-Hellman key exchange ([more info about ciphers][7]).
+[`example_server.conf`](../examples/example_server.conf)). However, you can
+make a config file without it and Nginx will work just fine with ciphers that
+don't rely on the Diffie-Hellman key exchange ([more info about ciphers][7]).
 
 The larger you make these parameters the longer it will take to generate them.
 I was unlucky and it took me 65 minutes to generate a 4096 bit parameter on an
@@ -190,50 +174,17 @@ It is also possible to have **all** your server configs point to **the same**
 Diffie-Hellman parameter on disk. There is no negative effects in doing this for
 home use ([source 1][8] & [source 2][9]). For persistence you should place it
 inside the dedicated folder `/etc/letsencrypt/dhparams/`, which is inside the
-predefined Docker [volume][volumes]. There is, however, no requirement to do
-so, since a missing parameter will be created where the config file expects the
-file to be. But this would mean that the script will have to re-create these
-every time you restart the container, which may become a little bit tedious.
+predefined Docker [volume](../README.md#volumes). There is, however, no
+requirement to do so, since a missing parameter will be created where the
+config file expects the file to be. But this would mean that the script will
+have to re-create these every time you restart the container, which may become
+a little bit tedious.
 
 You can also create this file on a completely different (faster?) computer and
 just mount/copy the created file into this container. This is perfectly fine,
 since it is nothing "private/personal" about this file. The only thing to
 think about in that case would perhaps be to use a folder that is not under
 `/etc/letsencrypt/`, since that would otherwise cause a double mount.
-
-## Manual/Force Renewal
-It might be of interest to manually trigger a renewal of the certificates, and
-that is why the `run_certbot.sh` script is possible to run standalone at any
-time from within the container.
-
-However, the preferred way of requesting a reload of all the configuration files
-is to send in a `SIGHUP` to the container:
-
-```bash
-docker kill --signal=HUP <container_name>
-```
-
-This will terminate the [sleep timer](#renewal-check-interval) and make the
-renewal loop start again from the beginning, which includes a lot of other
-checks than just the certificates.
-
-While this will be enough in the majority of the cases, it might sometimes be
-necessary to **force** a renewal of the certificates even though certbot thinks
-it could keep them for a while longer (like when [this][10] happened). It is
-therefore possible to add "force" as an argument, when calling the
-`run_certbot.sh` script, to have it append the `--force-renewal` flag to the
-requests made.
-
-```bash
-docker exec -it <container_name> /scripts/run_certbot.sh force
-```
-
-This will request new certificates irregardless of then they are set to expire.
-
-> NOTE: Using "force" will make new requests for **all** you certificates, so
-        don't run it too often since there are some limits to requesting
-        [production certificates][2].
-
 
 ## Help Migrating from `@staticfloat`'s Image
 The two images are not that different when it comes to building/running, since
@@ -243,18 +194,19 @@ you need to get your own `*.conf` files into the container's
 just like you did with his.
 
 This can either be done by copying your own files into the container at
-[build time][build-it-yourself], or you can mount a local folder to
+[build time](../README.md#build-it-yourself), or you can mount a local folder to
 [`/etc/nginx/user_conf.d/`](#the-user_confd-folder) and
-[run it directly][run-with-docker-run]. In the former case you need
+[run it directly](../README.md#run-with-docker-run). In the former case you need
 to make sure you do not accidentally overwrite the two files present in this
-repository's [`src/nginx_conf.d/`][nginx_confd] folder, since these are
+repository's [`nginx_conf.d/`](../src/nginx_conf.d) folder, since these are
 required in order for certbot to request certificates.
 
 The only obligatory environment variable for starting this container is the
-[`CERTBOT_EMAIL`][required] one, just like in `@staticfloat`'s case, but I
-have exposed a [couple of more][optional] that can be changed from their
-defaults if you like. Then there is of course any environment variables read by
-the [parent container][11] as well, but those are probably not as important.
+[`CERTBOT_EMAIL`](../README.md#required) one, just like in `@staticfloat`'s
+case, but I have exposed a [couple of more](../README.md#optional) that can be
+changed from their defaults if you like. Then there is of course any environment
+variables read by the [parent container][11] as well, but those are probably
+not as important.
 
 If you were using [templating][12] before, you should probably look into
 ["template" files][13] used by the Nginx parent container, since this is not
@@ -263,15 +215,6 @@ something I have personally implemented in mine.
 
 
 
-
-
-[examples]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/master/examples
-[run-with-docker-run]: https://github.com/JonasAlfredsson/docker-nginx-certbot#run-with-docker-run
-[nginx_confd]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/master/src/nginx_conf.d
-[volumes]: https://github.com/JonasAlfredsson/docker-nginx-certbot#volumes
-[build-it-yourself]: https://github.com/JonasAlfredsson/docker-nginx-certbot#build-it-yourself
-[required]: https://github.com/JonasAlfredsson/docker-nginx-certbot#required
-[optional]: https://github.com/JonasAlfredsson/docker-nginx-certbot#optional
 
 [1]: https://letsencrypt.org/docs/staging-environment/
 [2]: https://letsencrypt.org/docs/rate-limits/
@@ -282,7 +225,7 @@ something I have personally implemented in mine.
 [7]: https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html
 [8]: https://security.stackexchange.com/questions/70831/does-dh-parameter-file-need-to-be-unique-per-private-key
 [9]: https://security.stackexchange.com/questions/94390/whats-the-purpose-of-dh-parameters
-[10]: https://community.letsencrypt.org/t/revoking-certain-certificates-on-march-4/114864
+
 [11]: https://github.com/nginxinc/docker-nginx
 [12]: https://github.com/staticfloat/docker-nginx-certbot#templating
 [13]: https://github.com/docker-library/docs/tree/master/nginx#using-environment-variables-in-nginx-configuration-new-in-119
@@ -291,6 +234,3 @@ something I have personally implemented in mine.
 [16]: https://sectigostore.com/blog/ecdsa-vs-rsa-everything-you-need-to-know/
 [17]: https://wiki.mozilla.org/Security/Server_Side_TLS
 [18]: https://security.stackexchange.com/questions/31772/what-elliptic-curves-are-supported-by-browsers/104991#104991
-[19]: https://scotthelme.co.uk/hybrid-rsa-and-ecdsa-certificates-with-nginx/
-[20]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/9195bf02cb200dcec8206b46da971734b1d6669f
-[21]: https://medium.com/hackernoon/rsa-and-ecdsa-hybrid-nginx-setup-with-letsencrypt-certificates-ee422695d7d3
