@@ -1,5 +1,15 @@
 # Changelog
 
+### 2.4.0
+- Create a script that can sign certificates with the help of a
+  [local certificate authortiy](./advanced_usage#local-ca).
+  - It is now possible to work completely offline.
+  - We can now create certificates for `localhost`.
+- Restructure and add a lot of documentation.
+- `openssl` is now a symlink to `libressl` in the Alpine images.
+  - This is done to simplify the rest of the scripts since the arguments are
+    the same.
+
 ### 2.3.0
 - Add support for [ECDSA][27] certificates.
   - It is possible to have Nginx serve both ECDSA and RSA certificates at the
