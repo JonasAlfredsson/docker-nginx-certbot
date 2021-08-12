@@ -59,7 +59,7 @@ while [ true ]; do
     # Check that all dhparam files exists.
     "$(cd "$(dirname "$0")"; pwd)/create_dhparams.sh"
 
-    if [ 1 = ${USE_LOCAL_CA} ]; then
+    if [ 1 = "${USE_LOCAL_CA}" ]; then
         # Renew all certificates with the help of the local CA.
         "$(cd "$(dirname "$0")"; pwd)/run_local_ca.sh"
     else
