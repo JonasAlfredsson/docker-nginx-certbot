@@ -187,57 +187,6 @@ and you may of course take a look at the commands used in the
 way of creating your own files.
 
 
-## Reject Unknown Server Name
-When setting up server blocks there exist a setting called `default_server`,
-which means that Nginx will use this server block in case it cannot match
-the incoming domain name with any of the other `server_name`s in its available
-config files. However, a less known fact is that if you do not specify a
-`default_server` Nginx will automatically use the [first server block][20] in
-its configuration files as the default server.
-
-This might cause confusion as Nginx could now "accidentally" serve a
-completely wrong site without the user knowing it. Luckily HTTPS removes some
-of this worry, since the browser will most likely throw an
-`SSL_ERROR_BAD_CERT_DOMAIN` if the returned certificate is not valid for the
-domain that the browser expected to visit. But if the cert is valid for that
-domain as well, then there will be problems.
-
-If you want to guard yourself against this, and return an error in the case
-that the client tries to connect with an unknown server name, you need to
-configure a catch-all block that responds in the default case. This is simple
-in the non-SSL case, where you can just return `444` which will terminate the
-connection immediately.
-
-```
-server {
-    listen      80 default_server;
-    server_name _;
-    return      444;
-}
-```
-
-> NOTE: The [redirector.conf](../src/nginx_conf.d/redirector.conf) should be
-        the `default_server` for port 80 in this image.
-
-Unfortunately it is not as simple in the secure HTTPS case, since Nginx would
-first need to perform the SSL handshake (which needs a valid certificate)
-before it can respond with `444` and drop the connection. To work around this
-I found a comment in [this][18] post which mentions that in version `>=1.19.4`
-of Nginx you can actually use the [`ssl_reject_handshake`][19] feature to
-achieve the same functionality.
-
-```
-server {
-    listen               443 ssl default_server;
-    ssl_reject_handshake on;
-}
-```
-
-This will lead to an `SSL_ERROR_UNRECOGNIZED_NAME_ALERT` error in case the
-client tries to connect over HTTPS to a server name that is not served by this
-instance of Nginx, and the connection will be dropped immediately.
-
-
 
 
 
@@ -259,6 +208,3 @@ instance of Nginx, and the connection will be dropped immediately.
 [15]: https://derflounder.wordpress.com/2019/06/06/new-tls-security-requirements-for-ios-13-and-macos-catalina-10-15/
 [16]: https://superuser.com/questions/738612/openssl-ca-keyusage-extension/1248085#1248085
 [17]: https://www.feistyduck.com/library/openssl-cookbook/online/ch-openssl.html
-[18]: https://serverfault.com/a/631073
-[19]: https://nginx.org/en/docs/http/ngx_http_ssl_module.html#ssl_reject_handshake
-[20]: https://nginx.org/en/docs/http/request_processing.html

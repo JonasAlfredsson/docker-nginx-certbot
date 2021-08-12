@@ -153,21 +153,16 @@ COPY conf.d/* /etc/nginx/conf.d/
 Here is a collection of links to other resources that provide useful
 information.
 
-#### Good to Know
-[Document](./docs/good_to_know.md) with a lot of good to know stuff about this
-image and the features it provides.
-
-#### Changelog
-[Document](./docs/changelog.md) with all the tagged versions of this repository,
-as well as bullet points to what has changed between the releases.
-
-#### DockerHub Tags
-[Document](./docs/dockerhub_tags.md) with all the tags available from Docker
-Hub.
-
-#### Advanced Usage
-[Document](./docs/advanced_usage.md) with information about the more advanced
-features this image provides.
+- [Good to Know](./docs/good_to_know.md)
+  - A lot of good to know stuff about this image and the features it provides.
+- [Changelog](./docs/changelog.md)
+  - List of all the tagged versions of this repository, as well as bullet points to what has changed between the releases.
+- [DockerHub Tags](./docs/dockerhub_tags.md)
+  - All the tags available from Docker Hub.
+- [Advanced Usage](./docs/advanced_usage.md)
+  - Information about the more advanced features this image provides.
+- [Nginx Tips](./docs/nginx_tips.md)
+  - Some interesting tips on how Nginx can be configured.
 
 
 
