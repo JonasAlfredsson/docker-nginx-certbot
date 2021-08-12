@@ -117,6 +117,10 @@ are found inside the [`nginx-certbot.env`](./examples/nginx-certbot.env) file
 will be overwritten by any environment variables you set inside the `.yaml`
 file.
 
+> NOTE: You can use both `environment:` and `env_file:` togheter or only one
+        of them, the only requirement is that `CERTBOT_EMAIL` is defined
+        somewhere.
+
 Like in the example above, you just need to place your custom server configs
 inside your [`user_conf.d/`](./docs/good_to_know.md#the-user_confd-folder)
 folder beforehand. Then you start it all with the following command.
