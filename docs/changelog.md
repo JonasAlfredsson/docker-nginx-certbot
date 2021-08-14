@@ -1,5 +1,12 @@
 # Changelog
 
+### 2.4.1
+- Fix missing quotes around variable.
+  - PR by [@LucianDavies][30].
+- Changed package mirror used by Alpine images. More info in [issue #70][31].
+- Added more documentation.
+- Updated the `docker-compose` examples a bit.
+
 ### 2.4.0
 - Create a script that can sign certificates with the help of a
   [local certificate authortiy](./advanced_usage#local-ca).
@@ -276,3 +283,5 @@
 [27]: https://sectigostore.com/blog/ecdsa-vs-rsa-everything-you-need-to-know/
 [28]: https://github.com/JonasAlfredsson/docker-nginx-certbot/blob/master/docs/good_to_know.md#ecdsa-and-rsa-certificates
 [29]: https://github.com/JonasAlfredsson/docker-nginx-certbot/blob/master/docs/good_to_know.md#how-the-script-add-domain-names-to-certificate-requests
+[30]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/69
+[31]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/70
