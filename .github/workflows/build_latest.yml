@@ -27,7 +27,7 @@ jobs:
         uses: docker/setup-qemu-action@v1.2.0
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1.5.1
+        uses: docker/setup-buildx-action@v1.6.0
 
       - name: Login to DockerHub
         if: github.event_name != 'pull_request'
@@ -61,7 +61,7 @@ jobs:
         uses: docker/setup-qemu-action@v1.2.0
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1.5.1
+        uses: docker/setup-buildx-action@v1.6.0
 
       - name: Login to DockerHub
         if: github.event_name != 'pull_request'
