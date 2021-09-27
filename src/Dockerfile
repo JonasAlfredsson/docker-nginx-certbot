@@ -1,4 +1,4 @@
-FROM nginx:1.21.0
+FROM nginx:1.21.3
 LABEL maintainer="Jonas Alfredsson <jonas.alfredsson@protonmail.com>"
 
 ARG BUILDX_QEMU_ENV
