@@ -6,7 +6,7 @@ since master should not be considered "stable".
 All the tags since `2.0.0` are built for the following architectures:
 
 - linux/amd64
-- linux/386
+- linux/386 (:warning: not available for [Alpine][alpine-i386] since Nginx `v1.21.0`)
 - linux/arm64
 - linux/arm/v7
 
@@ -17,7 +17,8 @@ are updated.
 
 | Major | Minor | Patch | Nginx              |
 | ----: | ----: | ----: | :----------------- |
-| 2     | 2.4   | 2.4.1 | 2.4.1-nginx1.21.0  |
+| 2     | 2.4   | 2.4.1 | 2.4.1-nginx1.21.1  |
+|       |       |       | 2.4.1-nginx1.21.0  |
 |       |       | 2.4.0 | 2.4.0-nginx1.21.0  |
 |       | 2.3   | 2.3.0 | 2.3.0-nginx1.21.0  |
 |       | 2.2   | 2.2.0 | 2.2.0-nginx1.21.0  |
@@ -34,3 +35,4 @@ are updated.
 |       |       | 1.0.0 | 1.0.0-nginx1.19.7  |
 
 [master-branch]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/master
+[alpine-i386]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/77
