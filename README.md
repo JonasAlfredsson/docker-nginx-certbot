@@ -117,7 +117,7 @@ are found inside the [`nginx-certbot.env`](./examples/nginx-certbot.env) file
 will be overwritten by any environment variables you set inside the `.yaml`
 file.
 
-> NOTE: You can use both `environment:` and `env_file:` togheter or only one
+> NOTE: You can use both `environment:` and `env_file:` together or only one
         of them, the only requirement is that `CERTBOT_EMAIL` is defined
         somewhere.
 
