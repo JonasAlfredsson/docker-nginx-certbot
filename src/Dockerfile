@@ -3,6 +3,22 @@ LABEL maintainer="Jonas Alfredsson <jonas.alfredsson@protonmail.com>"
 
 ARG BUILDX_QEMU_ENV
 
+ENV CERTBOT_DNS_AUTHENTICATORS \
+    cloudflare \
+    cloudxns \
+    digitalocean \
+    dnsimple \
+    dnsmadeeasy \
+    gehirn \
+    google \
+    linode \
+    luadns \
+    nsone \
+    ovh \
+    rfc2136 \
+    route53 \
+    sakuracloud
+
 # Do a single run command to make the intermediary containers smaller.
 RUN set -ex && \
 # Install packages necessary during the build phase (for all architectures).
@@ -28,6 +44,8 @@ RUN set -ex && \
     fi && \
 # Install certbot.
     pip3 install -U cffi certbot \
+# And the supported extra authenticators
+        $(echo $CERTBOT_DNS_AUTHENTICATORS | sed 's/\(^\| \)/\1certbot-dns-/g') \
     && \
 # Remove everything that is no longer necessary.
     apt-get remove --purge -y \

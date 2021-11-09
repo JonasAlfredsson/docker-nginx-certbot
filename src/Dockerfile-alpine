@@ -1,6 +1,22 @@
 FROM nginx:1.21.3-alpine
 LABEL maintainer="Jonas Alfredsson <jonas.alfredsson@protonmail.com>"
 
+ENV CERTBOT_DNS_AUTHENTICATORS \
+    cloudflare \
+    cloudxns \
+    digitalocean \
+    dnsimple \
+    dnsmadeeasy \
+    gehirn \
+    google \
+    linode \
+    luadns \
+    nsone \
+    ovh \
+    rfc2136 \
+    route53 \
+    sakuracloud
+
 # Do a single run command to make the intermediary containers smaller.
 RUN set -ex && \
 # Install packages necessary during the build phase (for all architectures).
@@ -25,6 +41,8 @@ RUN set -ex && \
     curl -L 'https://bootstrap.pypa.io/get-pip.py' | python3 && \
 # Install certbot.
     pip3 install -U cffi certbot \
+# And the supported extra authenticators
+        $(echo $CERTBOT_DNS_AUTHENTICATORS | sed 's/\(^\| \)/\1certbot-dns-/g') \
     && \
 # Remove everything that is no longer necessary.
     apk del \

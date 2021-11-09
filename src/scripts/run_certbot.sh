@@ -49,12 +49,39 @@ fi
 # $1: The name of the certificate (e.g. domain-rsa)
 # $2: String with all requested domains (e.g. -d domain.org -d www.domain.org)
 # $3: Type of key algorithm to use (rsa or ecdsa)
+# $4: The authenticator to use to solve the challenge
 get_certificate() {
-    info "Requesting an ${3^^} certificate for '${1}'"
+    local authenticator_params=
+    local challenge_type=
+
+    if [[ "$4" == dns-* ]] && \
+            [[ ${CERTBOT_DNS_AUTHENTICATORS} =~ (^| )${4#dns-}( |$) ]]; then
+        local provider="${4#dns-}"
+        local configfile="/etc/letsencrypt/${provider}.ini"
+        if [ ! -f "$configfile" ]; then
+            error "Authenticator is ${4} but ${configfile} is missing"
+            return 1
+        fi
+
+        challenge_type="dns-01"
+        authenticator_params="--${4}-credentials=${configfile}"
+        if [ -n "${CERTBOT_DNS_PROPAGATION_SECONDS}" ]; then
+            authenticator_params="${authenticator_params} --${4}-propagation-seconds=${CERTBOT_DNS_PROPAGATION_SECONDS}"
+        fi
+    elif [ "$4" == "webroot" ]; then
+        challenge_type="http-01"
+        authenticator_params="--webroot-path=/var/www/letsencrypt"
+    else
+        error "Unknown authenticator ${4} for '${1}'"
+        return 1
+    fi
+
+    info "Requesting an ${3^^} certificate for '${1}' (${challenge_type} through ${4})"
     certbot certonly \
         --agree-tos --keep -n --text \
-        -a webroot --webroot-path=/var/www/letsencrypt \
-        --preferred-challenges http-01 \
+        --preferred-challenges ${challenge_type} \
+        --authenticator ${4} \
+        ${authenticator_params} \
         --email "${CERTBOT_EMAIL}" \
         --server "${letsencrypt_url}" \
         --rsa-key-size "${RSA_KEY_SIZE}" \
@@ -87,6 +114,14 @@ for conf_file in /etc/nginx/conf.d/*.conf*; do
             key_type="rsa"
         fi
 
+        # Determine the authenticator to use to solve the challenge
+        if [[ "${cert_name,,}" =~ ^.*(-|\.)(dns-($(echo ${CERTBOT_DNS_AUTHENTICATORS} | sed 's/ /|/g'))).*$ ]]; then
+            authenticator=${BASH_REMATCH[2]}
+            debug "Found mention of authenticator '${authenticator}' in name '${cert_name}'"
+        else
+            authenticator="${CERTBOT_AUTHENTICATOR:-webroot}"
+        fi
+
         # Find all 'server_names' in this .conf file and assemble the list of
         # domains to be included in the request.
         domain_request=""
@@ -96,7 +131,7 @@ for conf_file in /etc/nginx/conf.d/*.conf*; do
 
         # Hand over all the info required for the certificate request, and
         # let certbot decide if it is necessary to update the certificate.
-        if ! get_certificate "${cert_name}" "${domain_request}" "${key_type}"; then
+        if ! get_certificate "${cert_name}" "${domain_request}" "${key_type}" "${authenticator}"; then
             error "Certbot failed for '${cert_name}'. Check the logs for details."
         fi
     done
