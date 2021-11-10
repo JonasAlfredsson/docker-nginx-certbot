@@ -22,6 +22,11 @@ docker run -it -p 80:80 -p 443:443 \
            jonasal/nginx-certbot:latest
 ```
 
+Note that when switching to production certificates you either need to remove the
+staging certificates or issue a [force renewal](./advanced_usage.md#manualforce-renewal)
+since by default certbot will *not* request new certificates if any valid
+(staging or production) certificates already exist.
+
 ## Creating a Server `.conf` File
 As an example of a barebone (but functional) SSL server in Nginx you can
 look at the file [`example_server.conf`](../examples/example_server.conf)
