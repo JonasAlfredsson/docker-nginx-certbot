@@ -51,35 +51,36 @@ fi
 # $3: Type of key algorithm to use (rsa or ecdsa)
 # $4: The authenticator to use to solve the challenge
 get_certificate() {
+    local authenticator="${4,,}"
     local authenticator_params=
     local challenge_type=
 
-    if [[ "${4,,}" == dns-* ]] && [[ ${CERTBOT_DNS_AUTHENTICATORS} =~ (^| )${4,,#dns-}( |$) ]]; then
-        local provider="${4,,#dns-}"
+    if [[ "$authenticator" == dns-* ]] && [[ ${CERTBOT_DNS_AUTHENTICATORS} =~ (^| )${authenticator#dns-}( |$) ]]; then
+        local provider="${authenticator#dns-}"
         local configfile="/etc/letsencrypt/${provider}.ini"
         if [ ! -f "$configfile" ]; then
-            error "Authenticator is '${4,,}' but '${configfile}' is missing"
+            error "Authenticator is '${authenticator}' but '${configfile}' is missing"
             return 1
         fi
 
         challenge_type="dns-01"
-        authenticator_params="--${4,,}-credentials=${configfile}"
+        authenticator_params="--${authenticator}-credentials=${configfile}"
         if [ -n "${CERTBOT_DNS_PROPAGATION_SECONDS}" ]; then
-            authenticator_params="${authenticator_params} --${4,,}-propagation-seconds=${CERTBOT_DNS_PROPAGATION_SECONDS}"
+            authenticator_params="${authenticator_params} --${authenticator}-propagation-seconds=${CERTBOT_DNS_PROPAGATION_SECONDS}"
         fi
-    elif [ "${4,,}" == "webroot" ]; then
+    elif [ "${authenticator}" == "webroot" ]; then
         challenge_type="http-01"
         authenticator_params="--webroot-path=/var/www/letsencrypt"
     else
-        error "Unknown authenticator '${4,,}' for '${1}'"
+        error "Unknown authenticator '${authenticator}' for '${1}'"
         return 1
     fi
 
-    info "Requesting an ${3^^} certificate for '${1}' (${challenge_type} through ${4,,})"
+    info "Requesting an ${3^^} certificate for '${1}' (${challenge_type} through ${authenticator})"
     certbot certonly \
         --agree-tos --keep -n --text \
         --preferred-challenges ${challenge_type} \
-        --authenticator ${4,,} \
+        --authenticator ${authenticator} \
         ${authenticator_params} \
         --email "${CERTBOT_EMAIL}" \
         --server "${letsencrypt_url}" \
