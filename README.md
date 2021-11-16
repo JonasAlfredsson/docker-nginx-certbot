@@ -72,7 +72,7 @@ instructions, from `@staticfloat`'s image, can be found
 - `USE_ECDSA`: Set to `1` to have certbot use [ECDSA instead of RSA](./docs/good_to_know.md#ecdsa-and-rsa-certificates) (default: `0`)
 
 ### Advanced
-- `CERTBOT_AUTHENTICATOR`: The authenticator plugin (either a [dns plugin](https://eff-certbot.readthedocs.io/en/stable/using.html#dns-plugins) or `webroot`) to use by default when responding to challenges (default: `webroot`)
+- `CERTBOT_AUTHENTICATOR`: The [authenticator plugin](./docs/certbot_authenticators.md) (either a [dns plugin](https://eff-certbot.readthedocs.io/en/stable/using.html#dns-plugins) or `webroot`) to use by default when responding to challenges (default: `webroot`)
 - `CERTBOT_DNS_PROPAGATION_SECONDS`: The number of seconds to wait after a DNS challenge has been setup before asking Let's Encrypt to check it (default: certbot's default)
 - `DEBUG`: Set to `1` to enable debug messages and use the [`nginx-debug`][10] binary (default: `0`)
 - `USE_LOCAL_CA`: Set to `1` to enable the use of a [local certificate authority](./docs/advanced_usage.md#local-ca) (default: `0`)
