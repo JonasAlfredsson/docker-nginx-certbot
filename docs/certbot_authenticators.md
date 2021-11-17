@@ -56,8 +56,7 @@ server {
 }
 ```
 
-The script ran in the container to renew certificates will automatically identify that it needs to use the Route53 authenticator here. Of course, you will need that authenticator to be configured properly in order to be able to use it.
-
+The script ran in the container to renew certificates will automatically identify that it needs to use the Route53 authenticator here. Of course, you will need that authenticator to be configured properly in order to be able to use it. This setting is also compatible with the [multi-certificate setup](./advanced_usage.md#multi-certificate-setup).
 
 ## DNS-01 challenges are failing even though I can see the challenges setup in my provider's configuration
 

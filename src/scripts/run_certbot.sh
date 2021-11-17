@@ -115,7 +115,7 @@ for conf_file in /etc/nginx/conf.d/*.conf*; do
         fi
 
         # Determine the authenticator to use to solve the challenge
-        if [[ "${cert_name,,}" =~ (^|[^a-z0-9])(dns-($(echo ${CERTBOT_DNS_AUTHENTICATORS} | sed 's/ /|/g')))([^a-z0-9]|$) ]]; then
+        if [[ "${cert_name,,}" =~ (^|[-.])(dns-($(echo ${CERTBOT_DNS_AUTHENTICATORS} | sed 's/ /|/g')))([-.]|$) ]]; then
             authenticator=${BASH_REMATCH[2]}
             debug "Found mention of authenticator '${authenticator}' in name '${cert_name}'"
         else
