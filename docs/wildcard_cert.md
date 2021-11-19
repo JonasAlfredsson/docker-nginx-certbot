@@ -29,6 +29,18 @@ server {
 }
 ```
 
+This would prevent use of example.com; if you're using the base domain as well, you can either move it to its own conf file or, to keep the certs together, replace the `ssl_reject_handshake` above with:
+
+```nginx
+  if ($host != example.com) {
+    # Close the connection
+    return 444;
+  }
+
+  return 200 "Hello from example.com";
+  add_header Content-Type text/plain;
+```
+
 **/etc/nginx/includes/ssl**
 
 ```nginx
