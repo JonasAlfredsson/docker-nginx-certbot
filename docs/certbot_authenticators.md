@@ -2,7 +2,7 @@
 
 Certbot allows to use a number of [authenticators to get certificates][1]. By default, and this will be sufficient for most users, this container uses the [webroot authenticator][2], which will provision certificates for your domain names by doing what we call [HTTP-01 validation][3], where we prove ownership of the domain name by serving a specific content at a given URL.
 
-Among the other authenticators available to certbot, the [DNS authenticators][4] are also available through this container. DNS authenticators allow to prove ownership of a domain name by serving a challenge directly through a TXT record, added in your DNS provider, which is called [DNS-01][5]. As these challenges are a stronger proof of ownership than using HTTP-01, they also allow to provision wildcard certificates, that cover a whole subdomain layer of your domain (e.g. `*.example.com` covers `<anything>.example.com`, where `<anything>` can be... well... anything that is valid for DNS).
+Among the other authenticators available to certbot, the [DNS authenticators][4] are also available through this container. DNS authenticators allow to prove ownership of a domain name by serving a challenge directly through a TXT record, added in your DNS provider, which is called [DNS-01][5]. As these challenges are a stronger proof of ownership than using HTTP-01, they also allow to provision [wildcard certificates](wildcard_cert.md), that cover a whole subdomain layer of your domain (e.g. `*.example.com` covers `<anything>.example.com`, where `<anything>` can be... well... anything that is valid for DNS).
 
 
 ## Setting up the container to use DNS-01 challenges
