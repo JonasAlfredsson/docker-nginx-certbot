@@ -55,3 +55,5 @@ server {
   add_header Content-Type text/plain;
 }
 ```
+
+Note that the certs referenced in the include will need to have been created first or Nginx will panic. You can do this by disabling (move or rename) your subdomain conf files, then start the container and wait for it to create the wildcard cert, then reenable the subdomains and restart the container.
