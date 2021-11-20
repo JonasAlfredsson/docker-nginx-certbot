@@ -209,7 +209,7 @@ generate_ca
 # Get all the cert names for which we should create certificate requests and
 # have them signed, and the corresponding server names
 declare -A certificates
-find_certificates certificates
+find_certificates certificates "keep_ips"
 
 for cert_name in "${!certificates[@]}"; do
     server_names=(${certificates["$cert_name"]})
@@ -219,13 +219,8 @@ for cert_name in "${!certificates[@]}"; do
     dns_count=0
     alt_names=()
     for server_name in ${server_names[@]}; do
-        if [[ "${server_name}" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
-            # See if the alt name looks like an IPv4 address.
-            ip_count=$((${ip_count} + 1))
-            alt_names+=("IP.${ip_count}=${server_name}")
-        elif [[ "${server_name,,}" =~ ^([a-f0-9]{1,4})?:([a-f0-9:]*):.*?$ ]]; then
-            # This is a dirty check to see if it looks like an IPv6 address,
-            # can easily be fooled but works for us right now.
+        if is_ip "${server_name}"; then
+            # See if the alt name looks like an IP address.
             ip_count=$((${ip_count} + 1))
             alt_names+=("IP.${ip_count}=${server_name}")
         else

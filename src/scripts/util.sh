@@ -37,16 +37,45 @@ error() {
     tput -Tscreen sgr0) >&2
 }
 
+# Returns 0 if the parameter is an IPv4 or IPv6, 1 otherwise.
+# Can be used as `if is_ip "$something"; then`.
+#
+# $1: the parameter to check for the IP
+is_ip() {
+    is_ipv4 "$1" || is_ipv6 "$1"
+}
+
+# Returns 0 if the parameter is an IPv4, 1 otherwise.
+# Can be used as `if is_ipv4 "$something"; then`.
+#
+# $1: the parameter to check for the IPv4
+is_ipv4() {
+    [[ "$1" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]
+}
+
+# Returns 0 if the parameter is an IPv6, 1 otherwise.
+# Can be used as `if is_ipv6 "$something"; then`.
+#
+# This comes from the amazing answer from David M. Syzdek
+# on stackoverflow: https://stackoverflow.com/a/17871737
+#
+# $1: the parameter to check for the IPv6
+is_ipv6() {
+    [[ "${1,,}" =~ ^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$ ]]
+}
+
 # Call other helper functions here to get an associative array of
 # cert_name => server_names allowing to know which certificates need to be
 # requested
 #
 # $1: An associative bash array that will contain cert_name => server_names
 #     (space-separated) after the call to this function
+# $2: (optional) Whether or not to skip IP addresses in server_name entries
+#     (default: 1)
 find_certificates() {
     local -n found_certificates=$1
 
-    parse_config_files_for_certs "/etc/nginx/conf.d/*.conf*" found_certificates
+    parse_config_files_for_certs "/etc/nginx/conf.d/*.conf*" found_certificates "${2:-skip_ips}"
     remove_duplicates found_certificates
     handle_wildcard_conflicts found_certificates
     force_wildcards found_certificates
@@ -64,8 +93,11 @@ find_certificates() {
 # $1: The path (support for wildcards) to match configuration files
 # $2: An associative bash array that will contain cert_name => server_names
 #     (space-separated) after the call to this function
+# $3: (optional) Whether or not to skip IP addresses in server_name entries
+#     (default: 1)
 parse_config_files_for_certs() {
     local -n certs=$2
+    local skip_ips=${3:-skip_ips}
 
     for conf_file in $1; do
         # To follow if we are in a server block, and how to match the ending of that
@@ -113,7 +145,21 @@ parse_config_files_for_certs() {
             elif [[ "$line" =~ ^[[:space:]]*ssl_certificate_key[[:space:]]*/etc/letsencrypt/live/([^;]*)/privkey.pem[[:space:]]*\; ]]; then
                 cert_names+=(${BASH_REMATCH[1]})
             elif [[ "$line" =~ ^[[:space:]]*server_name[[:space:]]*([^\;]*)[[:space:]]*\; ]]; then
-                server_names+=(${BASH_REMATCH[1]})
+                for server_name in ${BASH_REMATCH[1]}; do
+                    if is_ip "$server_name"; then
+                        # This is matching an IP, we can decide to keep them (local CA) or ignore them (public CA)
+                        if [ "$skip_ips" == "skip_ips" ]; then
+                            debug "IP address '${server_name}' ignored as server_name ($conf_file:$lineno)"
+                            continue
+                        fi
+                    elif [[ ! "$server_name" =~ ^(\*|[-_[:alnum:]]+)(\.[-_[:alnum:]]+)+$ ]]; then
+                        # This is not matching the format required for an hostname to get a certificate
+                        debug "Invalid hostname '${server_name}' ignored as server_name ($conf_file:$lineno)"
+                        continue
+                    fi
+                    # If we're reaching here, we can keep this server_name to request the certificate
+                    server_names+=("$server_name")
+                done
             fi
         done <"$conf_file"
     done
@@ -220,6 +266,10 @@ force_wildcards() {
         # server names for that certificate
         local -A wildcards=()
         for server_name in ${server_names[@]}; do
+            if is_ip "$server_name"; then
+                continue
+            fi
+
             local wildcard=${server_name#*.}
             local dots=${wildcard//[^.]}
 
