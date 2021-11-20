@@ -71,7 +71,7 @@ is_ipv6() {
 # $1: An associative bash array that will contain cert_name => server_names
 #     (space-separated) after the call to this function
 # $2: (optional) Whether or not to skip IP addresses in server_name entries
-#     (default: 1)
+#     (default: skip_ips)
 find_certificates() {
     local -n found_certificates=$1
 
@@ -94,7 +94,7 @@ find_certificates() {
 # $2: An associative bash array that will contain cert_name => server_names
 #     (space-separated) after the call to this function
 # $3: (optional) Whether or not to skip IP addresses in server_name entries
-#     (default: 1)
+#     (default: skip_ips)
 parse_config_files_for_certs() {
     local -n certs=$2
     local skip_ips=${3:-skip_ips}
@@ -290,7 +290,7 @@ force_wildcards() {
             if [ ${wildcards[$wildcard]} -gt 1 ]; then
                 wildcards[$wildcard]=0
             else
-                unset wildcards[$wildcard]
+                unset 'wildcards[$wildcard]'
             fi
         done
 
