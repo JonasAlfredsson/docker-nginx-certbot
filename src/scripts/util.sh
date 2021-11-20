@@ -49,6 +49,7 @@ find_certificates() {
     parse_config_files_for_certs "/etc/nginx/conf.d/*.conf*" found_certificates
     remove_duplicates found_certificates
     handle_wildcard_conflicts found_certificates
+    force_wildcards found_certificates
 }
 
 # Parse the configuration files given as first parameters, go through all the server
@@ -130,7 +131,7 @@ remove_duplicates() {
     for cert_name in "${!certs[@]}"; do
         local server_names=(${certs["$cert_name"]})
 
-        local -A already_seen
+        local -A already_seen=()
         local dedupped=()
         for server_name in ${server_names[@]}; do
             if [ -z "${already_seen[$server_name]}" ]; then
@@ -186,6 +187,85 @@ handle_wildcard_conflicts() {
         certs["$cert_name"]="${keep_domains[@]}"
     done
 }
+
+# This function forces the use of wildcards in certificates when they
+# are relevant if:
+#  (1) No `no-wildcards` pattern is found in the cert name
+# and
+#  (2.a) Either the FORCE_WILDCARDS environment variable is set to 1, or
+#  (2.b) the `force-wildcards` pattern is found in the cert name
+#
+# Wildcards will not be provisioned for domains containing less than
+# FORCE_WILDCARDS_NDOTS dots (default: 2); e.g. if FORCE_WILDCARDS_NDOTS
+# is set to 3, no automated wildcard will be created for *.example.com, but
+# some could be created for *.something.example.com.
+#
+# A wildcard will not be considered relevant if less than 2 server names
+# would be covered by it.
+#
+# $1: The associative bash array containing cert_name => server_names
+#     (space-separated), that will be read and updated to remove
+#     conflicting server names when one or more wildcards are present
+force_wildcards() {
+    local -n certs=$1
+
+    for cert_name in "${!certs[@]}"; do
+        if [[ "${cert_name,,}" =~ (^|[-.])no-wildcards([-.]|$) ]] || ( [ "${FORCE_WILDCARDS}" != "1" ] && [[ ! "${cert_name,,}" =~ (^|[-.])force-wildcards([-.]|$) ]] ); then
+            continue
+        fi
+
+        local server_names=(${certs["$cert_name"]})
+
+        # Identify all the wildcards that would be needed to cover all the
+        # server names for that certificate
+        local -A wildcards=()
+        for server_name in ${server_names[@]}; do
+            local wildcard=${server_name#*.}
+            local dots=${wildcard//[^.]}
+
+            if [ $((${#dots} + 1)) -lt ${FORCE_WILDCARDS_NDOTS:-2} ]; then
+                continue
+            fi
+
+            wildcards[$wildcard]=$((${wildcards[$wildcard]} + 1))
+        done
+
+        declare -p wildcards
+
+        # Go over all the wildcards and remove those that are not covering
+        # at least two domains; we don't need to replace anything by a
+        # wildcard for those. The ones we keep we will reset to 0, so we can
+        # try to keep some sort of hostname ordering when we'll go over the
+        # records
+        for wildcard in ${!wildcards[@]}; do
+            if [ ${wildcards[$wildcard]} -gt 1 ]; then
+                wildcards[$wildcard]=0
+            else
+                unset wildcards[$wildcard]
+            fi
+        done
+
+        # Now we will go over the server_names, and either keep them if
+        # no wildcard will cover them, replace them if a wildcard covers
+        # them and they're the first one we encounter for that wildcard,
+        # or discard them otherwise
+        local reduced_domains=()
+        for server_name in ${server_names[@]}; do
+            local wildcard=${server_name#*.}
+            if [ -n "${wildcards[$wildcard]}" ]; then
+                if [ ${wildcards[$wildcard]} -eq 0 ]; then
+                    wildcards[$wildcard]=1
+                    reduced_domains+=("*.$wildcard")
+                fi
+            else
+                reduced_domains+=("$server_name")
+            fi
+        done
+
+        certs["$cert_name"]="${reduced_domains[@]}"
+    done
+}
+
 
 # Return all unique "ssl_certificate_key" file paths.
 #
