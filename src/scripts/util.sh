@@ -112,17 +112,7 @@ parse_config_files_for_certs() {
             elif [[ "$line" =~ ^[[:space:]]*ssl_certificate_key[[:space:]]*/etc/letsencrypt/live/([^;]*)/privkey.pem[[:space:]]*\; ]]; then
                 cert_names+=(${BASH_REMATCH[1]})
             elif [[ "$line" =~ ^[[:space:]]*server_name[[:space:]]*([^\;]*)[[:space:]]*\; ]]; then
-                # For server_name, we probably want a better pattern matching to avoid regular expressions
-                # in their server block, we should match on [a-zA-Z-_*0-9.] maybe ?
-                # Also, nginx supports wildcards at the end but we don't... what do we do here?
-                # We could use the following regex instead:
-                #   ^[[:space:]]*server_name[[:space:]]*(((\*\.)?[a-zA-Z\._\-]*)([[:space:]]*((\*\.)?[a-zA-Z\._\-]*))*)[[:space:]]*\;
-                # Or go over the server names after parsing them and removing all those that are not supported
-                if [ -n "$server_names" ]; then
-                    error "Matching server_name while already parsed one previously ($conf_file:$lineno)"
-                    # Do we want to go to next file, exit or keep parsing ?
-                fi
-                server_names=(${BASH_REMATCH[1]})
+                server_names+=(${BASH_REMATCH[1]})
             fi
         done <"$conf_file"
     done
