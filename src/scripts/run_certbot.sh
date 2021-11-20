@@ -92,49 +92,52 @@ get_certificate() {
         --debug ${force_renew}
 }
 
-# Go through all .conf files and find all cert names for which we should create
-# certificate requests.
-for conf_file in /etc/nginx/conf.d/*.conf*; do
-    for cert_name in $(parse_cert_names "${conf_file}"); do
-        # Determine which type of key algorithm to use for this certificate
-        # request. Having the algorithm specified in the certificate name will
-        # take precedence over the environmental variable.
-        if [[ "${cert_name,,}" =~ ^.*(-|\.)ecdsa.*$ ]]; then
-            debug "Found variant of 'ECDSA' in name '${cert_name}"
-            key_type="ecdsa"
-        elif [[ "${cert_name,,}" =~ ^.*(-|\.)ecc.*$ ]]; then
-            debug "Found variant of 'ECC' in name '${cert_name}"
-            key_type="ecdsa"
-        elif [[ "${cert_name,,}" =~ ^.*(-|\.)rsa.*$ ]]; then
-            debug "Found variant of 'RSA' in name '${cert_name}"
-            key_type="rsa"
-        elif [ "${USE_ECDSA}" == "1" ]; then
-            key_type="ecdsa"
-        else
-            key_type="rsa"
-        fi
+# Get all the cert names for which we should create certificate requests,
+# and the corresponding server names
+declare -A certificates
+find_certificates certificates
 
-        # Determine the authenticator to use to solve the challenge
-        if [[ "${cert_name,,}" =~ (^|[-.])(dns-($(echo ${CERTBOT_DNS_AUTHENTICATORS} | sed 's/ /|/g')))([-.]|$) ]]; then
-            authenticator=${BASH_REMATCH[2]}
-            debug "Found mention of authenticator '${authenticator}' in name '${cert_name}'"
-        else
-            authenticator="${CERTBOT_AUTHENTICATOR:-webroot}"
-        fi
+for cert_name in "${!certificates[@]}"; do
+    server_names=(${certificates["$cert_name"]})
 
-        # Find all 'server_names' in this .conf file and assemble the list of
-        # domains to be included in the request.
-        domain_request=""
-        for server_name in $(parse_server_names "${conf_file}"); do
-            domain_request="${domain_request} -d ${server_name}"
-        done
+    # Determine which type of key algorithm to use for this certificate
+    # request. Having the algorithm specified in the certificate name will
+    # take precedence over the environmental variable.
+    if [[ "${cert_name,,}" =~ ^.*(-|\.)ecdsa.*$ ]]; then
+        debug "Found variant of 'ECDSA' in name '${cert_name}"
+        key_type="ecdsa"
+    elif [[ "${cert_name,,}" =~ ^.*(-|\.)ecc.*$ ]]; then
+        debug "Found variant of 'ECC' in name '${cert_name}"
+        key_type="ecdsa"
+    elif [[ "${cert_name,,}" =~ ^.*(-|\.)rsa.*$ ]]; then
+        debug "Found variant of 'RSA' in name '${cert_name}"
+        key_type="rsa"
+    elif [ "${USE_ECDSA}" == "1" ]; then
+        key_type="ecdsa"
+    else
+        key_type="rsa"
+    fi
 
-        # Hand over all the info required for the certificate request, and
-        # let certbot decide if it is necessary to update the certificate.
-        if ! get_certificate "${cert_name}" "${domain_request}" "${key_type}" "${authenticator}"; then
-            error "Certbot failed for '${cert_name}'. Check the logs for details."
-        fi
+    # Determine the authenticator to use to solve the challenge
+    if [[ "${cert_name,,}" =~ (^|[-.])(dns-($(echo ${CERTBOT_DNS_AUTHENTICATORS} | sed 's/ /|/g')))([-.]|$) ]]; then
+        authenticator=${BASH_REMATCH[2]}
+        debug "Found mention of authenticator '${authenticator}' in name '${cert_name}'"
+    else
+        authenticator="${CERTBOT_AUTHENTICATOR:-webroot}"
+    fi
+
+    # Assemble the list of domains to be included in the request from
+    # the parsed 'server_names'
+    domain_request=""
+    for server_name in ${server_names[@]}; do
+        domain_request="${domain_request} -d ${server_name}"
     done
+
+    # Hand over all the info required for the certificate request, and
+    # let certbot decide if it is necessary to update the certificate.
+    if ! get_certificate "${cert_name}" "${domain_request}" "${key_type}" "${authenticator}"; then
+        error "Certbot failed for '${cert_name}'. Check the logs for details."
+    fi
 done
 
 # After trying to get all our certificates, auto enable any configs that we

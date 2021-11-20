@@ -206,38 +206,35 @@ get_certificate() {
 # time this script is invoked.
 generate_ca
 
-# Go through all .conf files and find all cert names for which we should create
-# certificate requests and have them signed.
-for conf_file in /etc/nginx/conf.d/*.conf*; do
-    for cert_name in $(parse_cert_names "${conf_file}"); do
-        # Find all 'server_names' in this .conf file and assemble the list of
-        # domains to be included in the request.
-        ip_count=0
-        dns_count=0
-        alt_names=()
-        for server_name in $(parse_server_names "${conf_file}"); do
-            if [[ "${server_name}" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
-                # See if the alt name looks like an IPv4 address.
-                ip_count=$((${ip_count} + 1))
-                alt_names+=("IP.${ip_count}=${server_name}")
-            elif [[ "${server_name,,}" =~ ^([a-f0-9]{1,4})?:([a-f0-9:]*):.*?$ ]]; then
-                # This is a dirty check to see if it looks like an IPv6 address,
-                # can easily be fooled but works for us right now.
-                ip_count=$((${ip_count} + 1))
-                alt_names+=("IP.${ip_count}=${server_name}")
-            else
-                # Else we suppose this is a valid DNS name.
-                dns_count=$((${dns_count} + 1))
-                alt_names+=("DNS.${dns_count}=${server_name}")
-            fi
-        done
+# Get all the cert names for which we should create certificate requests and
+# have them signed, and the corresponding server names
+declare -A certificates
+find_certificates certificates "keep_ips"
 
-        # Hand over all the info required for the certificate request, and
-        # let the local CA handle the rest.
-        if ! get_certificate "${cert_name}" "${alt_names[@]}"; then
-            error "Local CA failed for '${cert_name}'. Check the logs for details."
+for cert_name in "${!certificates[@]}"; do
+    server_names=(${certificates["$cert_name"]})
+
+    # Assemble the list of domains to be included in the request.
+    ip_count=0
+    dns_count=0
+    alt_names=()
+    for server_name in ${server_names[@]}; do
+        if is_ip "${server_name}"; then
+            # See if the alt name looks like an IP address.
+            ip_count=$((${ip_count} + 1))
+            alt_names+=("IP.${ip_count}=${server_name}")
+        else
+            # Else we suppose this is a valid DNS name.
+            dns_count=$((${dns_count} + 1))
+            alt_names+=("DNS.${dns_count}=${server_name}")
         fi
     done
+
+    # Hand over all the info required for the certificate request, and
+    # let the local CA handle the rest.
+    if ! get_certificate "${cert_name}" "${alt_names[@]}"; then
+        error "Local CA failed for '${cert_name}'. Check the logs for details."
+    fi
 done
 
 # After trying to sign all of the certificates, auto enable any configs that we
