@@ -43,7 +43,7 @@ error() {
 #
 # $1: An associative bash array that will contain cert_name => server_names
 #     (space-separated) after the call to this function
-function find_certificates() {
+find_certificates() {
     local -n found_certificates=$1
 
     parse_config_files_for_certs "/etc/nginx/conf.d/*.conf*" found_certificates
@@ -63,7 +63,7 @@ function find_certificates() {
 # $1: The path (support for wildcards) to match configuration files
 # $2: An associative bash array that will contain cert_name => server_names
 #     (space-separated) after the call to this function
-function parse_config_files_for_certs() {
+parse_config_files_for_certs() {
     local -n certs=$2
 
     for conf_file in $1; do
@@ -134,7 +134,7 @@ function parse_config_files_for_certs() {
 # $1: The associative bash array containing cert_name => server_names
 #     (space-separated), that will be read and updated to remove
 #     duplicates
-function remove_duplicates() {
+remove_duplicates() {
     local -n certs=$1
     
     for cert_name in "${!certs[@]}"; do
@@ -159,7 +159,7 @@ function remove_duplicates() {
 # $1: The associative bash array containing cert_name => server_names
 #     (space-separated), that will be read and updated to remove
 #     conflicting server names when one or more wildcards are present
-function handle_wildcard_conflicts() {
+handle_wildcard_conflicts() {
     local -n certs=$1
 
     for cert_name in "${!certs[@]}"; do
@@ -197,33 +197,6 @@ function handle_wildcard_conflicts() {
     done
 }
 
-# Find lines that contain 'ssl_certificate_key', and try to extract a name from
-# each of these file paths. Each keyfile must be stored at the default location
-# of /etc/letsencrypt/live/<cert_name>/privkey.pem, otherwise we ignore it since
-# it is most likely not a certificate that is managed by certbot.
-#
-# $1: Path to a Nginx configuration file.
-parse_cert_names() {
-    sed -n -r -e 's&^\s*ssl_certificate_key\s+\/etc/letsencrypt/live/(.*)/privkey.pem;.*&\1&p' "$1" | xargs -n1 echo | uniq
-}
-
-# Nginx will answer to any domain name that is written on the line which starts
-# with 'server_name'. A server block may have multiple domain names defined on
-# this line, and a config file may have multiple server blocks. This method will
-# therefore try to extract all unique domain names and add them to the
-# certificate request being sent. Some things to think about:
-# * No wildcard names. They are not supported by the authentication method used
-#   in this script and will most likely fail by certbot.
-# * Possible overlappings. This method will find all 'server_names' in a .conf
-#   file inside the conf.d/ folder and attach them to the request. If there are
-#   different primary domains in the same .conf file it will cause some weird
-#   certificates. Should however work fine but is not best practice.
-#
-# $1: Path to a Nginx configuration file.
-parse_server_names() {
-    sed -n -r -e 's&^\s*server_name\s+(.*);.*&\1&p' "$1" | xargs -n1 echo | uniq
-}
-
 # Return all unique "ssl_certificate_key" file paths.
 #
 # $1: Path to a Nginx configuration file.
@@ -254,6 +227,12 @@ parse_dhparams() {
 
 # Given a config file path, return 0 if all SSL related files exist (or there
 # are no files needed to be found). Return 1 otherwise (i.e. error exit code).
+#
+# This function call those other functions in a slightly obscured way:
+#  - parse_keyfiles
+#  - parse_fullchains
+#  - parse_chains
+#  - parse_dhparams
 #
 # $1: Path to a Nginx configuration file.
 allfiles_exist() {
