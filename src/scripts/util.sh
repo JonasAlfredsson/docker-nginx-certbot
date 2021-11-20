@@ -144,7 +144,8 @@ parse_config_files_for_certs() {
                 server_names=()
             elif [[ "$line" =~ ^[[:space:]]*ssl_certificate_key[[:space:]]*/etc/letsencrypt/live/([^;]*)/privkey.pem[[:space:]]*\; ]]; then
                 cert_names+=(${BASH_REMATCH[1]})
-            elif [[ "$line" =~ ^[[:space:]]*server_name[[:space:]]*([^\;]*)[[:space:]]*\; ]]; then
+            elif [[ "$line" =~ ^[[:space:]]*server_name[[:space:]]*([^\;]*)[[:space:]]*\; ]] ||\
+                    [[ "$line" =~ ^[[:space:]]*#[[:space:]]*cert:add_domains[[:space:]]*(.*)[[:space:]]*$ ]]; then
                 for server_name in ${BASH_REMATCH[1]}; do
                     if is_ip "$server_name"; then
                         # This is matching an IP, we can decide to keep them (local CA) or ignore them (public CA)
