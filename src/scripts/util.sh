@@ -230,8 +230,6 @@ force_wildcards() {
             wildcards[$wildcard]=$((${wildcards[$wildcard]} + 1))
         done
 
-        declare -p wildcards
-
         # Go over all the wildcards and remove those that are not covering
         # at least two domains; we don't need to replace anything by a
         # wildcard for those. The ones we keep we will reset to 0, so we can
@@ -265,7 +263,6 @@ force_wildcards() {
         certs["$cert_name"]="${reduced_domains[@]}"
     done
 }
-
 
 # Return all unique "ssl_certificate_key" file paths.
 #
