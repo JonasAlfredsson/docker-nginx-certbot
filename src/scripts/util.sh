@@ -37,6 +37,166 @@ error() {
     tput -Tscreen sgr0) >&2
 }
 
+# Call other helper functions here to get an associative array of
+# cert_name => server_names allowing to know which certificates need to be
+# requested
+#
+# $1: An associative bash array that will contain cert_name => server_names
+#     (space-separated) after the call to this function
+function find_certificates() {
+    local -n found_certificates=$1
+
+    parse_config_files_for_certs "/etc/nginx/conf.d/*.conf*" found_certificates
+    remove_duplicates found_certificates
+    handle_wildcard_conflicts found_certificates
+}
+
+# Parse the configuration files given as first parameters, go through all the server
+# blocks to find both the 'ssl_certificate_key' and the 'server_name' entries, and
+# aggregate all the findings so a single certificate can be ordered for multiple
+# domains if this is desired.
+# Each keyfile much be stored at the default location of
+# /etc/letsencrypt/live/<cert_name>/privkey.pem, otherwise the server block will
+# be ignored. The server name(s) must only contain regular domains and prefixed
+# wildcards.
+#
+# $1: The path (support for wildcards) to match configuration files
+# $2: An associative bash array that will contain cert_name => server_names
+#     (space-separated) after the call to this function
+function parse_config_files_for_certs() {
+    local -n certs=$2
+
+    for conf_file in $1; do
+        # To follow if we are in a server block, and how to match the ending of that
+        # server block (we expect equal indentation at the beginning and end)
+        local in_server_block=0
+        local leading_server_block_spaces=
+
+        # The resources we're looking for, that we will reset between server blocks
+        local cert_names=()
+        local server_names=()
+
+        local lineno=0
+        while IFS="" read -r line || [ -n "$line" ]; do
+            lineno=$((lineno + 1))
+            if [[ "$line" =~ ^([[:space:]]*)server[[:space:]]*\{ ]]; then
+                if [ $in_server_block -eq 1 ]; then
+                    error "Matching server block while already in a server block ($conf_file:$lineno)"
+                    # Do we want to go to next file, exit or keep parsing ?
+                fi
+                # We entered a server block, so we'll need to start checking what's up
+                in_server_block=1
+                leader_server_block_spaces=${BASH_REMATCH[1]}
+            elif [ $in_server_block -eq 0 ]; then
+                # We are not in a server block, nothing for us to do here, let's skip
+                continue
+            elif [[ "$line" =~ ^${leading_server_block_spaces}\} ]]; then
+                # We add the found certificate names and the corresponding server names,
+                # in case it already exists, this will be appended nicely as if it was
+                # all in the same server block. In case there was no 'ssl_certificate_key'
+                # entry, we can simply ignore it nicely.
+                if [ ${#server_names[@]} -eq 0 ]; then
+                    error "Missing 'server_name' for server block ($conf_file:$lineno)"
+                elif [ ${#cert_names[@]} -gt 0 ]; then
+                    for cert_name in "${cert_names[@]}"; do
+                        certs["$cert_name"]="${certs["$cert_name"]}${certs["$cert_name"]:+ }${server_names[@]}"
+                    done
+                fi
+
+                # We are leaving a server block, so we can clean-up behind us
+                in_server_block=0
+                leadin_server_block_spaces=
+
+                cert_names=()
+                server_names=()
+            elif [[ "$line" =~ ^[[:space:]]*ssl_certificate_key[[:space:]]*/etc/letsencrypt/live/([^;]*)/privkey.pem[[:space:]]*\; ]]; then
+                cert_names+=(${BASH_REMATCH[1]})
+            elif [[ "$line" =~ ^[[:space:]]*server_name[[:space:]]*([^\;]*)[[:space:]]*\; ]]; then
+                # For server_name, we probably want a better pattern matching to avoid regular expressions
+                # in their server block, we should match on [a-zA-Z-_*0-9.] maybe ?
+                # Also, nginx supports wildcards at the end but we don't... what do we do here?
+                # We could use the following regex instead:
+                #   ^[[:space:]]*server_name[[:space:]]*(((\*\.)?[a-zA-Z\._\-]*)([[:space:]]*((\*\.)?[a-zA-Z\._\-]*))*)[[:space:]]*\;
+                # Or go over the server names after parsing them and removing all those that are not supported
+                if [ -n "$server_names" ]; then
+                    error "Matching server_name while already parsed one previously ($conf_file:$lineno)"
+                    # Do we want to go to next file, exit or keep parsing ?
+                fi
+                server_names=(${BASH_REMATCH[1]})
+            fi
+        done <"$conf_file"
+    done
+}
+
+# A function to remove duplicates in our associative array of
+# cert_name => server_names (space-separated).
+#
+# $1: The associative bash array containing cert_name => server_names
+#     (space-separated), that will be read and updated to remove
+#     duplicates
+function remove_duplicates() {
+    local -n certs=$1
+    
+    for cert_name in "${!certs[@]}"; do
+        local server_names=(${certs["$cert_name"]})
+
+        local -A already_seen
+        local dedupped=()
+        for server_name in ${server_names[@]}; do
+            if [ -z "${already_seen[$server_name]}" ]; then
+                already_seen[$server_name]=1
+                dedupped+=($server_name)
+            fi
+        done
+
+        certs["$cert_name"]="${dedupped[@]}"
+    done
+}
+
+# A function to handle wildcard conflicts in our associative array of
+# cert_name => server_names (space-separated).
+#
+# $1: The associative bash array containing cert_name => server_names
+#     (space-separated), that will be read and updated to remove
+#     conflicting server names when one or more wildcards are present
+function handle_wildcard_conflicts() {
+    local -n certs=$1
+
+    for cert_name in "${!certs[@]}"; do
+        local server_names=(${certs["$cert_name"]})
+
+        # List all the wildcards in that list, so we know which domains would be in conflict with those
+        local wildcards=()
+        for server_name in ${server_names[@]}; do
+            if [[ "$server_name" =~ ^\*\. ]]; then
+                wildcards+=("${server_name#\*.*}")
+            fi
+        done
+
+        if [ ${#wildcards[@]} -eq 0 ]; then
+            continue
+        fi
+
+        # Go over the list of domains, and keep only those that don't overlap with one of the wildcards
+        local keep_domains=()
+        for server_name in ${server_names[@]}; do
+            local conflicts_with_wildcard=0
+            for wildcard in ${wildcards[@]}; do
+                if [[ "$server_name" =~ ^[^.]*\.${wildcard}$ ]] && [[ ! "$server_name" == "*.${wildcard}" ]]; then
+                    conflicts_with_wildcard=1
+                    break
+                fi
+            done
+
+            if [ $conflicts_with_wildcard -eq 0 ]; then
+                keep_domains+=($server_name)
+            fi
+        done
+
+        certs["$cert_name"]="${keep_domains[@]}"
+    done
+}
+
 # Find lines that contain 'ssl_certificate_key', and try to extract a name from
 # each of these file paths. Each keyfile must be stored at the default location
 # of /etc/letsencrypt/live/<cert_name>/privkey.pem, otherwise we ignore it since
