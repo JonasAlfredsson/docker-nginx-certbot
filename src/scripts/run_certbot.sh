@@ -46,19 +46,22 @@ fi
 # name. The CERTBOT_EMAIL environment variable must be defined, so that
 # Let's Encrypt may contact you in case of security issues.
 #
-# $1: The name of the certificate (e.g. domain-rsa)
+# $1: The name of the certificate (e.g. domain.rsa.dns-rfc2136)
 # $2: String with all requested domains (e.g. -d domain.org -d www.domain.org)
 # $3: Type of key algorithm to use (rsa or ecdsa)
 # $4: The authenticator to use to solve the challenge
 get_certificate() {
     local authenticator="${4,,}"
-    local authenticator_params=
-    local challenge_type=
+    local authenticator_params=""
+    local challenge_type=""
 
-    if [[ "$authenticator" == dns-* ]] && [[ ${CERTBOT_DNS_AUTHENTICATORS} =~ (^| )${authenticator#dns-}( |$) ]]; then
-        local provider="${authenticator#dns-}"
-        local configfile="/etc/letsencrypt/${provider}.ini"
-        if [ ! -f "$configfile" ]; then
+    # Add correct parameters for the different authenticator types.
+    if [ "${authenticator}" == "webroot" ]; then
+        challenge_type="http-01"
+        authenticator_params="--webroot-path=/var/www/letsencrypt"
+    elif [[ "${authenticator}" == dns-* ]]; then
+        local configfile="/etc/letsencrypt/${authenticator#dns-}.ini"
+        if [ ! -f "${configfile}" ]; then
             error "Authenticator is '${authenticator}' but '${configfile}' is missing"
             return 1
         fi
@@ -68,9 +71,6 @@ get_certificate() {
         if [ -n "${CERTBOT_DNS_PROPAGATION_SECONDS}" ]; then
             authenticator_params="${authenticator_params} --${authenticator}-propagation-seconds=${CERTBOT_DNS_PROPAGATION_SECONDS}"
         fi
-    elif [ "${authenticator}" == "webroot" ]; then
-        challenge_type="http-01"
-        authenticator_params="--webroot-path=/var/www/letsencrypt"
     else
         error "Unknown authenticator '${authenticator}' for '${1}'"
         return 1
@@ -92,11 +92,17 @@ get_certificate() {
         --debug ${force_renew}
 }
 
-# Get all the cert names for which we should create certificate requests,
-# and the corresponding server names
+# Get all the cert names for which we should create certificate requests and
+# have them signed, along with the corresponding server names.
+#
+# This will return an associative array that looks something like this:
+# "cert_name" => "server_name1 server_name2"
 declare -A certificates
-find_certificates certificates
+for conf_file in /etc/nginx/conf.d/*.conf*; do
+    parse_config_file "${conf_file}" certificates
+done
 
+# Iterate over each key and make a certificate request for them.
 for cert_name in "${!certificates[@]}"; do
     server_names=(${certificates["$cert_name"]})
 
@@ -118,18 +124,25 @@ for cert_name in "${!certificates[@]}"; do
         key_type="rsa"
     fi
 
-    # Determine the authenticator to use to solve the challenge
-    if [[ "${cert_name,,}" =~ (^|[-.])(dns-($(echo ${CERTBOT_DNS_AUTHENTICATORS} | sed 's/ /|/g')))([-.]|$) ]]; then
+    # Determine the authenticator to use to solve the authentication challenge.
+    # Having the authenticator specified in the certificate name will take
+    # precedence over the environmental variable.
+    if [[ "${cert_name,,}" =~ (^|[-.])webroot([-.]|$) ]]; then
+        authenticator="webroot"
+        debug "Found mention of 'webroot' in name '${cert_name}"
+    elif [[ "${cert_name,,}" =~ (^|[-.])(dns-($(echo ${CERTBOT_DNS_AUTHENTICATORS} | sed 's/ /|/g')))([-.]|$) ]]; then
         authenticator=${BASH_REMATCH[2]}
         debug "Found mention of authenticator '${authenticator}' in name '${cert_name}'"
+    elif [ -n "${CERTBOT_AUTHENTICATOR}" ]; then
+        authenticator="${CERTBOT_AUTHENTICATOR}"
     else
-        authenticator="${CERTBOT_AUTHENTICATOR:-webroot}"
+        authenticator="webroot"
     fi
 
     # Assemble the list of domains to be included in the request from
     # the parsed 'server_names'
     domain_request=""
-    for server_name in ${server_names[@]}; do
+    for server_name in "${server_names[@]}"; do
         domain_request="${domain_request} -d ${server_name}"
     done
 

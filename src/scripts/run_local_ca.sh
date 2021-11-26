@@ -206,11 +206,17 @@ get_certificate() {
 # time this script is invoked.
 generate_ca
 
-# Get all the cert names for which we should create certificate requests and
-# have them signed, and the corresponding server names
+# Get all the cert names for which we should create certificates for, along
+# with the corresponding server names.
+#
+# This will return an associative array that looks something like this:
+# "cert_name" => "server_name1 server_name2"
 declare -A certificates
-find_certificates certificates "keep_ips"
+for conf_file in /etc/nginx/conf.d/*.conf*; do
+    parse_config_file "${conf_file}" certificates
+done
 
+# Iterate over each key and create a signed certificate for them.
 for cert_name in "${!certificates[@]}"; do
     server_names=(${certificates["$cert_name"]})
 
@@ -218,7 +224,7 @@ for cert_name in "${!certificates[@]}"; do
     ip_count=0
     dns_count=0
     alt_names=()
-    for server_name in ${server_names[@]}; do
+    for server_name in "${server_names[@]}"; do
         if is_ip "${server_name}"; then
             # See if the alt name looks like an IP address.
             ip_count=$((${ip_count} + 1))

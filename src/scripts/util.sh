@@ -37,282 +37,67 @@ error() {
     tput -Tscreen sgr0) >&2
 }
 
-# Returns 0 if the parameter is an IPv4 or IPv6, 1 otherwise.
+# Returns 0 if the parameter is an IPv4 or IPv6 address, 1 otherwise.
 # Can be used as `if is_ip "$something"; then`.
 #
-# $1: the parameter to check for the IP
+# $1: the parameter to check if it is an IP address.
 is_ip() {
     is_ipv4 "$1" || is_ipv6 "$1"
 }
 
-# Returns 0 if the parameter is an IPv4, 1 otherwise.
+# Returns 0 if the parameter is an IPv4 address, 1 otherwise.
 # Can be used as `if is_ipv4 "$something"; then`.
 #
-# $1: the parameter to check for the IPv4
+# $1: the parameter to check if it is an IPv4 address.
 is_ipv4() {
     [[ "$1" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]
 }
 
-# Returns 0 if the parameter is an IPv6, 1 otherwise.
+# Returns 0 if the parameter is an IPv6 address, 1 otherwise.
 # Can be used as `if is_ipv6 "$something"; then`.
 #
 # This comes from the amazing answer from David M. Syzdek
 # on stackoverflow: https://stackoverflow.com/a/17871737
 #
-# $1: the parameter to check for the IPv6
+# $1: the parameter to check if it is an IPv6 address.
 is_ipv6() {
     [[ "${1,,}" =~ ^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$ ]]
 }
 
-# Call other helper functions here to get an associative array of
-# cert_name => server_names allowing to know which certificates need to be
-# requested
+# Find lines that contain 'ssl_certificate_key', and try to extract a name from
+# each of these file paths. Each keyfile must be stored at the default location
+# of /etc/letsencrypt/live/<cert_name>/privkey.pem, otherwise we ignore it since
+# it is most likely not a certificate that is managed by certbot.
 #
-# $1: An associative bash array that will contain cert_name => server_names
-#     (space-separated) after the call to this function
-# $2: (optional) Whether or not to skip IP addresses in server_name entries
-#     (default: skip_ips)
-find_certificates() {
-    local -n found_certificates=$1
-
-    parse_config_files_for_certs "/etc/nginx/conf.d/*.conf*" found_certificates "${2:-skip_ips}"
-    remove_duplicates found_certificates
-    handle_wildcard_conflicts found_certificates
-    force_wildcards found_certificates
+# $1: Path to a Nginx configuration file.
+parse_cert_names() {
+    sed -n -r -e 's&^\s*ssl_certificate_key\s+\/etc/letsencrypt/live/(.*)/privkey.pem;.*&\1&p' "$1" | xargs -n1 echo | uniq
 }
 
-# Parse the configuration files given as first parameters, go through all the server
-# blocks to find both the 'ssl_certificate_key' and the 'server_name' entries, and
-# aggregate all the findings so a single certificate can be ordered for multiple
-# domains if this is desired.
-# Each keyfile much be stored at the default location of
-# /etc/letsencrypt/live/<cert_name>/privkey.pem, otherwise the server block will
-# be ignored. The server name(s) must only contain regular domains and prefixed
-# wildcards.
+# Nginx will answer to any domain name that is written on the line which starts
+# with 'server_name'. A server block may have multiple domain names defined on
+# this line, and a config file may have multiple server blocks. This method will
+# therefore try to extract all domain names and add them to the certificate
+# request being sent. Some things to think about:
+# * Wildcard names must use DNS authentication, else the challenge will fail.
+# * Possible overlappings. This method will find all 'server_names' in a .conf
+#   file inside the conf.d/ folder and attach them to the request. If there are
+#   different primary domains in the same .conf file it will cause some weird
+#   certificates. Should however work fine but is not best practice.
+# * If the following comment "# certbot_domain:<replacement_domain>" is present
+#   the end of the line it will be printed twice in such a fashion that it
+#   encapsulate the server names that should be replaced with this one instead,
+#   like this:
+#       1. certbot_domain:*.example.com
+#       2. certbot_domain:www.example.com
+#       3. certbot_domain:sub.example.com
+#       4. certbot_domain:*.example.com
+# * Unlike the other similar functions this one will not perform "uniq" on the
+#   names, since that would prevent the feature explained above.
 #
-# $1: The path (support for wildcards) to match configuration files
-# $2: An associative bash array that will contain cert_name => server_names
-#     (space-separated) after the call to this function
-# $3: (optional) Whether or not to skip IP addresses in server_name entries
-#     (default: skip_ips)
-parse_config_files_for_certs() {
-    local -n certs=$2
-    local skip_ips=${3:-skip_ips}
-
-    for conf_file in $1; do
-        # To follow if we are in a server block, and how to match the ending of that
-        # server block (we expect equal indentation at the beginning and end)
-        local in_server_block=0
-        local leading_server_block_spaces=
-
-        # The resources we're looking for, that we will reset between server blocks
-        local cert_names=()
-        local server_names=()
-
-        local lineno=0
-        while IFS="" read -r line || [ -n "$line" ]; do
-            lineno=$((lineno + 1))
-            if [[ "$line" =~ ^([[:space:]]*)server[[:space:]]*\{ ]]; then
-                if [ $in_server_block -eq 1 ]; then
-                    error "Matching server block while already in a server block ($conf_file:$lineno)"
-                    # Do we want to go to next file, exit or keep parsing ?
-                fi
-                # We entered a server block, so we'll need to start checking what's up
-                in_server_block=1
-                leader_server_block_spaces=${BASH_REMATCH[1]}
-            elif [ $in_server_block -eq 0 ]; then
-                # We are not in a server block, nothing for us to do here, let's skip
-                continue
-            elif [[ "$line" =~ ^${leading_server_block_spaces}\} ]]; then
-                # We add the found certificate names and the corresponding server names,
-                # in case it already exists, this will be appended nicely as if it was
-                # all in the same server block. In case there was no 'ssl_certificate_key'
-                # entry, we can simply ignore it nicely.
-                if [ ${#server_names[@]} -eq 0 ]; then
-                    error "Missing 'server_name' for server block ($conf_file:$lineno)"
-                elif [ ${#cert_names[@]} -gt 0 ]; then
-                    for cert_name in "${cert_names[@]}"; do
-                        certs["$cert_name"]="${certs["$cert_name"]}${certs["$cert_name"]:+ }${server_names[@]}"
-                    done
-                fi
-
-                # We are leaving a server block, so we can clean-up behind us
-                in_server_block=0
-                leadin_server_block_spaces=
-
-                cert_names=()
-                server_names=()
-            elif [[ "$line" =~ ^[[:space:]]*ssl_certificate_key[[:space:]]*/etc/letsencrypt/live/([^;]*)/privkey.pem[[:space:]]*\; ]]; then
-                cert_names+=(${BASH_REMATCH[1]})
-            elif [[ "$line" =~ ^[[:space:]]*server_name[[:space:]]*([^\;]*)[[:space:]]*\; ]] ||\
-                    [[ "$line" =~ ^[[:space:]]*#[[:space:]]*cert:add_domains[[:space:]]*(.*)[[:space:]]*$ ]]; then
-                for server_name in ${BASH_REMATCH[1]}; do
-                    if is_ip "$server_name"; then
-                        # This is matching an IP, we can decide to keep them (local CA) or ignore them (public CA)
-                        if [ "$skip_ips" == "skip_ips" ]; then
-                            debug "IP address '${server_name}' ignored as server_name ($conf_file:$lineno)"
-                            continue
-                        fi
-                    elif [[ ! "$server_name" =~ ^(\*|[-_[:alnum:]]+)(\.[-_[:alnum:]]+)+$ ]]; then
-                        # This is not matching the format required for an hostname to get a certificate
-                        debug "Invalid hostname '${server_name}' ignored as server_name ($conf_file:$lineno)"
-                        continue
-                    fi
-                    # If we're reaching here, we can keep this server_name to request the certificate
-                    server_names+=("$server_name")
-                done
-            fi
-        done <"$conf_file"
-    done
-}
-
-# A function to remove duplicates in our associative array of
-# cert_name => server_names (space-separated).
-#
-# $1: The associative bash array containing cert_name => server_names
-#     (space-separated), that will be read and updated to remove
-#     duplicates
-remove_duplicates() {
-    local -n certs=$1
-    
-    for cert_name in "${!certs[@]}"; do
-        local server_names=(${certs["$cert_name"]})
-
-        local -A already_seen=()
-        local dedupped=()
-        for server_name in ${server_names[@]}; do
-            if [ -z "${already_seen[$server_name]}" ]; then
-                already_seen[$server_name]=1
-                dedupped+=($server_name)
-            fi
-        done
-
-        certs["$cert_name"]="${dedupped[@]}"
-    done
-}
-
-# A function to handle wildcard conflicts in our associative array of
-# cert_name => server_names (space-separated).
-#
-# $1: The associative bash array containing cert_name => server_names
-#     (space-separated), that will be read and updated to remove
-#     conflicting server names when one or more wildcards are present
-handle_wildcard_conflicts() {
-    local -n certs=$1
-
-    for cert_name in "${!certs[@]}"; do
-        local server_names=(${certs["$cert_name"]})
-
-        # List all the wildcards in that list, so we know which domains would be in conflict with those
-        local wildcards=()
-        for server_name in ${server_names[@]}; do
-            if [[ "$server_name" =~ ^\*\. ]]; then
-                wildcards+=("${server_name#\*.*}")
-            fi
-        done
-
-        if [ ${#wildcards[@]} -eq 0 ]; then
-            continue
-        fi
-
-        # Go over the list of domains, and keep only those that don't overlap with one of the wildcards
-        local keep_domains=()
-        for server_name in ${server_names[@]}; do
-            local conflicts_with_wildcard=0
-            for wildcard in ${wildcards[@]}; do
-                if [[ "$server_name" =~ ^[^.]*\.${wildcard}$ ]] && [[ ! "$server_name" == "*.${wildcard}" ]]; then
-                    conflicts_with_wildcard=1
-                    break
-                fi
-            done
-
-            if [ $conflicts_with_wildcard -eq 0 ]; then
-                keep_domains+=($server_name)
-            fi
-        done
-
-        certs["$cert_name"]="${keep_domains[@]}"
-    done
-}
-
-# This function forces the use of wildcards in certificates when they
-# are relevant if:
-#  (1) No `no-wildcards` pattern is found in the cert name
-# and
-#  (2.a) Either the FORCE_WILDCARDS environment variable is set to 1, or
-#  (2.b) the `force-wildcards` pattern is found in the cert name
-#
-# Wildcards will not be provisioned for domains containing less than
-# FORCE_WILDCARDS_NDOTS dots (default: 2); e.g. if FORCE_WILDCARDS_NDOTS
-# is set to 3, no automated wildcard will be created for *.example.com, but
-# some could be created for *.something.example.com.
-#
-# A wildcard will not be considered relevant if less than 2 server names
-# would be covered by it.
-#
-# $1: The associative bash array containing cert_name => server_names
-#     (space-separated), that will be read and updated to remove
-#     conflicting server names when one or more wildcards are present
-force_wildcards() {
-    local -n certs=$1
-
-    for cert_name in "${!certs[@]}"; do
-        if [[ "${cert_name,,}" =~ (^|[-.])no-wildcards([-.]|$) ]] || ( [ "${FORCE_WILDCARDS}" != "1" ] && [[ ! "${cert_name,,}" =~ (^|[-.])force-wildcards([-.]|$) ]] ); then
-            continue
-        fi
-
-        local server_names=(${certs["$cert_name"]})
-
-        # Identify all the wildcards that would be needed to cover all the
-        # server names for that certificate
-        local -A wildcards=()
-        for server_name in ${server_names[@]}; do
-            if is_ip "$server_name"; then
-                continue
-            fi
-
-            local wildcard=${server_name#*.}
-            local dots=${wildcard//[^.]}
-
-            if [ $((${#dots} + 1)) -lt ${FORCE_WILDCARDS_NDOTS:-2} ]; then
-                continue
-            fi
-
-            wildcards[$wildcard]=$((${wildcards[$wildcard]} + 1))
-        done
-
-        # Go over all the wildcards and remove those that are not covering
-        # at least two domains; we don't need to replace anything by a
-        # wildcard for those. The ones we keep we will reset to 0, so we can
-        # try to keep some sort of hostname ordering when we'll go over the
-        # records
-        for wildcard in ${!wildcards[@]}; do
-            if [ ${wildcards[$wildcard]} -gt 1 ]; then
-                wildcards[$wildcard]=0
-            else
-                unset 'wildcards[$wildcard]'
-            fi
-        done
-
-        # Now we will go over the server_names, and either keep them if
-        # no wildcard will cover them, replace them if a wildcard covers
-        # them and they're the first one we encounter for that wildcard,
-        # or discard them otherwise
-        local reduced_domains=()
-        for server_name in ${server_names[@]}; do
-            local wildcard=${server_name#*.}
-            if [ -n "${wildcards[$wildcard]}" ]; then
-                if [ ${wildcards[$wildcard]} -eq 0 ]; then
-                    wildcards[$wildcard]=1
-                    reduced_domains+=("*.$wildcard")
-                fi
-            else
-                reduced_domains+=("$server_name")
-            fi
-        done
-
-        certs["$cert_name"]="${reduced_domains[@]}"
-    done
+# $1: Path to a Nginx configuration file.
+parse_server_names() {
+    sed -n -r -e 's&^\s*server_name\s+([^;]*);\s*#?(\s*certbot_domain:[^[:space:]]+)?.*$&\2 \1 \2&p' "$1" | xargs -n1 echo
 }
 
 # Return all unique "ssl_certificate_key" file paths.
@@ -346,7 +131,7 @@ parse_dhparams() {
 # Given a config file path, return 0 if all SSL related files exist (or there
 # are no files needed to be found). Return 1 otherwise (i.e. error exit code).
 #
-# This function call those other functions in a slightly obscured way:
+# This function calls the following functions in the specified order:
 #  - parse_keyfiles
 #  - parse_fullchains
 #  - parse_chains
@@ -369,6 +154,83 @@ allfiles_exist() {
     done
 
     return ${all_exist}
+}
+
+# Parse the configuration file to find all the 'ssl_certificate_key' and the
+# 'server_name' entries, and aggregate the findings so a single certificate can
+# be ordered for multiple domains if this is desired. Each keyfile must be
+# stored in /etc/letsencrypt/live/<cert_name>/privkey.pem, otherwise the
+# certificate/file will be ignored.
+#
+# If you are using the same associative array between each call to this function
+# it will make sure that only unique domain names are added to each specific
+# key. It will also ignore domain names that start with '~', since these are
+# regex and we cannot handle those.
+#
+# $1: The filepath to the configuration file.
+# $2: An associative bash array that will contain cert_name => server_names
+#     (space-separated) after the call to this function.
+parse_config_file() {
+    local conf_file=${1}
+    local -n certs=${2} # Basically a pointer to the array sent in via $2.
+    debug "Parsing config file '${conf_file}'"
+
+    # Begin by checking if there are any certificates managed by us in the
+    # config file.
+    local cert_names=()
+    for cert_name in $(parse_cert_names "${conf_file}"); do
+        cert_names+=("${cert_name}")
+    done
+    if [ ${#cert_names[@]} -eq 0 ]; then
+        debug "Found no valid certificate declarations in '${conf_file}'; skipping it"
+        return
+    fi
+
+    # Then we look for all the possible server names present in the file.
+    local server_names=()
+    local replacement_domain=""
+    for server_name in $(parse_server_names "${conf_file}"); do
+        # Check if the current server_name line has a comment that tells us to
+        # use a different domain name instead when making the request.
+        if [[ "${server_name}" =~ certbot_domain:(.*) ]]; then
+            if [ "${server_name}" == "certbot_domain:${replacement_domain}" ]; then
+                # We found the end of the special server names.
+                replacement_domain=""
+                continue
+            fi
+            replacement_domain="${BASH_REMATCH[1]}"
+            server_names+=("${replacement_domain}")
+            continue
+        fi
+        if [ -n "${replacement_domain}" ]; then
+            # Just continue in case we are substituting domains.
+            debug "Substituting '${server_name}' with '${replacement_domain}'"
+            continue
+        fi
+
+        # Ignore regex names, since these are not gracefully handled by this
+        # code or certbot.
+        if [[ "${server_name}" =~ ~(.*) ]]; then
+            debug "Ignoring server name '${server_name}' since it looks like a regex and we cannot handle that"
+            continue
+        fi
+
+        server_names+=("${server_name}")
+    done
+    debug "Found the following domain names: ${server_names[*]}"
+
+    # Finally we add the found server names to the certificate names in
+    # the associative array.
+    for cert_name in "${cert_names[@]}"; do
+        if ! [ ${certs["${cert_name}"]+_} ]; then
+            debug "Adding new key '${cert_name}' in array"
+            certs["${cert_name}"]=""
+        else
+            debug "Appending to already existing key '${cert_name}'"
+        fi
+        # Make sure we only add unique entries every time.
+        certs["${cert_name}"]="$(echo ${certs["${cert_name}"]} "${server_names[@]}" | xargs -n1 echo | sort -u | tr '\n' ' ')"
+    done
 }
 
 # Creates symlinks from /etc/nginx/conf.d/ to all the files found inside
