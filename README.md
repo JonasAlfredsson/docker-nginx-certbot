@@ -12,8 +12,12 @@ used during the initial handshake of some ciphers.
   [Diffie-Hellman parameters](./docs/good_to_know.md#diffie-hellman-parameters)
   section.
 
+> :information_source: Please use a [specific tag](./docs/dockerhub_tags.md)
+  when doing a Docker pull, since `:latest` might not always be 100% stable.
+
 ### Noteworthy Features
 - Handles multiple server names when [requesting certificates](./docs/good_to_know.md#how-the-script-add-domain-names-to-certificate-requests) (i.e. both `example.com` and `www.example.com`).
+- Handles wildcard domain request in case you use [DNS authentication](./docs/certbot_authenticators.md).
 - Can request both [RSA and ECDSA](./docs/good_to_know.md#ecdsa-and-rsa-certificates) certificates ([at the same time](./docs/advanced_usage.md#multi-certificate-setup)).
 - Will create [Diffie-Hellman parameters](./docs/good_to_know.md#diffie-hellman-parameters) if they are defined.
 - Uses the [parent container][9]'s [`/docker-entrypoint.d/`][7] folder.
@@ -69,11 +73,11 @@ instructions, from `@staticfloat`'s image, can be found
 - `RENEWAL_INTERVAL`: Time interval between certbot's [renewal checks](./docs/good_to_know.md#renewal-check-interval) (default: `8d`)
 - `RSA_KEY_SIZE`: The size of the RSA encryption keys (default: `2048`)
 - `STAGING`: Set to `1` to use Let's Encrypt's [staging servers](./docs/good_to_know.md#initial-testing) (default: `0`)
-- `USE_ECDSA`: Set to `1` to have certbot use [ECDSA instead of RSA](./docs/good_to_know.md#ecdsa-and-rsa-certificates) (default: `0`)
+- `USE_ECDSA`: Set to `0` to have certbot use [RSA instead of ECDSA](./docs/good_to_know.md#ecdsa-and-rsa-certificates) (default: `1`)
 
 ### Advanced
-- `CERTBOT_AUTHENTICATOR`: The [authenticator plugin](./docs/certbot_authenticators.md) (either a [dns plugin](https://eff-certbot.readthedocs.io/en/stable/using.html#dns-plugins) or `webroot`) to use by default when responding to challenges (default: `webroot`)
-- `CERTBOT_DNS_PROPAGATION_SECONDS`: The number of seconds to wait after a DNS challenge has been setup before asking Let's Encrypt to check it (default: certbot's default)
+- `CERTBOT_AUTHENTICATOR`: The [authenticator plugin](./docs/certbot_authenticators.md) to use when responding to challenges (default: `webroot`)
+- `CERTBOT_DNS_PROPAGATION_SECONDS`: The number of seconds to wait for the DNS challenge to [propagate](.docs/certbot_authenticators.md#troubleshooting-tips) (default: certbot's default)
 - `DEBUG`: Set to `1` to enable debug messages and use the [`nginx-debug`][10] binary (default: `0`)
 - `USE_LOCAL_CA`: Set to `1` to enable the use of a [local certificate authority](./docs/advanced_usage.md#local-ca) (default: `0`)
 
@@ -163,6 +167,8 @@ information.
   - All the tags available from Docker Hub.
 - [Advanced Usage](./docs/advanced_usage.md)
   - Information about the more advanced features this image provides.
+- [Certbot Authenticators](./docs/certbot_authenticators.md)
+  - Information on the different authenticators that are available in this image.
 - [Nginx Tips](./docs/nginx_tips.md)
   - Some interesting tips on how Nginx can be configured.
 

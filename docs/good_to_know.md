@@ -99,14 +99,26 @@ server {
 ```
 
 will share the same certificate file (i.e. the "test-name" certificate), and
-all listed domain variants will be included as valid [alt names][15]. The
-limitation is that you should write all your server blocks that use the same
-"test-name" certificate in the same file. The certificate request from the
-above file will then become something like this:
+all listed domain variants will be included as valid [alt names][15]. It is
+also possible to split these sever blocks into two separate config files,
+as the script will keep track of the "test-name" value across the scans and just
+add any additional findings to it. So in the end we will get a single request
+that looks something like this:
 
 ```
 certbot --cert-name "test-name" ... -d yourdomain.org -d www.yourdomain.org -d sub.yourdomain.org
 ```
+
+The scripts are quite powerful when it comes to customizability for defining
+what should be included in the request, but this is considered a more advanced
+usecase that may be further studied in the
+[Override `server_name`](./advanced_usage.md#override-server_name`) section of
+the Advanced Usage document.
+
+Furthermore, we support wildcard domain names, but that requires you to use an
+authenticator capable of DNS-01 challenges, and more info about that may be
+found in the [certbot_authenticators.md](./certbot_authenticators.md) document.
+
 
 ## ECDSA and RSA Certificates
 [ECDSA (or ECC)][16] certificates use a newer encryption algorithm than the well
@@ -117,9 +129,9 @@ yet, but if you don't expect to serve anything outisde the "Modern" row in
 to request these types of certificates.
 
 This is achieved by setting the [environment variable](../README.md#optional)
-`USE_ECDSA=1`, and you can optionally tune which [curve][18] to use with
-`ELLIPTIC_CURVE`. If you already have RSA certificates downloaded you will
-either have to wait until they expire, or
+`USE_ECDSA=1` (the default since version 3.0.0), and you can optionally tune
+which [curve][18] to use with `ELLIPTIC_CURVE`. If you already have RSA
+certificates downloaded you will either have to wait until they expire, or
 [force](./advanced_usage.md#manualforce-renewal) a renewal, before this change
 takes affect.
 

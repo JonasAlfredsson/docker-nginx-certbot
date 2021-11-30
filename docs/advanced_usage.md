@@ -38,6 +38,54 @@ This will request new certificates irregardless of then they are set to expire.
   [production certificates][3].
 
 
+## Override `server_name`
+Nginx allows you to to do a lot of stuff in the [`server_name` declaration][18],
+but since the scripts inside this image compose certificate requests from the
+same lines we are severely limited in what is possible to define on those lines.
+For example the line `server_name mail.*` would produce a certificate request
+for the domain name `mail.*`, which is not valid.
+
+However, to combat this limitation it is possible to define a special comment
+on the same line in order to override what the scripts will pick up. So in this
+contrived example
+
+```bash
+server {
+    listen              443 ssl;
+    ssl_certificate_key /etc/letsencrypt/live/test-name/privkey.pem;
+
+    server_name         yourdomain.org;
+    server_name         www.yourdomain.org; # certbot_domain:*.yourdomain.org
+    server_name         sub.yourdomain.org; # certbot_domain:*.yourdomain.org
+    server_name         mail.*;             # certbot_domain:*.yourdomain.org
+    server_name         ~^(?<user>.+)\.yourdomain\.org$;
+    ...
+}
+```
+
+we will end up with a certificate request which looks like this:
+
+```
+certbot --cert-name "test-name" ... -d yourdomain.org -d *.yourdomain.org
+```
+
+The fist server name will be picked up as usual, while the following three will
+be shadowed by the domain in the comment, i.e. `*.yourdomain.org` (and duplicate
+names will be removed in the final request).
+
+The last server name is special, in that it is a regex and those always start
+with a `~`. Since we know we will never be able to create a valid request from
+a name which start with that character they will always be ignored by the
+script (a trailing comment will take precedence instead of being ignored).
+A more detailed example of this can be viewed in
+[`example_server_overrides.conf`](../examples/example_server_overrides.conf).
+
+Important to remember is that here we define a wildcard domain name (the `*`
+in the the `*.yourdomain.org`), and that requires you to use an authenticator
+capable of DNS-01 challenges, and more info about that may be found in the
+[certbot_authenticators.md](./certbot_authenticators.md) document.
+
+
 ## Multi-Certificate Setup
 This is a continuation of the
 [RSA and ECDSA](./good_to_know.md#ecdsa-and-rsa-certificates) section from
@@ -208,3 +256,4 @@ way of creating your own files.
 [15]: https://derflounder.wordpress.com/2019/06/06/new-tls-security-requirements-for-ios-13-and-macos-catalina-10-15/
 [16]: https://superuser.com/questions/738612/openssl-ca-keyusage-extension/1248085#1248085
 [17]: https://www.feistyduck.com/library/openssl-cookbook/online/ch-openssl.html
+[18]: https://nginx.org/en/docs/http/server_names.html
