@@ -109,13 +109,13 @@ for cert_name in "${!certificates[@]}"; do
     # Determine which type of key algorithm to use for this certificate
     # request. Having the algorithm specified in the certificate name will
     # take precedence over the environmental variable.
-    if [[ "${cert_name,,}" =~ ^.*(-|\.)ecdsa.*$ ]]; then
+    if [[ "${cert_name,,}" =~ (^|[-.])ecdsa([-.]|$) ]]; then
         debug "Found variant of 'ECDSA' in name '${cert_name}"
         key_type="ecdsa"
-    elif [[ "${cert_name,,}" =~ ^.*(-|\.)ecc.*$ ]]; then
+    elif [[ "${cert_name,,}" =~ (^|[-.])ecc([-.]|$) ]]; then
         debug "Found variant of 'ECC' in name '${cert_name}"
         key_type="ecdsa"
-    elif [[ "${cert_name,,}" =~ ^.*(-|\.)rsa.*$ ]]; then
+    elif [[ "${cert_name,,}" =~ (^|[-.])rsa([-.]|$) ]]; then
         debug "Found variant of 'RSA' in name '${cert_name}"
         key_type="rsa"
     elif [ "${USE_ECDSA}" == "1" ]; then
