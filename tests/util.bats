@@ -189,8 +189,8 @@ load "${SCRIPTS_DIR}/util.sh"
   local server_names=(${certificates[my-cert]})
   [ ${#server_names[@]} -eq 3 ]
   [ "${server_names[0]}" == "*.example.org" ]
-  [ "${server_names[1]}" == "example.org" ]
-  [ "${server_names[2]}" == "*.sub.example.org" ]
+  [ "${server_names[1]}" == "*.sub.example.org" ]
+  [ "${server_names[2]}" == "example.org" ]
 }
 
 @test "parse_config_file ignores regex names" {
@@ -206,9 +206,9 @@ load "${SCRIPTS_DIR}/util.sh"
   local server_names=(${certificates[my-cert]})
   echo "${certificates[@]}"
   [ ${#server_names[@]} -eq 5 ]
-  [ "${server_names[0]}" == "_" ]
+  [ "${server_names[0]}" == "192.168.0.1" ]
   [ "${server_names[1]}" == "1:2:3:4:5:6:7:8" ]
-  [ "${server_names[2]}" == "192.168.0.1" ]
+  [ "${server_names[2]}" == "_" ]
   [ "${server_names[3]}" == "example.org" ]
   [ "${server_names[4]}" == "www.example.org" ]
 }
@@ -233,8 +233,8 @@ load "${SCRIPTS_DIR}/util.sh"
 
   local server_names_cert2=(${certificates[my-cert2]})
   [ ${#server_names_cert2[@]} -eq 3 ]
-  [ "${server_names_cert2[0]}" == "anew.example.org" ]
-  [ "${server_names_cert2[1]}" == "*.example.com" ]
+  [ "${server_names_cert2[0]}" == "*.example.com" ]
+  [ "${server_names_cert2[1]}" == "anew.example.org" ]
   [ "${server_names_cert2[2]}" == "example.com" ]
 
   local server_names_cert3=(${certificates[my-cert3]})

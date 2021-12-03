@@ -1,0 +1,30 @@
+name: "unit-tests"
+
+on:
+  push:
+    branches:
+      - "main"
+      - "master"
+    paths:
+      - "src/scripts/**"
+      - "tests/**"
+      - ".github/workflows/**"
+  pull_request:
+    branches:
+      - "main"
+      - "master"
+    paths:
+      - "src/scripts/**"
+      - "tests/**"
+
+jobs:
+  bats:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2.3.4
+
+      - name: Run BATS tests
+        uses: ffurrer2/bats-action@v1.1.0
+        with:
+          args: ./tests

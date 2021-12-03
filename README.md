@@ -155,6 +155,22 @@ COPY conf.d/* /etc/nginx/conf.d/
 
 
 
+# Tests
+We make use of [BATS][16] to test parts of this codebase. The easiest way to
+run all the tests is to execute the following command in the root of this
+repository:
+
+```bash
+docker run -it --rm -v "$(pwd):/workdir" ffurrer/bats:latest ./tests
+```
+
+> NOTE: This image used here is based on `alpine` which makes use of busybox
+        `sort` instead of the coreutils one, and the default sorting order
+        handles `*` differently, so the tests might thus fail if run on
+        something else.
+
+
+
 # More Resources
 Here is a collection of links to other resources that provide useful
 information.
@@ -200,3 +216,4 @@ a look and see if one of these helps or inspires you to do something similar:
 [13]: https://portforward.com/router.htm
 [14]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/28
 [15]: https://security.stackexchange.com/a/104991
+[16]: https://github.com/bats-core/bats-core
