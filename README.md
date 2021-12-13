@@ -195,7 +195,7 @@ Here is a list of projects that use this image in various creative ways. Take
 a look and see if one of these helps or inspires you to do something similar:
 
 - [A `Node.js` application served over HTTPS in AWS Elastic Beanstalk](https://efraim-rodrigues.medium.com/using-docker-to-containerize-your-node-js-aefcd1ecd37d)
-
+- [Host your own `Nakama` server](https://www.snopekgames.com/tutorial/2021/how-host-nakama-server-10mo)
 
 
 
