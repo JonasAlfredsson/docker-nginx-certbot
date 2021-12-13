@@ -21,7 +21,7 @@ dev:
 	docker buildx build --build-arg BUILDX_QEMU_ENV=true --platform linux/amd64,linux/386,linux/arm64,linux/arm/v7 --tag jonasal/nginx-certbot:dev -f ./Dockerfile ./
 
 dev-alpine:
-	docker buildx build --platform linux/amd64,linux/386,linux/arm64,linux/arm/v7 --tag jonasal/nginx-certbot:dev-alpine -f ./Dockerfile-alpine ./
+	docker buildx build --platform linux/amd64,linux/arm64 --tag jonasal/nginx-certbot:dev-alpine -f ./Dockerfile-alpine ./
 
 push:
 	docker buildx build --build-arg BUILDX_QEMU_ENV=true --platform linux/amd64,linux/386,linux/arm64,linux/arm/v7 --tag jonasal/nginx-certbot:dev --pull --no-cache --push .
