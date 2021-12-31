@@ -7,7 +7,7 @@ and uses OpenSSL/LibreSSL to automatically create the Diffie-Hellman parameters
 used during the initial handshake of some ciphers.
 
 > :information_source: The very first time this container is started it might
-  take a long time before before it is ready to respond to requests. Read more
+  take a long time before it is ready to respond to requests. Read more
   about this in the
   [Diffie-Hellman parameters](./docs/good_to_know.md#diffie-hellman-parameters)
   section.
