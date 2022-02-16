@@ -1,4 +1,4 @@
-FROM nginx:1.21.3
+FROM nginx:1.21.4
 LABEL maintainer="Jonas Alfredsson <jonas.alfredsson@protonmail.com>"
 
 ENV CERTBOT_DNS_AUTHENTICATORS \
@@ -25,7 +25,7 @@ RUN set -ex && \
             build-essential \
             cargo \
             curl \
-            libffi6 \
+            libffi7 \
             libffi-dev \
             libssl-dev \
             openssl \
