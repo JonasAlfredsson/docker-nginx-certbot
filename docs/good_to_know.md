@@ -129,7 +129,7 @@ yet, but if you don't expect to serve anything outisde the "Modern" row in
 to request these types of certificates.
 
 This is achieved by setting the [environment variable](../README.md#optional)
-`USE_ECDSA=1` (the default since version 3.0.0), and you can optionally tune
+`USE_ECDSA=1` (the default since version 3.0.1), and you can optionally tune
 which [curve][18] to use with `ELLIPTIC_CURVE`. If you already have RSA
 certificates downloaded you will either have to wait until they expire, or
 [force](./advanced_usage.md#manualforce-renewal) a renewal, before this change

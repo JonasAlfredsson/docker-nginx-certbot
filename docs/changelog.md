@@ -1,5 +1,9 @@
 # Changelog
 
+### 3.0.1
+- Actually use ECDSA certificates by default.
+  - Eagerness to deploy latest version this update was forgotten.
+
 ### 3.0.0
 - Add support for DNS-01 challenges.
   - Check out the list of all currently [supported authenticators](./certbot_authenticators.md).

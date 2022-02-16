@@ -118,10 +118,10 @@ for cert_name in "${!certificates[@]}"; do
     elif [[ "${cert_name,,}" =~ (^|[-.])rsa([-.]|$) ]]; then
         debug "Found variant of 'RSA' in name '${cert_name}"
         key_type="rsa"
-    elif [ "${USE_ECDSA}" == "1" ]; then
-        key_type="ecdsa"
-    else
+    elif [ "${USE_ECDSA}" == "0" ]; then
         key_type="rsa"
+    else
+        key_type="ecdsa"
     fi
 
     # Determine the authenticator to use to solve the authentication challenge.
