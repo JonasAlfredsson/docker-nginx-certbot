@@ -21,7 +21,7 @@ jobs:
     timeout-minutes: 90
     steps:
       - name: Run Docker on tmpfs
-        uses: JonasAlfredsson/docker-on-tmpfs@main
+        uses: JonasAlfredsson/docker-on-tmpfs@v1.0.0
         with:
           tmpfs_size: 4
 
@@ -43,7 +43,6 @@ jobs:
             linux/arm64
             linux/arm/v7
           push: ${{ github.event_name != 'pull_request' }}
-          build-args: BUILDX_QEMU_ENV=false
           tags: jonasal/nginx-certbot:latest
 
       - name: Print usage info
@@ -55,9 +54,10 @@ jobs:
 
   docker_buildx_alpine:
     runs-on: ubuntu-latest
+    timeout-minutes: 180
     steps:
       - name: Run Docker on tmpfs
-        uses: JonasAlfredsson/docker-on-tmpfs@main
+        uses: JonasAlfredsson/docker-on-tmpfs@v1.0.0
         with:
           tmpfs_size: 4
 

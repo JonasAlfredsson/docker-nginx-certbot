@@ -10,8 +10,13 @@ on:
 jobs:
   docker_buildx_debian:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     steps:
+      - name: Run Docker on tmpfs
+        uses: JonasAlfredsson/docker-on-tmpfs@v1.0.0
+        with:
+          tmpfs_size: 4
+
       - name: Perform setup steps
         uses: JonasAlfredsson/checkout-qemu-buildx@v1.0.0
         with:
@@ -36,7 +41,6 @@ jobs:
           pull: true
           no-cache: true
           push: true
-          build-args: BUILDX_QEMU_ENV=true
           tags: |
             jonasal/nginx-certbot:${{ steps.tagger.outputs.APP_MAJOR }}
             jonasal/nginx-certbot:${{ steps.tagger.outputs.APP_MAJOR }}.${{ steps.tagger.outputs.APP_MINOR }}
@@ -45,8 +49,13 @@ jobs:
 
   docker_buildx_alpine:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 180
     steps:
+      - name: Run Docker on tmpfs
+        uses: JonasAlfredsson/docker-on-tmpfs@v1.0.0
+        with:
+          tmpfs_size: 4
+
       - name: Perform setup steps
         uses: JonasAlfredsson/checkout-qemu-buildx@v1.0.0
         with:
@@ -66,6 +75,7 @@ jobs:
           platforms: |
             linux/amd64
             linux/arm64
+            linux/arm/v7
           pull: true
           no-cache: true
           push: true
