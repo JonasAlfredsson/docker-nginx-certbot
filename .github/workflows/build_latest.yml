@@ -20,6 +20,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
+      - name: Run Docker on tmpfs
+        uses: JonasAlfredsson/docker-on-tmpfs@main
+        with:
+          tmpfs_size: 4
+
       - name: Perform setup steps
         uses: JonasAlfredsson/checkout-qemu-buildx@v1.0.0
         with:
@@ -45,6 +50,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
+      - name: Run Docker on tmpfs
+        uses: JonasAlfredsson/docker-on-tmpfs@main
+        with:
+          tmpfs_size: 4
+
       - name: Perform setup steps
         uses: JonasAlfredsson/checkout-qemu-buildx@v1.0.0
         with:
