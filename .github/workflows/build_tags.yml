@@ -49,7 +49,7 @@ jobs:
 
   docker_buildx_alpine:
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 120
     steps:
       - name: Run Docker on tmpfs
         uses: JonasAlfredsson/docker-on-tmpfs@v1.0.0

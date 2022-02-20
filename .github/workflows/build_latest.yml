@@ -45,16 +45,9 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: jonasal/nginx-certbot:latest
 
-      - name: Print usage info
-        shell: bash
-        run: |
-          sudo df -h
-          echo
-          sudo free -h
-
   docker_buildx_alpine:
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 120
     steps:
       - name: Run Docker on tmpfs
         uses: JonasAlfredsson/docker-on-tmpfs@v1.0.0
@@ -79,10 +72,3 @@ jobs:
             linux/arm/v7
           push: ${{ github.event_name != 'pull_request' }}
           tags: jonasal/nginx-certbot:latest-alpine
-
-      - name: Print usage info
-        shell: bash
-        run: |
-          sudo df -h
-          echo
-          sudo free -h
