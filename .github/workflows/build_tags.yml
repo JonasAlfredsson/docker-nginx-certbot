@@ -18,7 +18,7 @@ jobs:
           tmpfs_size: 4
 
       - name: Perform setup steps
-        uses: JonasAlfredsson/checkout-qemu-buildx@v1.0.0
+        uses: JonasAlfredsson/checkout-qemu-buildx@v1
         with:
           should_login: ${{ github.event_name != 'pull_request' }}
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -57,7 +57,7 @@ jobs:
           tmpfs_size: 4
 
       - name: Perform setup steps
-        uses: JonasAlfredsson/checkout-qemu-buildx@v1.0.0
+        uses: JonasAlfredsson/checkout-qemu-buildx@v1
         with:
           should_login: ${{ github.event_name != 'pull_request' }}
           username: ${{ secrets.DOCKERHUB_USERNAME }}
