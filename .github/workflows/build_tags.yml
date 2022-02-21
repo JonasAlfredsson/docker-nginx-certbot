@@ -10,7 +10,7 @@ on:
 jobs:
   docker_buildx_debian:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 100
     steps:
       - name: Run Docker on tmpfs
         uses: JonasAlfredsson/docker-on-tmpfs@v1.0.0
@@ -49,7 +49,7 @@ jobs:
 
   docker_buildx_alpine:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 100
     steps:
       - name: Run Docker on tmpfs
         uses: JonasAlfredsson/docker-on-tmpfs@v1.0.0
