@@ -21,7 +21,7 @@ jobs:
     timeout-minutes: 100
     steps:
       - name: Run Docker on tmpfs
-        uses: JonasAlfredsson/docker-on-tmpfs@v1.0.0
+        uses: JonasAlfredsson/docker-on-tmpfs@v1.0.1
         with:
           tmpfs_size: 4
 
@@ -50,7 +50,7 @@ jobs:
     timeout-minutes: 100
     steps:
       - name: Run Docker on tmpfs
-        uses: JonasAlfredsson/docker-on-tmpfs@v1.0.0
+        uses: JonasAlfredsson/docker-on-tmpfs@v1.0.1
         with:
           tmpfs_size: 4
 
