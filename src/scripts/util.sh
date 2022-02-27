@@ -229,7 +229,12 @@ parse_config_file() {
             debug "Appending to already existing key '${cert_name}'"
         fi
         # Make sure we only add unique entries every time.
-        certs["${cert_name}"]="$(echo ${certs["${cert_name}"]} "${server_names[@]}" | xargs -n1 echo | sort -u | tr '\n' ' ')"
+        # This invocation of awk works like 'sort -u', but preserves order. This
+        # set the first 'server_name' entry as the first '-d' domain artgument
+        # for the certbot command. This domain will be your Common Name on the
+        # certificate.
+        # stackoverflow on this awk usage: https://stackoverflow.com/a/45808487
+        certs["${cert_name}"]="$(echo ${certs["${cert_name}"]} "${server_names[@]}" | xargs -n1 echo | awk '!a[$0]++' | tr '\n' ' ')"
     done
 }
 
