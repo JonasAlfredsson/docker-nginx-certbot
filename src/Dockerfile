@@ -17,6 +17,11 @@ ENV CERTBOT_DNS_AUTHENTICATORS \
     route53 \
     sakuracloud
 
+# Workaround for https://github.com/rust-lang/cargo/issues/9187
+ENV CARGO_NET_GIT_FETCH_WITH_CLI=true
+ENV CARGO_HTTP_DEBUG=true
+ENV CARGO_LOG=trace
+
 # Do a single run command to make the intermediary containers smaller.
 RUN set -ex && \
 # Install packages necessary during the build phase (for all architectures).
@@ -25,6 +30,7 @@ RUN set -ex && \
             build-essential \
             cargo \
             curl \
+            git \
             libffi7 \
             libffi-dev \
             libssl-dev \
@@ -36,6 +42,7 @@ RUN set -ex && \
 # Install the latest version of PIP, Setuptools and Wheel.
     curl -L 'https://bootstrap.pypa.io/get-pip.py' | python3 && \
 # Install certbot.
+    pip --version && cargo --version --verbose && \
     pip3 install -U cffi certbot \
 # And the supported extra authenticators
         $(echo $CERTBOT_DNS_AUTHENTICATORS | sed 's/\(^\| \)/\1certbot-dns-/g') \
@@ -45,6 +52,7 @@ RUN set -ex && \
             build-essential \
             cargo \
             curl \
+            git \
             libffi-dev \
             libssl-dev \
             python3-dev \
