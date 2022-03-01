@@ -164,11 +164,6 @@ repository:
 docker run -it --rm -v "$(pwd):/workdir" ffurrer/bats:latest ./tests
 ```
 
-> NOTE: This image used here is based on `alpine` which makes use of busybox
-        `sort` instead of the coreutils one, and the default sorting order
-        handles `*` differently, so the tests might thus fail if run on
-        something else.
-
 
 
 # More Resources

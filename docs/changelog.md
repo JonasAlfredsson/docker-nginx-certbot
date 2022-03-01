@@ -1,5 +1,9 @@
 # Changelog
 
+### 3.1.0
+- Replace `sort -u` with `awk '!a[$0]++'` to keep distinct order of the domain names.
+  - PR by [@dtcooper][35].
+
 ### 3.0.1
 - Actually use ECDSA certificates by default.
   - Eagerness to deploy latest version this update was forgotten.
@@ -8,19 +12,19 @@
 - Add support for DNS-01 challenges.
   - Check out the list of all currently [supported authenticators](./certbot_authenticators.md).
   - This also means it is now possible to request wildcard certificates!
-  - PR by [XaF][32].
+  - PR by [@XaF][32].
 - Make it possible to define which authenticator to use on a certificate basis.
   - Like with [ECDSA/RSA](./advanced_usage.md#multi-certificate-setup), you can
     [add the authenicator's name](./certbot_authenticators.md#using-a-dns-01-authenticator-for-specific-certificates-only)
     in the `cert_name` to override the default.
-  - PR by [XaF][32].
+  - PR by [@XaF][32].
 - Make it possible to use same `cert_name` across multiple config files.
   - The scripts will remember all domain names associated with the cert name.
   - This means you can now use as many config files as you want and have them all point to a single certificate.
 - Add [BATS][34].
   - A lot unit tests for the Bash functions we use in the [`util.sh`](../src/scripts/util.sh) file.
   - Also add it as a [GitHub action](../.github/workflows/unit_tests.yml).
-  - A huge thank you to [XaF][33] for providing the foundation for this.
+  - A huge thank you to [@XaF][33] for providing the foundation for this.
 - Add ability to override found `server_name`.
   - By adding a comment on the `server_name` line the script will now use [that instead](./advanced_usage.md#override-server_name).
   - This enables you to easily group domains under a common wildcard certificate ([example config](../examples/example_server_overrides.conf)).
@@ -321,3 +325,4 @@
 [32]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/ffad612ed5555915c37caa2f4d793c26b3809179
 [33]: https://github.com/XaF
 [34]: https://github.com/bats-core/bats-core
+[35]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/112
