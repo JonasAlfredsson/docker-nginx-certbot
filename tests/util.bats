@@ -90,9 +90,9 @@ load "${SCRIPTS_DIR}/util.sh"
 
   local server_names=(${certificates[my-cert]})
   [ ${#server_names[@]} -eq 3 ]
-  [ "${server_names[0]}" == "another.example.org" ]
-  [ "${server_names[1]}" == "example.org" ]
-  [ "${server_names[2]}" == "www.example.org" ]
+  [ "${server_names[0]}" == "example.org" ]
+  [ "${server_names[1]}" == "www.example.org" ]
+  [ "${server_names[2]}" == "another.example.org" ]
 }
 
 @test "parse_config_file works for single server block, multiple certificate names, single server name" {
@@ -129,9 +129,9 @@ load "${SCRIPTS_DIR}/util.sh"
 
   local server_names=(${certificates[my-cert]})
   [ ${#server_names[@]} -eq 3 ]
-  [ "${server_names[0]}" == "another.example.org" ]
-  [ "${server_names[1]}" == "example.org" ]
-  [ "${server_names[2]}" == "www.example.org" ]
+  [ "${server_names[0]}" == "example.org" ]
+  [ "${server_names[1]}" == "www.example.org" ]
+  [ "${server_names[2]}" == "another.example.org" ]
 }
 
 @test "parse_config_file works for multiple server blocks, multiple certificate names, multiple server names" {
@@ -147,17 +147,17 @@ load "${SCRIPTS_DIR}/util.sh"
 
   local server_names_cert1=(${certificates[my-cert1]})
   [ ${#server_names_cert1[@]} -eq 4 ]
-  [ "${server_names_cert1[0]}" == "anew.example.org" ]
-  [ "${server_names_cert1[1]}" == "another.example.org" ]
-  [ "${server_names_cert1[2]}" == "example.org" ]
-  [ "${server_names_cert1[3]}" == "www.example.org" ]
+  [ "${server_names_cert1[0]}" == "example.org" ]
+  [ "${server_names_cert1[1]}" == "www.example.org" ]
+  [ "${server_names_cert1[2]}" == "another.example.org" ]
+  [ "${server_names_cert1[3]}" == "anew.example.org" ]
 
   local server_names_cert2=(${certificates[my-cert2]})
   [ ${#server_names_cert2[@]} -eq 4 ]
-  [ "${server_names_cert1[0]}" == "anew.example.org" ]
-  [ "${server_names_cert1[1]}" == "another.example.org" ]
-  [ "${server_names_cert1[2]}" == "example.org" ]
-  [ "${server_names_cert1[3]}" == "www.example.org" ]
+  [ "${server_names_cert2[0]}" == "example.org" ]
+  [ "${server_names_cert2[1]}" == "www.example.org" ]
+  [ "${server_names_cert2[2]}" == "another.example.org" ]
+  [ "${server_names_cert2[3]}" == "anew.example.org" ]
 
 }
 
@@ -189,8 +189,8 @@ load "${SCRIPTS_DIR}/util.sh"
   local server_names=(${certificates[my-cert]})
   [ ${#server_names[@]} -eq 3 ]
   [ "${server_names[0]}" == "*.example.org" ]
-  [ "${server_names[1]}" == "*.sub.example.org" ]
-  [ "${server_names[2]}" == "example.org" ]
+  [ "${server_names[1]}" == "example.org" ]
+  [ "${server_names[2]}" == "*.sub.example.org" ]
 }
 
 @test "parse_config_file ignores regex names" {
@@ -206,11 +206,11 @@ load "${SCRIPTS_DIR}/util.sh"
   local server_names=(${certificates[my-cert]})
   echo "${certificates[@]}"
   [ ${#server_names[@]} -eq 5 ]
-  [ "${server_names[0]}" == "192.168.0.1" ]
-  [ "${server_names[1]}" == "1:2:3:4:5:6:7:8" ]
+  [ "${server_names[0]}" == "example.org" ]
+  [ "${server_names[1]}" == "www.example.org" ]
   [ "${server_names[2]}" == "_" ]
-  [ "${server_names[3]}" == "example.org" ]
-  [ "${server_names[4]}" == "www.example.org" ]
+  [ "${server_names[3]}" == "192.168.0.1" ]
+  [ "${server_names[4]}" == "1:2:3:4:5:6:7:8" ]
 }
 
 @test "parse_config_file works over multiple files (with duplicates)" {
@@ -227,20 +227,20 @@ load "${SCRIPTS_DIR}/util.sh"
 
   local server_names_cert1=(${certificates[my-cert1]})
   [ ${#server_names_cert1[@]} -eq 3 ]
-  [ "${server_names_cert1[0]}" == "anew.example.org" ]
-  [ "${server_names_cert1[1]}" == "example.org" ]
-  [ "${server_names_cert1[2]}" == "www.example.org" ]
+  [ "${server_names_cert1[0]}" == "example.org" ]
+  [ "${server_names_cert1[1]}" == "www.example.org" ]
+  [ "${server_names_cert1[2]}" == "anew.example.org" ]
 
   local server_names_cert2=(${certificates[my-cert2]})
   [ ${#server_names_cert2[@]} -eq 3 ]
-  [ "${server_names_cert2[0]}" == "*.example.com" ]
-  [ "${server_names_cert2[1]}" == "anew.example.org" ]
-  [ "${server_names_cert2[2]}" == "example.com" ]
+  [ "${server_names_cert2[0]}" == "anew.example.org" ]
+  [ "${server_names_cert2[1]}" == "example.com" ]
+  [ "${server_names_cert2[2]}" == "*.example.com" ]
 
   local server_names_cert3=(${certificates[my-cert3]})
   [ ${#server_names_cert3[@]} -eq 4 ]
-  [ "${server_names_cert3[0]}" == "*.example.net" ]
-  [ "${server_names_cert3[1]}" == "example.net" ]
-  [ "${server_names_cert3[2]}" == "new.example.net" ]
-  [ "${server_names_cert3[3]}" == "www.example.net" ]
+  [ "${server_names_cert3[0]}" == "example.net" ]
+  [ "${server_names_cert3[1]}" == "*.example.net" ]
+  [ "${server_names_cert3[2]}" == "www.example.net" ]
+  [ "${server_names_cert3[3]}" == "new.example.net" ]
 }
