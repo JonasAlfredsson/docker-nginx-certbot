@@ -60,14 +60,23 @@ get_certificate() {
         challenge_type="http-01"
         authenticator_params="--webroot-path=/var/www/letsencrypt"
     elif [[ "${authenticator}" == dns-* ]]; then
-        local configfile="/etc/letsencrypt/${authenticator#dns-}.ini"
-        if [ ! -f "${configfile}" ]; then
-            error "Authenticator is '${authenticator}' but '${configfile}' is missing"
-            return 1
+        challenge_type="dns-01"
+
+        if [ "${authenticator#dns-}" == "route53" ]; then
+            # This one is special and makes use of a different configuration.
+            if [[ ( -z "${AWS_ACCESS_KEY_ID}" || -z "${AWS_SECRET_ACCESS_KEY}" ) && ! -f "${HOME}/.aws/config" ]]; then
+                error "Authenticator is '${authenticator}' but neither '${HOME}/.aws/config' or AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY are found"
+                return 1
+            fi
+        else
+            local configfile="/etc/letsencrypt/${authenticator#dns-}.ini"
+            if [ ! -f "${configfile}" ]; then
+                error "Authenticator is '${authenticator}' but '${configfile}' is missing"
+                return 1
+            fi
+            authenticator_params="--${authenticator}-credentials=${configfile}"
         fi
 
-        challenge_type="dns-01"
-        authenticator_params="--${authenticator}-credentials=${configfile}"
         if [ -n "${CERTBOT_DNS_PROPAGATION_SECONDS}" ]; then
             authenticator_params="${authenticator_params} --${authenticator}-propagation-seconds=${CERTBOT_DNS_PROPAGATION_SECONDS}"
         fi
