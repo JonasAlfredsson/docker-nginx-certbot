@@ -1,5 +1,10 @@
 # Changelog
 
+### 3.1.1
+- Small [bugfix][14] for the `dns-route53` authenticator.
+- Made so it is only bash that is installed from an older Alpine repository.
+  - PR by [@dtcooper][36].
+
 ### 3.1.0
 - Replace `sort -u` with `awk '!a[$0]++'` to keep distinct order of the domain names.
   - PR by [@dtcooper][35].
@@ -304,7 +309,7 @@
 [11]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/24
 [12]: https://github.com/nginxinc/docker-nginx/commit/3fb70ddd7094c1fdd50cc83d432643dc10ab6243
 [13]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/bf2c1354f55adffadc13b1f1792e205f9dd25f86
-
+[14]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/73f0a43e5aa9075e00e3a4c01bfe8595aae1509f
 [15]: https://github.com/JonasAlfredsson/bash_fail-to-wait
 [16]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/7c5e2108c89c9da5effda1c499fff6ff84f8b1d3
 [17]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/9dfa927cda7244768445067993dc42e23b4e78da
@@ -326,3 +331,4 @@
 [33]: https://github.com/XaF
 [34]: https://github.com/bats-core/bats-core
 [35]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/112
+[36]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/117
