@@ -1,5 +1,9 @@
 # Changelog
 
+### 3.1.2
+- Use latest version of Bash in the Alpine image again.
+  - The `wait` bug is [fixed][37] since Bash 5.1.10.
+
 ### 3.1.1
 - Small [bugfix][14] for the `dns-route53` authenticator.
 - Made so it is only bash that is installed from an older Alpine repository.
@@ -332,3 +336,4 @@
 [34]: https://github.com/bats-core/bats-core
 [35]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/112
 [36]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/117
+[37]: https://github.com/JonasAlfredsson/bash_fail-to-wait/issues/2
