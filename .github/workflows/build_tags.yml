@@ -90,7 +90,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v2.4.0
+        uses: actions/checkout@v3.0.2
 
       - name: Create Docker Hub documentation
         run: cat docs/dockerhub_tags.md > tmp.md && cat README.md >> tmp.md
