@@ -45,7 +45,7 @@ create_dhparam() {
 # Find any mentions of Diffie-Hellman parameters and create them if missing.
 for conf_file in /etc/nginx/conf.d/*.conf*; do
     for dh_file in $(parse_dhparams "${conf_file}"); do
-        if [ ! -f "${dh_file}" ] || ! grep -q "BEGIN DH PARAMETERS" "${dh_file}"; then
+        if [ ! -f "${dh_file}" ] || ! grep -q "END DH PARAMETERS" "${dh_file}"; then
             warning "Couldn't find the dhparam file '${dh_file}'; creating it..."
             mkdir -vp "$(dirname "${dh_file}")"
             rm -f "${dh_file}"
