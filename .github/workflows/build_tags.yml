@@ -15,7 +15,8 @@ jobs:
       - name: Run Docker on tmpfs
         uses: JonasAlfredsson/docker-on-tmpfs@v1.0.1
         with:
-          tmpfs_size: 4
+          tmpfs_size: 7
+          swap_size: 9
 
       - name: Perform setup steps
         uses: JonasAlfredsson/checkout-qemu-buildx@v1
@@ -54,7 +55,8 @@ jobs:
       - name: Run Docker on tmpfs
         uses: JonasAlfredsson/docker-on-tmpfs@v1.0.1
         with:
-          tmpfs_size: 4
+          tmpfs_size: 7
+          swap_size: 9
 
       - name: Perform setup steps
         uses: JonasAlfredsson/checkout-qemu-buildx@v1
