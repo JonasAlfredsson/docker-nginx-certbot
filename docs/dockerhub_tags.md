@@ -8,7 +8,7 @@ All the tags since `2.0.0` are built for the following architectures:
 - linux/amd64
 - linux/386 (:warning: not available for [Alpine][alpine-i386] since Nginx `v1.21.0`)
 - linux/arm64
-- linux/arm/v7
+- linux/arm/v7 (:warning: not available for Alpine since [tag `v3.1.2`][alpine-armv7])
 
 and it is possible to append `-alpine` to any tag from `2.0.1` to get an Alpine
 based image instead. The less specific tags will move as those more specific
@@ -45,3 +45,4 @@ are updated.
 
 [master-branch]: https://github.com/JonasAlfredsson/docker-nginx-certbot/tree/master
 [alpine-i386]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/77
+[alpine-armv7]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/3fc2d64d3f20aa2163598e57e59a95a79cde1f37
