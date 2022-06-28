@@ -19,7 +19,7 @@ jobs:
           swap_size: 9
 
       - name: Perform setup steps
-        uses: JonasAlfredsson/checkout-qemu-buildx@v1
+        uses: JonasAlfredsson/checkout-qemu-buildx@v2
         with:
           should_login: ${{ github.event_name != 'pull_request' }}
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -59,7 +59,7 @@ jobs:
           swap_size: 9
 
       - name: Perform setup steps
-        uses: JonasAlfredsson/checkout-qemu-buildx@v1
+        uses: JonasAlfredsson/checkout-qemu-buildx@v2
         with:
           should_login: ${{ github.event_name != 'pull_request' }}
           username: ${{ secrets.DOCKERHUB_USERNAME }}
