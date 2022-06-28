@@ -1,5 +1,9 @@
 # Changelog
 
+### 3.1.3
+- Recover and retry in case of failed `dhparam` creation.
+  - PR by [@staticfloat][38].
+
 ### 3.1.2
 - Use latest version of Bash in the Alpine image again.
   - The `wait` bug is [fixed][37] since Bash 5.1.10.
@@ -337,3 +341,4 @@
 [35]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/112
 [36]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/117
 [37]: https://github.com/JonasAlfredsson/bash_fail-to-wait/issues/2
+[38]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/127
