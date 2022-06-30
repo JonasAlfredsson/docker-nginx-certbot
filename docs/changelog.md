@@ -1,5 +1,9 @@
 # Changelog
 
+### 3.2.0
+- Make it possible to override the `CERTBOT_PRODUCTION_URL` and `CERTBOT_STAGING_URL` variables.
+  - You can now point certbot to whichever ACME server you want.
+
 ### 3.1.3
 - Recover and retry in case of failed `dhparam` creation.
   - PR by [@staticfloat][38].
