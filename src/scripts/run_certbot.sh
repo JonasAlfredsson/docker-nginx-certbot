@@ -2,8 +2,11 @@
 set -e
 
 # URLs used when requesting certificates.
-CERTBOT_PRODUCTION_URL='https://acme-v02.api.letsencrypt.org/directory'
-CERTBOT_STAGING_URL='https://acme-staging-v02.api.letsencrypt.org/directory'
+# These are picked up from the environment if they are set, which enables
+# advanced usage of custom ACME servers, else it will use the default Let's
+# Encrypt servers defined here.
+: "${CERTBOT_PRODUCTION_URL=https://acme-v02.api.letsencrypt.org/directory}"
+: "${CERTBOT_STAGING_URL=https://acme-staging-v02.api.letsencrypt.org/directory}"
 
 # Source in util.sh so we can have our nice tools.
 . "$(cd "$(dirname "$0")"; pwd)/util.sh"
@@ -19,10 +22,10 @@ fi
 # Use the correct challenge URL depending on if we want staging or not.
 if [ "${STAGING}" = "1" ]; then
     debug "Using staging environment"
-    letsencrypt_url=${CERTBOT_STAGING_URL}
+    letsencrypt_url="${CERTBOT_STAGING_URL}"
 else
     debug "Using production environment"
-    letsencrypt_url=${CERTBOT_PRODUCTION_URL}
+    letsencrypt_url="${CERTBOT_PRODUCTION_URL}"
 fi
 
 # Ensure that an RSA key size is set.
