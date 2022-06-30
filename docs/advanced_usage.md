@@ -119,6 +119,20 @@ these options are found they override the [`USE_ECDSA`](../README.md#optional)
 environment variable.
 
 
+## Use Custom ACME URL
+There are two variables available at the top of the
+[`run_certbot.sh`](../src/scripts/run_certbot.sh) script:
+
+- `CERTBOT_PRODUCTION_URL`
+- `CERTBOT_STAGING_URL`
+
+which are used to define which server certbot will try to contact when
+requesting new certificates. These variables have default values, but it is
+possible to override them by defining environment vairables with the same name.
+This then enables you to redirect certbot to another custom URL if you, for
+example, are running your own custom AMCE server.
+
+
 ## Local CA
 During the development phase of a website you might be testing stuff out on a
 computer that either does not have a DNS record pointing to itself or perhaps
