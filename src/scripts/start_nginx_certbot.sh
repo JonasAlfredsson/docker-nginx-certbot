@@ -52,7 +52,7 @@ fi
 # call on certbot after the defined interval.
 (
 set -e
-while [ true ]; do
+while true; do
     # Create symlinks from conf.d/ to user_conf.d/ if necessary.
     symlink_user_configs
 
@@ -82,7 +82,7 @@ CERTBOT_LOOP_PID=$!
 # and thus reload any configuration files.
 reload_configs() {
     info "Received SIGHUP signal; terminating the autorenewal sleep process"
-    if ! pkill -15 -P ${CERTBOT_LOOP_PID} -fx "sleep ${RENEWAL_INTERVAL}"; then
+    if ! pkill -15 -P "${CERTBOT_LOOP_PID}" -fx "sleep ${RENEWAL_INTERVAL}"; then
         warning "No sleep process found, this most likely means that a renewal process is currently running"
     fi
     # On success we return 128 + SIGHUP in order to reduce the complexity of
@@ -104,4 +104,4 @@ while [ -z "${exit_code}" ] || [ "${exit_code}" = "129" ]; do
     wait -n ${NGINX_PID} ${CERTBOT_LOOP_PID}
     exit_code=$?
 done
-exit ${exit_code}
+exit "${exit_code}"
