@@ -30,7 +30,7 @@ jobs:
         run: bash .github/version_extractor.sh ${GITHUB_REF}
 
       - name: Build and push all Debian images
-        uses: docker/build-push-action@v3.1.0
+        uses: docker/build-push-action@v3.2.0
         with:
           context: ./src
           file: ./src/Dockerfile
@@ -70,7 +70,7 @@ jobs:
         run: bash .github/version_extractor.sh ${GITHUB_REF}
 
       - name: Build and push all Alpine images
-        uses: docker/build-push-action@v3.1.0
+        uses: docker/build-push-action@v3.2.0
         with:
           context: ./src
           file: ./src/Dockerfile-alpine
