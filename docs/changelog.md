@@ -1,5 +1,9 @@
 # Changelog
 
+### 3.2.1
+- Small syntax fixes recommended by shellcheck.
+  - PR by [@ericstengard][39].
+
 ### 3.2.0
 - Make it possible to override the `CERTBOT_PRODUCTION_URL` and `CERTBOT_STAGING_URL` variables.
   - You can now point certbot to whichever ACME server you want.
@@ -346,3 +350,4 @@
 [36]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/117
 [37]: https://github.com/JonasAlfredsson/bash_fail-to-wait/issues/2
 [38]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/127
+[39]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/144
