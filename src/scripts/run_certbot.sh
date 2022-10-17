@@ -92,16 +92,16 @@ get_certificate() {
     certbot certonly \
         --agree-tos --keep -n --text \
         --preferred-challenges ${challenge_type} \
-        --authenticator ${authenticator} \
-        ${authenticator_params} \
+        --authenticator "${authenticator}" \
+        "${authenticator_params}" \
         --email "${CERTBOT_EMAIL}" \
         --server "${letsencrypt_url}" \
         --rsa-key-size "${RSA_KEY_SIZE}" \
         --elliptic-curve "${ELLIPTIC_CURVE}" \
         --key-type "${3}" \
         --cert-name "${1}" \
-        ${2} \
-        --debug ${force_renew}
+        "${2}" \
+        --debug "${force_renew}"
 }
 
 # Get all the cert names for which we should create certificate requests and
@@ -116,7 +116,7 @@ done
 
 # Iterate over each key and make a certificate request for them.
 for cert_name in "${!certificates[@]}"; do
-    server_names=(${certificates["$cert_name"]})
+    server_names=("${certificates["$cert_name"]}")
 
     # Determine which type of key algorithm to use for this certificate
     # request. Having the algorithm specified in the certificate name will
@@ -142,7 +142,7 @@ for cert_name in "${!certificates[@]}"; do
     if [[ "${cert_name,,}" =~ (^|[-.])webroot([-.]|$) ]]; then
         authenticator="webroot"
         debug "Found mention of 'webroot' in name '${cert_name}"
-    elif [[ "${cert_name,,}" =~ (^|[-.])(dns-($(echo ${CERTBOT_DNS_AUTHENTICATORS} | sed 's/ /|/g')))([-.]|$) ]]; then
+    elif [[ "${cert_name,,}" =~ (^|[-.])(dns-($(echo "${CERTBOT_DNS_AUTHENTICATORS}" | sed 's/ /|/g')))([-.]|$) ]]; then
         authenticator=${BASH_REMATCH[2]}
         debug "Found mention of authenticator '${authenticator}' in name '${cert_name}'"
     elif [ -n "${CERTBOT_AUTHENTICATOR}" ]; then
