@@ -234,7 +234,7 @@ parse_config_file() {
         # for the certbot command. This domain will be your Common Name on the
         # certificate.
         # stackoverflow on this awk usage: https://stackoverflow.com/a/45808487
-        certs["${cert_name}"]="$(echo ${certs["${cert_name}"]} "${server_names[@]}" | xargs -n1 echo | awk '!a[$0]++' | tr '\n' ' ')"
+        certs["${cert_name}"]="$(echo "${certs["${cert_name}"]}" "${server_names[@]}" | xargs -n1 echo | awk '!a[$0]++' | tr '\n' ' ')"
     done
 }
 
@@ -257,7 +257,7 @@ symlink_user_configs() {
         # See if there already exist a symlink to this source file.
         while IFS= read -r -d $'\0' symlink; do
             debug "The file '${source_file}' is already symlinked by '${symlink}'"
-            symlinks_found=$((${symlinks_found} + 1))
+            symlinks_found=$((symlinks_found + 1))
         done < <(find -L /etc/nginx/conf.d/ -maxdepth 1 -samefile "${source_file}" -print0)
 
         if [ "${symlinks_found}" -eq "1" ]; then
@@ -269,7 +269,8 @@ symlink_user_configs() {
         fi
 
         # No symlinks to this file found, lets create one.
-        local link="/etc/nginx/conf.d/$(basename -- ${source_file})"
+        local link
+        link="/etc/nginx/conf.d/$(basename -- "${source_file}")"
         info "Creating symlink '${link}' to '${source_file}'"
         ln -s "${source_file}" "${link}"
     done < <(find /etc/nginx/user_conf.d/ -maxdepth 1 -type f -print0)
