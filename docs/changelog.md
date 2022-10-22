@@ -1,5 +1,9 @@
 # Changelog
 
+### 3.2.2
+- Small syntax fixes recommended by shellcheck.
+  - PR by [@ericstengard][40].
+
 ### 3.2.1
 - Small syntax fixes recommended by shellcheck.
   - PR by [@ericstengard][39].
@@ -351,3 +355,4 @@
 [37]: https://github.com/JonasAlfredsson/bash_fail-to-wait/issues/2
 [38]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/127
 [39]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/144
+[40]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/147
