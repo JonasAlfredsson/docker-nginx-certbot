@@ -1,5 +1,9 @@
 # Changelog
 
+### 3.3.0
+- Have the server in [`certbot.conf`](../src/nginx_conf.d/certbot.conf) listen on IPv6 as well.
+  - PR by [@Meptl][41].
+
 ### 3.2.2
 - Small syntax fixes recommended by shellcheck.
   - PR by [@ericstengard][40].
@@ -356,3 +360,4 @@
 [38]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/127
 [39]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/144
 [40]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/147
+[41]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/159
