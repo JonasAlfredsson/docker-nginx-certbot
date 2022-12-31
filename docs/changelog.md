@@ -1,5 +1,8 @@
 # Changelog
 
+### 3.3.1
+- Revert [previous feature][41] after it apparently breaking some setups.
+
 ### 3.3.0
 - Have the server in [`certbot.conf`](../src/nginx_conf.d/certbot.conf) listen on IPv6 as well.
   - PR by [@Meptl][41].
