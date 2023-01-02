@@ -18,10 +18,10 @@ build-alpine: Makefile Dockerfile
 # These commands are primarily used for development, see link for more info:
 # https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/28
 dev:
-	docker buildx build --build-arg --platform linux/amd64,linux/arm64 --tag jonasal/nginx-certbot:dev -f ./Dockerfile ./
+	docker buildx build --platform linux/amd64,linux/arm64 --tag jonasal/nginx-certbot:dev -f ./Dockerfile ./
 
 dev-alpine:
 	docker buildx build --platform linux/amd64,linux/arm64 --tag jonasal/nginx-certbot:dev-alpine -f ./Dockerfile-alpine ./
 
 push:
-	docker buildx build --build-arg --platform linux/amd64,linux/arm64 --tag jonasal/nginx-certbot:dev --pull --no-cache --push .
+	docker buildx build --platform linux/amd64,linux/arm64 --tag jonasal/nginx-certbot:dev --pull --no-cache --push .
