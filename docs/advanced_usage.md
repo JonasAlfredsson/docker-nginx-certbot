@@ -31,7 +31,7 @@ the `--force-renewal` flag to the requests made.
 docker exec -it <container_name> /scripts/run_certbot.sh force
 ```
 
-This will request new certificates irregardless of then they are set to expire.
+This will request new certificates regardless of then they are set to expire.
 
 > :warning: Using "force" will make new requests for **all** you certificates,
   so don't run it too often since there are some limits to requesting
@@ -130,7 +130,7 @@ which are used to define which server certbot will try to contact when
 requesting new certificates. These variables have default values, but it is
 possible to override them by defining environment vairables with the same name.
 This then enables you to redirect certbot to another custom URL if you, for
-example, are running your own custom AMCE server.
+example, are running your own custom ACME server.
 
 
 ## Local CA

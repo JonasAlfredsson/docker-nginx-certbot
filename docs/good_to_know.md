@@ -51,10 +51,10 @@ these unless you know what you are doing.
 
 ## The `user_conf.d` Folder
 Nginx will, by default, load any file ending with `.conf` from within the
-`/etc/nginx/conf.d/` folder. However, this image makes use of two important
-[configuration files](../src/nginx_conf.d) which need to be present (unless you
-know how to replace them with your own), and host mounting a local folder to
-the aforementioned location would shadow these important files.
+`/etc/nginx/conf.d/` folder. However, this image makes use of one important
+[configuration file](../src/nginx_conf.d) which need to be present (unless you
+know how to replace it with your own), and host mounting a local folder to
+the aforementioned location would shadow this important file.
 
 To solve this problem I therefore suggest you host mount a local folder to
 `/etc/nginx/user_conf.d/` instead, and a part of the management scripts will
@@ -112,7 +112,7 @@ certbot --cert-name "test-name" ... -d yourdomain.org -d www.yourdomain.org -d s
 The scripts are quite powerful when it comes to customizability for defining
 what should be included in the request, but this is considered a more advanced
 usecase that may be further studied in the
-[Override `server_name`](./advanced_usage.md#override-server_name`) section of
+[Override `server_name`](./advanced_usage.md#override-server_name) section of
 the Advanced Usage document.
 
 Furthermore, we support wildcard domain names, but that requires you to use an
@@ -179,12 +179,12 @@ make a config file without it and Nginx will work just fine with ciphers that
 don't rely on the Diffie-Hellman key exchange ([more info about ciphers][7]).
 
 The larger you make these parameters the longer it will take to generate them.
-I was unlucky and it took me 65 minutes to generate a 4096 bit parameter on an
-old 3.0GHz CPU. This will vary **greatly** between runs as some randomness is
-involved. A 2048 bit parameter, which is still secure today, can probably be
-calculated in about 1-3 minutes on a modern CPU (this process will only have to
-be done once, since one of these parameters is good for the rest of your
-website's lifetime). To modify the size of the parameter you may set the
+I was unlucky and it took me 65 minutes to generate a 4096 bit parameter on a
+really old 3.0GHz CPU. This will vary **greatly** between runs as some
+randomness is involved. A 2048 bit parameter, which is still secure today, can
+probably be calculated in about 1-3 minutes on a modern CPU (this process will
+only have to be done once, since one of these parameters is good for the rest
+of your website's lifetime). To modify the size of the parameter you may set the
 `DHPARAM_SIZE` environment variable. Default is `2048` if nothing is provided.
 
 It is also possible to have **all** your server configs point to **the same**
