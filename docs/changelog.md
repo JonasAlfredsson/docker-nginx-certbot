@@ -1,10 +1,16 @@
 # Changelog
 
+### 4.0.0
+- New approach to [implementing IPv6 support][41] for the HTTP-01 challenge.
+  - Deleted the dedicated server in [`certbot.conf`][43]
+  - This change *should* be transparent for anyone not having a custom `certbot.conf` file, but is
+    technically making a breaking change for *someone*, thus a major revision bump.
+
 ### 3.3.1
 - Revert [previous feature][41] after it apparently breaking some setups.
 
 ### 3.3.0
-- Have the server in [`certbot.conf`](../src/nginx_conf.d/certbot.conf) listen on IPv6 as well.
+- Have the server in [`certbot.conf`][42] listen on IPv6 as well.
   - PR by [@Meptl][41].
 
 ### 3.2.2
@@ -364,3 +370,5 @@
 [39]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/144
 [40]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/147
 [41]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/159
+[42]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/6a6d24b2dfdbae48634f44b9ea0ab776c15053fb
+[43]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/a35f3be276e9393217937fc7dc44751751adb5fa#diff-be3f5d8ee45aacc8f6a22dd10332dd9503fe20ea1870a548202bf6e21a8f3815
