@@ -1,12 +1,22 @@
 #!/bin/bash
 
+: ${DATE_FORMAT_STRING:="+%Y/%m/%d %T"}
+
+# Helper function used to output messages in a uniform manner.
+#
+# $1: The log level to print.
+# $2: The message to be printed.
+log() {
+    echo "$(date "${DATE_FORMAT_STRING}") [${1}] ${2}"
+}
+
 # Helper function to output debug messages to STDOUT if the `DEBUG` environment
 # variable is set to 1.
 #
 # $1: String to be printed.
 debug() {
     if [ 1 = "${DEBUG}" ]; then
-        echo "${1}"
+        log "debug" "${1}"
     fi
 }
 
@@ -14,7 +24,7 @@ debug() {
 #
 # $1: String to be printed.
 info() {
-    echo "${1}"
+    log "info" "${1}"
 }
 
 # Helper function to output warning messages to STDOUT, with bold yellow text.
@@ -23,7 +33,7 @@ info() {
 warning() {
     (set +x; tput -Tscreen bold
     tput -Tscreen setaf 3
-    echo "${1}"
+    log "warning" "${1}"
     tput -Tscreen sgr0)
 }
 
@@ -33,7 +43,7 @@ warning() {
 error() {
     (set +x; tput -Tscreen bold
     tput -Tscreen setaf 1
-    echo "${1}"
+    log "error" "${1}"
     tput -Tscreen sgr0) >&2
 }
 

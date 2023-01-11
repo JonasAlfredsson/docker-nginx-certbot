@@ -40,8 +40,8 @@ else
     nginx -g "daemon off;" &
     NGINX_PID=$!
 fi
+debug "PID of the main Nginx process: ${NGINX_PID}"
 
-info "Starting the autorenewal service"
 # Make sure a renewal interval is set before continuing.
 if [ -z "${RENEWAL_INTERVAL}" ]; then
     debug "RENEWAL_INTERVAL unset, using default of '8d'"
@@ -53,6 +53,8 @@ fi
 (
 set -e
 while true; do
+    info "Running the autorenewal service"
+
     # Create symlinks from conf.d/ to user_conf.d/ if necessary.
     symlink_user_configs
 
@@ -76,6 +78,7 @@ while true; do
 done
 ) &
 CERTBOT_LOOP_PID=$!
+debug "PID of the autorenewal loop: ${CERTBOT_LOOP_PID}"
 
 # A helper function to prematurely terminate the sleep process, inside the
 # autorenewal loop process, in order to immediately restart the loop again
@@ -104,4 +107,6 @@ while [ -z "${exit_code}" ] || [ "${exit_code}" = "129" ]; do
     wait -n ${NGINX_PID} ${CERTBOT_LOOP_PID}
     exit_code=$?
 done
+
+debug "Exiting with code ${exit_code}"
 exit "${exit_code}"
