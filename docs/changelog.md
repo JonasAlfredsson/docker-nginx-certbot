@@ -1,5 +1,12 @@
 # Changelog
 
+### 4.1.0
+- Install Bash 5.2.15 from [Debian Bookworm][44].
+  - Workaround for [this Bash bug][46] which we also had in the [Alpine image][45].
+  - Not using a "backport" repository is not recommended, but right now the only way.
+- Added timestamps to the log output we produce.
+  - This is *technically* a breaking change if someone parses our logs, but I will ignore that.
+
 ### 4.0.0
 - New approach to [implementing IPv6 support][41] for the HTTP-01 challenge.
   - Deleted the dedicated server in [`certbot.conf`][43]
@@ -372,3 +379,6 @@
 [41]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/159
 [42]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/6a6d24b2dfdbae48634f44b9ea0ab776c15053fb
 [43]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/a35f3be276e9393217937fc7dc44751751adb5fa#diff-be3f5d8ee45aacc8f6a22dd10332dd9503fe20ea1870a548202bf6e21a8f3815
+[44]: https://packages.debian.org/search?keywords=bash
+[45]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/3855a173f6ce1bc49318cdc7c3a40e4443e92f3d
+[46]: https://github.com/JonasAlfredsson/bash_fail-to-wait
