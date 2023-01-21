@@ -15,7 +15,8 @@ ENV CERTBOT_DNS_AUTHENTICATORS \
     ovh \
     rfc2136 \
     route53 \
-    sakuracloud
+    sakuracloud \
+    ionos
 
 # Do a single run command to make the intermediary containers smaller.
 RUN set -ex && \
