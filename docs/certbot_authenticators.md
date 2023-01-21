@@ -36,6 +36,7 @@ for the supported authenticators:
  - [dns-rfc2136][17]
  - [dns-route53][18]
  - [dns-sakuracloud][19]
+ - [dns-ionos][20]
 
 You will need to setup the authenticator file at
 `/etc/letsencrypt/<authenticator provider>.ini`, so for e.g. Cloudflare you
@@ -131,4 +132,4 @@ authenticators.
 [17]: https://certbot-dns-rfc2136.readthedocs.io/en/stable/#credentials
 [18]: https://certbot-dns-route53.readthedocs.io/en/stable/#credentials
 [19]: https://certbot-dns-sakuracloud.readthedocs.io/en/stable/#credentials
-
+[20]: https://github.com/helgeerbe/certbot-dns-ionos
