@@ -1,5 +1,9 @@
 # Changelog
 
+### 4.2.0
+- Add Ionos DNS authenticator plugin
+  - PR by [@mzbik][47].
+
 ### 4.1.0
 - Install Bash 5.2.15 from [Debian Bookworm][44].
   - Workaround for [this Bash bug][46] which we also had in the [Alpine image][45].
@@ -382,3 +386,4 @@
 [44]: https://packages.debian.org/search?keywords=bash
 [45]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/3855a173f6ce1bc49318cdc7c3a40e4443e92f3d
 [46]: https://github.com/JonasAlfredsson/bash_fail-to-wait
+[47]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/168
