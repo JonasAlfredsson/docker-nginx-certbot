@@ -1,4 +1,4 @@
-FROM nginx:1.23.3
+FROM nginx:1.23.4
 LABEL maintainer="Jonas Alfredsson <jonas.alfredsson@protonmail.com>"
 
 ENV CERTBOT_DNS_AUTHENTICATORS \
@@ -30,6 +30,7 @@ RUN set -ex && \
             libffi-dev \
             libssl-dev \
             openssl \
+            pkg-config \
             procps \
             python3 \
             python3-dev \
@@ -48,6 +49,7 @@ RUN set -ex && \
             curl \
             libffi-dev \
             libssl-dev \
+            pkg-config \
             python3-dev \
     && \
 # Because of the same bug which was fixed in
