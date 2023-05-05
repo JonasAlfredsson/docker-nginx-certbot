@@ -156,8 +156,8 @@ allfiles_exist() {
                 debug "Ignoring ${type} path starting with 'data:' in '${1}'"
             elif [[ "${path}" == engine:* ]]; then
                 debug "Ignoring ${type} path starting with 'engine:' in '${1}'"
-            elif [ ! -f "${path}" ]; then
-                warning "Could not find ${type} file '${path}' in '${1}'"
+            elif [ ! -s "${path}" ]; then
+                warning "Could not find non-zero size ${type} file '${path}' in '${1}'"
                 all_exist=1
             fi
         done
@@ -298,7 +298,7 @@ auto_enable_configs() {
             fi
         else
             if [ "${conf_file##*.}" = "conf" ]; then
-                error "Important file(s) for '${conf_file}' are missing, disabling..."
+                error "Important file(s) for '${conf_file}' are missing or empty, disabling..."
                 mv "${conf_file}" "${conf_file}.nokey"
             fi
         fi
