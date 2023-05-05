@@ -1,5 +1,8 @@
 # Changelog
 
+### 4.2.1
+- Require all certificate files to have a size greater than zero.
+
 ### 4.2.0
 - Add Ionos DNS authenticator plugin
   - PR by [@mzbik][47].
