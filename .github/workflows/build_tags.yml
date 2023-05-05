@@ -27,7 +27,7 @@ jobs:
 
       - name: Extract version numbers from GitHub reference
         id: tagger
-        run: bash .github/version_extractor.sh ${GITHUB_REF}
+        run: bash .github/version_extractor.sh ${GITHUB_REF} >> $GITHUB_ENV
 
       - name: Build and push all Debian images
         uses: docker/build-push-action@v4.0.0
@@ -43,10 +43,10 @@ jobs:
           no-cache: true
           push: true
           tags: |
-            jonasal/nginx-certbot:${{ steps.tagger.outputs.APP_MAJOR }}
-            jonasal/nginx-certbot:${{ steps.tagger.outputs.APP_MAJOR }}.${{ steps.tagger.outputs.APP_MINOR }}
-            jonasal/nginx-certbot:${{ steps.tagger.outputs.APP_MAJOR }}.${{ steps.tagger.outputs.APP_MINOR }}.${{ steps.tagger.outputs.APP_PATCH }}
-            jonasal/nginx-certbot:${{ steps.tagger.outputs.APP_MAJOR }}.${{ steps.tagger.outputs.APP_MINOR }}.${{ steps.tagger.outputs.APP_PATCH }}-nginx${{ steps.tagger.outputs.NGINX_VERSION }}
+            jonasal/nginx-certbot:${{ env.APP_MAJOR }}
+            jonasal/nginx-certbot:${{ env.APP_MAJOR }}.${{ env.APP_MINOR }}
+            jonasal/nginx-certbot:${{ env.APP_MAJOR }}.${{ env.APP_MINOR }}.${{ env.APP_PATCH }}
+            jonasal/nginx-certbot:${{ env.APP_MAJOR }}.${{ env.APP_MINOR }}.${{ env.APP_PATCH }}-nginx${{ env.NGINX_VERSION }}
 
   docker_buildx_alpine:
     runs-on: ubuntu-latest
@@ -67,7 +67,7 @@ jobs:
 
       - name: Extract version numbers from GitHub reference
         id: tagger
-        run: bash .github/version_extractor.sh ${GITHUB_REF}
+        run: bash .github/version_extractor.sh ${GITHUB_REF} >> $GITHUB_ENV
 
       - name: Build and push all Alpine images
         uses: docker/build-push-action@v4.0.0
@@ -81,10 +81,10 @@ jobs:
           no-cache: true
           push: true
           tags: |
-            jonasal/nginx-certbot:${{ steps.tagger.outputs.APP_MAJOR }}-alpine
-            jonasal/nginx-certbot:${{ steps.tagger.outputs.APP_MAJOR }}.${{ steps.tagger.outputs.APP_MINOR }}-alpine
-            jonasal/nginx-certbot:${{ steps.tagger.outputs.APP_MAJOR }}.${{ steps.tagger.outputs.APP_MINOR }}.${{ steps.tagger.outputs.APP_PATCH }}-alpine
-            jonasal/nginx-certbot:${{ steps.tagger.outputs.APP_MAJOR }}.${{ steps.tagger.outputs.APP_MINOR }}.${{ steps.tagger.outputs.APP_PATCH }}-nginx${{ steps.tagger.outputs.NGINX_VERSION }}-alpine
+            jonasal/nginx-certbot:${{ env.APP_MAJOR }}-alpine
+            jonasal/nginx-certbot:${{ env.APP_MAJOR }}.${{ env.APP_MINOR }}-alpine
+            jonasal/nginx-certbot:${{ env.APP_MAJOR }}.${{ env.APP_MINOR }}.${{ env.APP_PATCH }}-alpine
+            jonasal/nginx-certbot:${{ env.APP_MAJOR }}.${{ env.APP_MINOR }}.${{ env.APP_PATCH }}-nginx${{ env.NGINX_VERSION }}-alpine
 
   update_docker_hub_docs:
     needs: [docker_buildx_debian, docker_buildx_alpine]
