@@ -85,21 +85,3 @@ jobs:
             jonasal/nginx-certbot:${{ env.APP_MAJOR }}.${{ env.APP_MINOR }}-alpine
             jonasal/nginx-certbot:${{ env.APP_MAJOR }}.${{ env.APP_MINOR }}.${{ env.APP_PATCH }}-alpine
             jonasal/nginx-certbot:${{ env.APP_MAJOR }}.${{ env.APP_MINOR }}.${{ env.APP_PATCH }}-nginx${{ env.NGINX_VERSION }}-alpine
-
-  update_docker_hub_docs:
-    needs: [docker_buildx_debian, docker_buildx_alpine]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout the repository
-        uses: actions/checkout@v3.5.2
-
-      - name: Create Docker Hub documentation
-        run: cat docs/dockerhub_tags.md > tmp.md && cat README.md >> tmp.md
-
-      - name: Upload Docker Hub description
-        uses: peter-evans/dockerhub-description@v3.3.0
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-          repository: jonasal/nginx-certbot
-          readme-filepath: ./tmp.md
