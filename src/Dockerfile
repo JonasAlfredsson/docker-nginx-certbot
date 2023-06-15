@@ -1,4 +1,4 @@
-FROM nginx:1.25.0
+FROM nginx:1.25.1
 LABEL maintainer="Jonas Alfredsson <jonas.alfredsson@protonmail.com>"
 
 ENV CERTBOT_DNS_AUTHENTICATORS \
@@ -18,6 +18,11 @@ ENV CERTBOT_DNS_AUTHENTICATORS \
     sakuracloud \
     ionos
 
+# Needed in order to install Python packages via PIP after PEP 668 was
+# introduced, but I believe this is safe since we are in a container without
+# any real need to cater to other programs/environments.
+ARG PIP_BREAK_SYSTEM_PACKAGES=1
+
 # Do a single run command to make the intermediary containers smaller.
 RUN set -ex && \
 # Install packages necessary during the build phase (for all architectures).
@@ -26,7 +31,7 @@ RUN set -ex && \
             build-essential \
             cargo \
             curl \
-            libffi7 \
+            libffi8 \
             libffi-dev \
             libssl-dev \
             openssl \
