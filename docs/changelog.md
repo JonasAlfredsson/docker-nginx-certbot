@@ -1,5 +1,9 @@
 # Changelog
 
+### 4.3.0
+- Parent image is now using Python 3.11 which implements PEP 668, so we have
+  to allow PIP to "break system packages".
+
 ### 4.2.1
 - Require all certificate files to have a size greater than zero.
 
