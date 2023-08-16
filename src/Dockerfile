@@ -1,4 +1,4 @@
-FROM nginx:1.25.1
+FROM nginx:1.25.2
 LABEL maintainer="Jonas Alfredsson <jonas.alfredsson@protonmail.com>"
 
 ENV CERTBOT_DNS_AUTHENTICATORS \
@@ -57,15 +57,6 @@ RUN set -ex && \
             pkg-config \
             python3-dev \
     && \
-# Because of the same bug which was fixed in
-# https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/3855a173f6ce1bc49318cdc7c3a40e4443e92f3d
-# we must use Bash >=5.1.10, which is only available in the current testing
-# release of Debian. I know this is not the best way to do things, but until a
-# backport is available this will have to do.
-    echo "deb http://deb.debian.org/debian bookworm main" > /etc/apt/sources.list.d/bookworm.list && \
-    apt-get update && apt-get install -y --no-install-recommends \
-        bash \
-    && \
     apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
@@ -88,7 +79,7 @@ COPY nginx_conf.d/ /etc/nginx/conf.d/
 COPY scripts/ /scripts
 RUN chmod +x -R /scripts && \
 # Make so that the parent's entrypoint script is properly triggered (issue #21).
-    sed -ri '/^if \[ "\$1" = "nginx" -o "\$1" = "nginx-debug" \]; then$/,${s//if echo "$1" | grep -q "nginx"; then/;b};$q1' /docker-entrypoint.sh
+    sed -ri '/^if \[ "\$1" = "nginx" \] \|\| \[ "\$1" = "nginx-debug" \]; then$/,${s//if echo "$1" | grep -q "nginx"; then/;b};$q1' /docker-entrypoint.sh
 
 # Create a volume to have persistent storage for the obtained certificates.
 VOLUME /etc/letsencrypt
