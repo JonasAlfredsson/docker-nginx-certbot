@@ -247,5 +247,11 @@ done
 # did indeed succeed with.
 auto_enable_configs
 
+# Make sure the Nginx configs are valid.
+if ! nginx -t; then
+  error "Nginx configuration is invalid, skipped reloading. Check the logs for details."
+  exit 0
+fi
+
 # Finally, tell Nginx to reload the configs.
 nginx -s reload
