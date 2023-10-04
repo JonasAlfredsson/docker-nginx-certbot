@@ -1,5 +1,12 @@
 # Changelog
 
+### 5.0.0
+- We now run `nginx -t` before reloading Nginx. This will hopefully provide better info on
+  config errors without crashing the container.
+  - The reason for this being a major version is because technically we alter
+    core container behavior where previous errors would result in a restart.
+  - PR by [@stefansundin][48]
+
 ### 4.3.0
 - Parent image is now using Python 3.11 which implements PEP 668, so we have
   to allow PIP to "break system packages".
@@ -394,3 +401,4 @@
 [45]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/3855a173f6ce1bc49318cdc7c3a40e4443e92f3d
 [46]: https://github.com/JonasAlfredsson/bash_fail-to-wait
 [47]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/168
+[48]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/207
