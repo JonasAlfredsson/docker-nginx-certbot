@@ -31,7 +31,7 @@ the `--force-renewal` flag to the requests made.
 docker exec -it <container_name> /scripts/run_certbot.sh force
 ```
 
-This will request new certificates regardless of then they are set to expire.
+This will request new certificates regardless of when they are set to expire.
 
 > :warning: Using "force" will make new requests for **all** you certificates,
   so don't run it too often since there are some limits to requesting
