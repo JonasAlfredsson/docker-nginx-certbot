@@ -66,7 +66,7 @@ get_certificate() {
         challenge_type="dns-01"
 
         if [ "${authenticator#dns-}" == "route53" ]; then
-            
+            info "Using route53 dns"
         else
             local configfile="/etc/letsencrypt/${authenticator#dns-}.ini"
             if [ ! -f "${configfile}" ]; then
