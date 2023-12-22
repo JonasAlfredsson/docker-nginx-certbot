@@ -67,7 +67,7 @@ get_certificate() {
 
         if [ "${authenticator#dns-}" == "route53" ]; then
             # This one is special and makes use of a different configuration.
-            if [[ ( ( -z "${AWS_ACCESS_KEY_ID}" || -z "${AWS_SECRET_ACCESS_KEY}" ) && ! -f "${HOME}/.aws/config" && ! "${SKIP_AWS_AUTH_CHECK}") ]]; then
+            if [[ ( -z "${AWS_ACCESS_KEY_ID}" || -z "${AWS_SECRET_ACCESS_KEY}" ) && ! -f "${HOME}/.aws/config" && ! "${SKIP_AWS_AUTH_CHECK}" ]]; then
                 error "Authenticator is '${authenticator}' but neither '${HOME}/.aws/config' or AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY are found"
                 return 1
             fi
