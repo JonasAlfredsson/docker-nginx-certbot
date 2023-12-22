@@ -80,7 +80,7 @@ instructions, from `@staticfloat`'s image, can be found
 - `CERTBOT_DNS_PROPAGATION_SECONDS`: The number of seconds to wait for the DNS challenge to [propagate](.docs/certbot_authenticators.md#troubleshooting-tips) (default: certbot's default)
 - `DEBUG`: Set to `1` to enable debug messages and use the [`nginx-debug`][10] binary (default: `0`)
 - `USE_LOCAL_CA`: Set to `1` to enable the use of a [local certificate authority](./docs/advanced_usage.md#local-ca) (default: `0`)
-
+- `SKIP_AWS_AUTH_CHECK`: Set to `1` to turn off auth check for route53 when an EC2 server has an IAM policy directly assigned (default: `0`)
 
 ## Volumes
 - `/etc/letsencrypt`: Stores the obtained certificates and the Diffie-Hellman parameters
