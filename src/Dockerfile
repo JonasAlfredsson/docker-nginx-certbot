@@ -24,6 +24,10 @@ ENV CERTBOT_DNS_AUTHENTICATORS \
 # any real need to cater to other programs/environments.
 ARG PIP_BREAK_SYSTEM_PACKAGES=1
 
+# Through this we gain the ability to handle certbot upgrades through
+# dependabot pull requests.
+COPY requirements.txt /requirements.txt
+
 # Do a single run command to make the intermediary containers smaller.
 RUN set -ex && \
 # Install packages necessary during the build phase (for all architectures).
@@ -44,10 +48,9 @@ RUN set -ex && \
 # Install the latest version of PIP, Setuptools and Wheel.
     curl -L 'https://bootstrap.pypa.io/get-pip.py' | python3 && \
 # Install certbot.
-    pip3 install -U cffi certbot \
-# And the supported extra authenticators
-        $(echo $CERTBOT_DNS_AUTHENTICATORS | sed 's/\(^\| \)/\1certbot-dns-/g') \
-    && \
+    pip3 install -r /requirements.txt && \
+# And the supported extra authenticators.
+    pip3 install $(echo $CERTBOT_DNS_AUTHENTICATORS | sed 's/\(^\| \)/\1certbot-dns-/g') && \
 # Remove everything that is no longer necessary.
     apt-get remove --purge -y \
             build-essential \
