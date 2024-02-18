@@ -1,5 +1,11 @@
 # Changelog
 
+### 5.0.1
+- Lock certbot version via a `requirements.txt` file.
+  - Updates to the certbot version will now bump patch version of this repo.
+- Added "bunny" DNS to available authenticators
+  - PR by [@chreniuc]49
+
 ### 5.0.0
 - We now run `nginx -t` before reloading Nginx. This will hopefully provide better info on
   config errors without crashing the container.
@@ -402,3 +408,4 @@
 [46]: https://github.com/JonasAlfredsson/bash_fail-to-wait
 [47]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/168
 [48]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/207
+[49]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/226
