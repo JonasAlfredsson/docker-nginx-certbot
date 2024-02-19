@@ -80,6 +80,9 @@ instructions, from `@staticfloat`'s image, can be found
 - `CERTBOT_DNS_PROPAGATION_SECONDS`: The number of seconds to wait for the DNS challenge to [propagate](.docs/certbot_authenticators.md#troubleshooting-tips) (default: certbot's default)
 - `DEBUG`: Set to `1` to enable debug messages and use the [`nginx-debug`][10] binary (default: `0`)
 - `USE_LOCAL_CA`: Set to `1` to enable the use of a [local certificate authority](./docs/advanced_usage.md#local-ca) (default: `0`)
+- `LOCAL_CA_DIR`: Set to a path to use as the [local CA directory](./docs/advanced_usage.md#local-ca) (default: `/etc/local_ca`)
+- `ROOT_CERT_LOCAL_CA_VALIDITY`: The number of days the [root certificate](./docs/advanced_usage.md#local-ca) should be valid (default: `30` days)
+- `NEW_CERT_LOCAL_CA_VALIDITY`: The number of days the [issued certificates](./docs/advanced_usage.md#local-ca) should be valid (default: `30` days)
 
 
 ## Volumes
@@ -113,6 +116,21 @@ the scripts and Nginx to reload everything.
 
 ```bash
 docker kill --signal=HUP <container_name>
+```
+
+Example of how to start the container with a local CA(advanced usage):
+
+```bash
+docker run -it -p 80:80 -p 443:443 \
+    --env CERTBOT_EMAIL=your@email.org \
+    -v $(pwd)/nginx_secrets:/etc/letsencrypt \
+    -v $(pwd)/user_conf.d:/etc/nginx/user_conf.d:ro \
+    -v $(pwd)/local_ca:/etc/local_ca_custom:rw \
+    --env USE_LOCAL_CA=1 \
+    --env LOCAL_CA_DIR=/etc/local_ca_custom \
+    --env ROOT_CERT_LOCAL_CA_VALIDITY=3650 \
+    --env NEW_CERT_LOCAL_CA_VALIDITY=365 \
+    --name nginx-certbot jonasal/nginx-certbot:latest
 ```
 
 

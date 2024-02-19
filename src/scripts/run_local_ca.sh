@@ -11,10 +11,13 @@ LOCAL_CA_DB="${LOCAL_CA_DIR}/index.txt"
 LOCAL_CA_SRL="${LOCAL_CA_DIR}/serial.txt"
 LOCAL_CA_CRT_DIR="${LOCAL_CA_DIR}/new_certs"
 
+: ${NEW_CERT_LOCAL_CA_VALIDITY:="30"}
+: ${ROOT_CERT_LOCAL_CA_VALIDITY:="30"}
+
 # Source in util.sh so we can have our nice tools.
 . "$(cd "$(dirname "$0")"; pwd)/util.sh"
 
-info "Starting certificate renewal process with local CA"
+info "Starting certificate renewal process with local CA with LOCAL_CA_DIR='${LOCAL_CA_DIR}', NEW_CERT_LOCAL_CA_VALIDITY=${NEW_CERT_LOCAL_CA_VALIDITY} and ROOT_CERT_LOCAL_CA_VALIDITY=${ROOT_CERT_LOCAL_CA_VALIDITY}"
 
 # We require an email to be set here as well, in order to simulate how it would
 # be in the real certbot case.
@@ -44,7 +47,7 @@ certificate             = ${LOCAL_CA_CRT}
 database                = ${LOCAL_CA_DB}
 serial                  = ${LOCAL_CA_SRL}
 new_certs_dir           = ${LOCAL_CA_CRT_DIR}
-default_days            = 30
+default_days            = ${NEW_CERT_LOCAL_CA_VALIDITY}
 default_md              = sha256
 email_in_dn             = yes
 unique_subject          = no
@@ -128,7 +131,7 @@ generate_ca() {
                               "emailAddress            = ${CERTBOT_EMAIL}" \
                               ) \
                     -extensions ca_cert \
-                    -days 30 \
+                    -days ${ROOT_CERT_LOCAL_CA_VALIDITY} \
                     -key "${LOCAL_CA_KEY}" \
                     -out "${LOCAL_CA_CRT}"
     fi

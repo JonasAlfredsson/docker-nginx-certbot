@@ -198,8 +198,7 @@ these files. By then taking the `caCert.pem` and [importing][9] it in your
 browser you will be able to visit these sites without the error stating that
 the certificate is signed by an unknown authority.
 
-> The validity period for the automatically created CA is only 30 days, and the
-  reason for this is to deter people from using this solution in production.
+The validity of the root certificate can be changed(from `30 days` default), by setting the `ROOT_CERT_LOCAL_CA_VALIDITY` environment variable when running the script. The certificates that are signed by the CA will have a validity period of `30 days` by default, but this can be changed by setting the `NEW_CERT_LOCAL_CA_VALIDITY` environment variable when running the script.
 
 An important thing to know is that these files are only created if they do
 not exist. What this enables is an even more advanced usecase where you might
