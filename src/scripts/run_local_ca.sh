@@ -44,7 +44,7 @@ certificate             = ${LOCAL_CA_CRT}
 database                = ${LOCAL_CA_DB}
 serial                  = ${LOCAL_CA_SRL}
 new_certs_dir           = ${LOCAL_CA_CRT_DIR}
-default_days            = 30
+default_days            = 90
 default_md              = sha256
 email_in_dn             = yes
 unique_subject          = no
@@ -117,6 +117,17 @@ generate_ca() {
     # Make sure there exists a self-signed certificate for the CA.
     if [ ! -f "${LOCAL_CA_CRT}" ]; then
         info "Creating new self-signed certificate for local CA"
+
+        # We do allow changing the validity time of the locally generated CA,
+        # but please read the advanced_usage.md#local-ca documentation before
+        # doing this.
+        if [ -z "${LOCAL_CA_ROOT_CERT_VALIDITY}" ]; then
+            debug "LOCAL_CA_ROOT_CERT_VALIDITY unset, defaulting to 30 days"
+            LOCAL_CA_ROOT_CERT_VALIDITY=30
+        else
+            info "LOCAL_CA_ROOT_CERT_VALIDITY set to custom value '${LOCAL_CA_ROOT_CERT_VALIDITY}'"
+        fi
+
         openssl req -x509 -new -nodes \
                     -config <(printf "%s\n" \
                               "${openssl_cnf}" \
@@ -128,7 +139,7 @@ generate_ca() {
                               "emailAddress            = ${CERTBOT_EMAIL}" \
                               ) \
                     -extensions ca_cert \
-                    -days 30 \
+                    -days "${LOCAL_CA_ROOT_CERT_VALIDITY}" \
                     -key "${LOCAL_CA_KEY}" \
                     -out "${LOCAL_CA_CRT}"
     fi
