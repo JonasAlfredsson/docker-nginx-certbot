@@ -134,7 +134,7 @@ example, are running your own custom ACME server.
 
 
 ## Local CA
-During the development phase of a website you might be testing stuff out on a
+During the development phase of a website you might be testing stuff on a
 computer that either does not have a DNS record pointing to itself or perhaps
 it does not have internet access at all. Since certbot has both of these as
 requirements to function properly it was previously impossible to use this
@@ -148,13 +148,18 @@ It also enables us to issue certificates that are valid for `localhost` and/or
 IP addresses like `::1`, which are otherwise [impossible][7] for certbot to
 create.
 
+> You can also use this solution if your intend to deploy behind a CDN and you
+> do not need a "real" certificate in order to encrypt the communication
+> between the origin server and the CDN's infrastructure. But please read
+> this entire section before going forward with that kind of setup.
+
 To enable the usage of this local CA you just set
 [`USE_LOCAL_CA=1`](../README.md#advanced), and this will then trigger the
 execution of the [`run_local_ca.sh`](../src/scripts/run_local_ca.sh) script
 instead of the [`run_certbot.sh`](../src/scripts/run_certbot.sh) one when it is
 time to renew the certificates. This script, when run, will always overwrite
 any previous keys and certificates, so alternating between the use of a local
-CA and certbot without first emptying the `/etc/letsencrypt` folder is not
+CA and certbot without first emptying the `/etc/letsencrypt` folder is **not**
 supported.
 
 The script is designed to mimic certbot as closely as reasonable, so the
@@ -198,25 +203,25 @@ these files. By then taking the `caCert.pem` and [importing][9] it in your
 browser you will be able to visit these sites without the error stating that
 the certificate is signed by an unknown authority.
 
-> The validity period for the automatically created CA is only 30 days, and the
-  reason for this is to deter people from using this solution in production.
-
 An important thing to know is that these files are only created if they do
 not exist. What this enables is an even more advanced usecase where you might
-already have a private key and certificate that you trust on your devices, so
+already have a private key and certificate that you trust on your devices, and
 you would like to continue using it for the websites you host as well. Read
 more about this in the [next section](#creating-a-custom-ca).
 
 
 ### Creating a Custom CA
-As was mentioned in the previous section it is possible to supply the
-[`run_local_ca.sh`](../src/scripts/run_local_ca.sh) script with a local
-certificate authority that has been created manually by you, perhaps with a
-validity period longer than 30 days and that you want to trust on multiple
-other devices. This is a solution that can be used in case you want to set up
-HTTPS on services that will never be reachable over the open internet, but you
-still want their communication to be secure.
+The validity period for the automatically created CA is only 30 days by
+default, and the reason for this is to deter people from using this solution
+blindly in production. While it is possible to quickly change this through the
+`LOCAL_CA_ROOT_CERT_VALIDITY` variable, there are security concerns regarding
+managing your own certificate authority which should be thought through before
+doing this in a production environment.
 
+Nevertheless, as was mentioned in the previous section it is possible to supply
+the [`run_local_ca.sh`](../src/scripts/run_local_ca.sh) script with a local
+certificate authority that has been created manually by you that you want to
+trust on multiple other devices.
 Basically all you need to do is to host mount your custom private key and
 certificate to the `LOCAL_CA_DIR`, and the script will use these instead of
 the short lived automatically created ones. Just make sure the files are named
@@ -248,6 +253,14 @@ and you may of course take a look at the commands used in the
 [`generate_ca()`](../src/scripts/run_local_ca.sh) function to help you on your
 way of creating your own files.
 
+When the long term CA is in place you can probably tune the `RENEWAL_INTERVAL`
+variable to equal something slightly less than the hard-coded `90d` expiry
+time of the leaf certificates created. This is the expiry time recommended by
+Let's Encrypt (and perhaps [soon mandated][19]), and since the renewal script
+_should_ always be successful you only need to run it just before the expiry
+time. You can, of course, run it more often than that, but it will not yield
+and special benefits.
+
 
 
 
@@ -271,3 +284,4 @@ way of creating your own files.
 [16]: https://superuser.com/questions/738612/openssl-ca-keyusage-extension/1248085#1248085
 [17]: https://www.feistyduck.com/library/openssl-cookbook/online/ch-openssl.html
 [18]: https://nginx.org/en/docs/http/server_names.html
+[19]: https://www.globalsign.com/en-ae/blog/google-90-day-certificate-validity-requires-automation
