@@ -36,8 +36,11 @@ fi
 
 # Ensure that an elliptic curve is set.
 if [ -z "${ELLIPTIC_CURVE}" ]; then
-    debug "ELLIPTIC_CURVE unset, defaulting to 'secp256r1'"
-    ELLIPTIC_CURVE="secp256r1"
+    # The OpenSSL names are a little bit different than what certbot use,
+    # but prime256v1 and secp256r1 are just different names of the same curve
+    # as far as I can tell: https://crypto.stackexchange.com/a/42906
+    debug "ELLIPTIC_CURVE unset, defaulting to 'prime256v1'"
+    ELLIPTIC_CURVE="prime256v1"
 fi
 
 if [ "${1}" = "force" ]; then
@@ -118,23 +121,8 @@ done
 for cert_name in "${!certificates[@]}"; do
     server_names=(${certificates["$cert_name"]})
 
-    # Determine which type of key algorithm to use for this certificate
-    # request. Having the algorithm specified in the certificate name will
-    # take precedence over the environmental variable.
-    if [[ "${cert_name,,}" =~ (^|[-.])ecdsa([-.]|$) ]]; then
-        debug "Found variant of 'ECDSA' in name '${cert_name}"
-        key_type="ecdsa"
-    elif [[ "${cert_name,,}" =~ (^|[-.])ecc([-.]|$) ]]; then
-        debug "Found variant of 'ECC' in name '${cert_name}"
-        key_type="ecdsa"
-    elif [[ "${cert_name,,}" =~ (^|[-.])rsa([-.]|$) ]]; then
-        debug "Found variant of 'RSA' in name '${cert_name}"
-        key_type="rsa"
-    elif [ "${USE_ECDSA}" == "0" ]; then
-        key_type="rsa"
-    else
-        key_type="ecdsa"
-    fi
+    # Determine which type of key algorithm to use for this certificate request.
+    key_type=$(identify_key_type "${cert_name}")
 
     # Determine the authenticator to use to solve the authentication challenge.
     # Having the authenticator specified in the certificate name will take

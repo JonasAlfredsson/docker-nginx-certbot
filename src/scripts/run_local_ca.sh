@@ -29,6 +29,12 @@ if [ -z "${RSA_KEY_SIZE}" ]; then
     RSA_KEY_SIZE=2048
 fi
 
+# Ensure that an elliptic curve is set.
+if [ -z "${ELLIPTIC_CURVE}" ]; then
+    debug "ELLIPTIC_CURVE unset, defaulting to 'secp256r1'"
+    ELLIPTIC_CURVE="secp256r1"
+fi
+
 # This is an OpenSSL configuration file that has settings for creating a well
 # configured CA, as well as server certificates that adhere to the strict
 # standards of web browsers. This is not complete, but will have the missing
@@ -98,6 +104,22 @@ subjectAltName          = @alt_names
 # valid for. This will be populated by the script later.
 "
 
+# Helper function to create a private key with the desired algorithm based on
+# the name.
+#
+# $1: The name that would be used in cetbot's "--cert-name" flag
+# $2: Destination path of the key
+generate_private_key() {
+    # Determine which type of key algorithm to use for this certificate request.
+    key_type=$(identify_key_type "${1}")
+
+    info "Generating new ${key_type^^} private key for '${1}'"
+    if [ "${key_type}" == "rsa" ]; then
+        openssl genrsa -out "${2}" "${RSA_KEY_SIZE}"
+    else
+        openssl ecparam -name "${ELLIPTIC_CURVE}" -genkey -noout -out "${2}"
+    fi
+}
 
 # Helper function to create a private key and a self-signed certificate to be
 # used as our local certificate authority. If the files already exist it will
@@ -110,8 +132,7 @@ generate_ca() {
 
     # Make sure there is a private key available for the CA.
     if [ ! -f "${LOCAL_CA_KEY}" ]; then
-        info "Generating new private key for local CA"
-        openssl genrsa -out "${LOCAL_CA_KEY}" "${RSA_KEY_SIZE}"
+        generate_private_key "local CA" "${LOCAL_CA_KEY}"
     fi
 
     # Make sure there exists a self-signed certificate for the CA.
@@ -165,8 +186,7 @@ get_certificate() {
     # Make sure there is a private key available for the domain in question.
     # It is good practice to generate a new key every time a new certificate is
     # requested, in order to guard against potential key compromises.
-    info "Generating new private key for '${cert_name}'"
-    openssl genrsa -out "/etc/letsencrypt/live/${cert_name}/privkey.pem" "${RSA_KEY_SIZE}"
+    generate_private_key "${cert_name}" "/etc/letsencrypt/live/${cert_name}/privkey.pem"
 
     # Create a certificate signing request from the private key.
     info "Generating certificate signing request for '${cert_name}'"

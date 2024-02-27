@@ -130,8 +130,9 @@ to request these types of certificates.
 
 This is achieved by setting the [environment variable](../README.md#optional)
 `USE_ECDSA=1` (the default since version 3.0.1), and you can optionally tune
-which [curve][18] to use with `ELLIPTIC_CURVE`. If you already have RSA
-certificates downloaded you will either have to wait until they expire, or
+which [curve][18] to use with `ELLIPTIC_CURVE` (also see certbot's
+[help docs][19]). If you already have RSA certificates downloaded you will
+either have to wait until they expire, or
 [force](./advanced_usage.md#manualforce-renewal) a renewal, before this change
 takes affect.
 
@@ -251,3 +252,4 @@ something I have personally implemented in mine.
 [16]: https://sectigostore.com/blog/ecdsa-vs-rsa-everything-you-need-to-know/
 [17]: https://wiki.mozilla.org/Security/Server_Side_TLS
 [18]: https://security.stackexchange.com/questions/31772/what-elliptic-curves-are-supported-by-browsers/104991#104991
+[19]: https://github.com/certbot/certbot/blob/f4e031f5055fc6bf8c87eb0b18f927f7f5ba36a8/certbot/certbot/_internal/cli/__init__.py#L311

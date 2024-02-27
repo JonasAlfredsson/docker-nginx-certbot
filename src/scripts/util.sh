@@ -138,6 +138,29 @@ parse_dhparams() {
     sed -n -r -e 's&^\s*ssl_dhparam\s+(.*);.*&\1&p' "$1" | xargs -n1 echo | uniq
 }
 
+# Identify which key algorithm to use based on the provided name. Having the
+# algorithm specified in the certificate name will take precedence over the
+# environmental variable.
+#
+# $1: The name used in cetbot's "--cert-name" flag
+identify_key_type() {
+    local cert_name="${1,,}"
+    if [[ "${cert_name}" =~ (^|[-.])ecdsa([-.]|$) ]]; then
+        debug "Found variant of 'ECDSA' in name '${cert_name}"
+        echo "ecdsa"
+    elif [[ "${cert_name}" =~ (^|[-.])ecc([-.]|$) ]]; then
+        debug "Found variant of 'ECC' in name '${cert_name}"
+        echo "ecdsa"
+    elif [[ "${cert_name}" =~ (^|[-.])rsa([-.]|$) ]]; then
+        debug "Found variant of 'RSA' in name '${cert_name}"
+        echo "rsa"
+    elif [ "${USE_ECDSA}" == "0" ]; then
+        echo "rsa"
+    else
+        echo "ecdsa"
+    fi
+}
+
 # Given a config file path, return 0 if all SSL related files exist (or there
 # are no files needed to be found). Return 1 otherwise (i.e. error exit code).
 #
