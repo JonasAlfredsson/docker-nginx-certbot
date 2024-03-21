@@ -17,3 +17,11 @@ services:
 
 volumes:
   nginx_secrets:
+  # Uncomment and mount on the host after creating the directory.
+  #   driver: local
+  #   driver_opts:
+  #     type: none
+  #     o: bind
+  #     device: ./nginx_secrets
+
+
