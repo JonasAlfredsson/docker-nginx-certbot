@@ -3,8 +3,8 @@
 ### 5.0.1
 - Lock certbot version via a `requirements.txt` file.
   - Updates to the certbot version will now bump patch version of this repo.
-- Added "bunny" DNS to available authenticators
-  - PR by [@chreniuc]49
+- Added Bunny DNS to available authenticators.
+  - PR by [@chreniuc][49]
 
 ### 5.0.0
 - We now run `nginx -t` before reloading Nginx. This will hopefully provide better info on
