@@ -14,6 +14,7 @@ on:
       - "master"
     paths:
       - "src/Dockerfile*"
+      - "src/requirements.txt"
 
 jobs:
   docker_buildx_debian:
