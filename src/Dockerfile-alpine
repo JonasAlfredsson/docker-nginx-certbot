@@ -1,4 +1,4 @@
-FROM nginx:1.25.4-alpine
+FROM nginx:1.26.0-alpine
 LABEL maintainer="Jonas Alfredsson <jonas.alfredsson@protonmail.com>"
 
 ENV CERTBOT_DNS_AUTHENTICATORS \
@@ -18,6 +18,11 @@ ENV CERTBOT_DNS_AUTHENTICATORS \
     sakuracloud \
     ionos \
     bunny
+
+# Needed in order to install Python packages via PIP after PEP 668 was
+# introduced, but I believe this is safe since we are in a container without
+# any real need to cater to other programs/environments.
+ARG PIP_BREAK_SYSTEM_PACKAGES=1
 
 # Through this we gain the ability to handle certbot upgrades through
 # dependabot pull requests.
