@@ -1,5 +1,10 @@
 # Changelog
 
+### 5.1.0
+- Add ability to change validity time of the local CA.
+  - This variable is not mentioned in the main README since it should not be
+    used without reading the relevant advanced documentation.
+
 ### 5.0.1
 - Lock certbot version via a `requirements.txt` file.
   - Updates to the certbot version will now bump patch version of this repo.
