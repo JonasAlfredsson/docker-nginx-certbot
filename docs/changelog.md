@@ -1,5 +1,8 @@
 # Changelog
 
+### 5.1.1
+- Update certbot to version 2.10.0
+
 ### 5.1.0
 - Add ability to change validity time of the local CA.
   - This variable is not mentioned in the main README since it should not be
