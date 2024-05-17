@@ -97,13 +97,21 @@ reload_configs() {
 # such a signal is received.
 trap "reload_configs" HUP
 
+# Signal handler for SIGUSR1: forward it to nginx to reopen log files
+reopen_logs() {
+    info "Received SIGUSR1 signal; telling nginx to reopen log files"
+    nginx -s reopen
+    return 138 # 128 + SIGUSR1
+}
+trap "reopen_logs" USR1
+
 # Nginx and the certbot update-loop process are now our children. As a parent
 # we will wait for both of their PIDs, and if one of them exits we will follow
 # suit and use the same status code as the program which exited first.
 # The loop is necessary since the HUP trap will make any "wait" return
 # immediately when triggered, and to not exit the entire program we will have
 # to wait on the original PIDs again.
-while [ -z "${exit_code}" ] || [ "${exit_code}" = "129" ]; do
+while [ -z "${exit_code}" ] || [ "${exit_code}" = "129" ] || [ "${exit_code}" = "138" ]; do
     wait -n ${NGINX_PID} ${CERTBOT_LOOP_PID}
     exit_code=$?
 done
