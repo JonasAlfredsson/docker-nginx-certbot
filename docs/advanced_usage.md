@@ -4,6 +4,28 @@ This document contains information about features that are deemed "advanced",
 and will most likely require that you read some of the actual code to fully
 understand what is happening.
 
+## Signal handling
+
+The container configures handlers for the following signals:
+
+ - `SIGINT`, `SIGQUIT`, `SIGTERM` - Shutdown the child processes (nginx and the
+   [sleep timer](./good_to_know.md#renewal-check-interval)) and exit the
+   container.
+ - `SIGHUP` - Rerun [`run_certbot.sh`](../src/scripts/run_certbot.sh) and tell
+   nginx to test and reload the configuration files (i.e. `nginx -t` followed
+   by `nginx -s reload`). See [Manual/Force Renewal](#manualforce-renewal),
+   [Controlling NGINX][20], and [Changing configuration][21] for more details.
+ - `SIGUSR1` - Tell nginx to reopen log files (i.e. `nginx -s reopen`). See
+   [Controlling NGINX][20] and [Rotating Log-files][22] for more details.
+
+Signals can be sent to the container by using the `docker kill` command (or
+`docker compose kill` when using Docker Compose). For example, to send a
+`SIGHUP` signal to the container run:
+
+```bash
+docker kill --signal=HUP <container_name>
+```
+
 ## Manual/Force Renewal
 It might be of interest to manually trigger a renewal of the certificates, and
 that is why the [`run_certbot.sh`](../src/scripts/run_certbot.sh) script is
@@ -285,3 +307,6 @@ and special benefits.
 [17]: https://www.feistyduck.com/library/openssl-cookbook/online/ch-openssl.html
 [18]: https://nginx.org/en/docs/http/server_names.html
 [19]: https://www.globalsign.com/en-ae/blog/google-90-day-certificate-validity-requires-automation
+[20]: https://docs.nginx.com/nginx/admin-guide/basic-functionality/runtime-control/#controlling-nginx
+[21]: https://nginx.org/en/docs/control.html#reconfiguration
+[22]: https://nginx.org/en/docs/control.html#logs
