@@ -1,5 +1,9 @@
 # Changelog
 
+### 5.2.0
+- Forward the `SIGUSR1` signal to Nginx to tell it to reopen log files.
+  - PR by [@fredrikekre][50]
+
 ### 5.1.1
 - Update certbot to version 2.10.0
 
@@ -417,3 +421,4 @@
 [47]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/168
 [48]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/207
 [49]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/226
+[50]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/d3c20ff199301022ea0dc450bf91a23a51838871
