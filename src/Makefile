@@ -1,19 +1,22 @@
-# If we have `--squash` support, then use it!
-ifneq ($(shell docker build --help 2>/dev/null | grep squash),)
-DOCKER_BUILD = docker build --squash
-else
-DOCKER_BUILD = docker build
-endif
-
 all: build
 
 build: Makefile Dockerfile
-	$(DOCKER_BUILD) -t jonasal/nginx-certbot:local .
-	@echo "Done!  Use docker run jonasal/nginx-certbot:local to run"
+	docker build -t jonasal/nginx-certbot:local .
+
+run:
+	docker run -it --rm \
+	-e CERTBOT_EMAIL=user@example.com \
+	-e DEBUG=1 \
+	jonasal/nginx-certbot:local
 
 build-alpine: Makefile Dockerfile
-	$(DOCKER_BUILD) -t jonasal/nginx-certbot:local-alpine -f ./Dockerfile-alpine .
-	@echo "Done!  Use docker run jonasal/nginx-certbot:local-alpine to run"
+	docker build -t jonasal/nginx-certbot:local-alpine -f ./Dockerfile-alpine .
+
+run-alpine:
+	docker run -it --rm \
+	-e CERTBOT_EMAIL=user@example.com \
+	-e DEBUG=1 \
+	jonasal/nginx-certbot:local-alpine
 
 # These commands are primarily used for development, see link for more info:
 # https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/28
