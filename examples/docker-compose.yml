@@ -11,9 +11,9 @@ services:
     ports:
       - 80:80
       - 443:443
-    volumes:
-      - nginx_secrets:/etc/letsencrypt
-      - ./user_conf.d:/etc/nginx/user_conf.d
+    volumes:                                    # Storage can be either a
+      - nginx_secrets:/etc/letsencrypt          # Docker managed volume (see list at the bottom)
+      - ./user_conf.d:/etc/nginx/user_conf.d    # or a host mount with a relative or full path.
 
 volumes:
   nginx_secrets:
