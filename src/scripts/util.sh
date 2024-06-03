@@ -47,6 +47,15 @@ error() {
     tput -Tscreen sgr0) >&2
 }
 
+# Helper function to print each folder created as a new DEBUG log line.
+#
+# $1: Directory to create.
+mkdir_log() {
+    while IFS="" read -r line; do
+        debug "${line}"
+    done < <(mkdir -vp "${1}")
+}
+
 # Returns 0 if the parameter is an IPv4 or IPv6 address, 1 otherwise.
 # Can be used as `if is_ip "$something"; then`.
 #
@@ -257,7 +266,7 @@ symlink_user_configs() {
     while IFS= read -r -d $'\0' symlink; do
         info "Removing broken symlink '${symlink}' to '$(realpath "${symlink}")'"
         rm "${symlink}"
-    done < <(find /etc/nginx/conf.d/ -maxdepth 1 -xtype l -lname '/etc/nginx/user_conf.d/*' -print0)
+    done < <(find /etc/nginx/conf.d/ -xtype l -lname '/etc/nginx/user_conf.d/*' -print0)
 
     # Go through all files and directories in the user_conf.d/ folder and create
     # a symlink to them inside the conf.d/ folder.
@@ -268,7 +277,7 @@ symlink_user_configs() {
         while IFS= read -r -d $'\0' symlink; do
             debug "The file '${source_file}' is already symlinked by '${symlink}'"
             symlinks_found=$((symlinks_found + 1))
-        done < <(find -L /etc/nginx/conf.d/ -maxdepth 1 -samefile "${source_file}" -print0)
+        done < <(find -L /etc/nginx/conf.d/ -samefile "${source_file}" -print0)
 
         if [ "${symlinks_found}" -eq "1" ]; then
             # One symlink found, then we have nothing more to do.
@@ -278,19 +287,22 @@ symlink_user_configs() {
             continue
         fi
 
-        # No symlinks to this file found, lets create one.
+        # No symlinks to this file found, lets create one by just trimming the
+        # known base folder path from the file and replacing it with our new
+        # base file path.
         local link
-        link="/etc/nginx/conf.d/$(basename -- "${source_file}")"
+        link="/etc/nginx/conf.d/${source_file#'/etc/nginx/user_conf.d/'}"
         info "Creating symlink '${link}' to '${source_file}'"
+        mkdir_log "$(dirname -- "${link}")"
         ln -s "${source_file}" "${link}"
-    done < <(find /etc/nginx/user_conf.d/ -maxdepth 1 -type f -print0)
+    done < <(find /etc/nginx/user_conf.d/ -type f -print0)
 }
 
 # Helper function that sifts through /etc/nginx/conf.d/, looking for configs
 # that don't have their necessary files yet, and disables them until everything
 # has been set up correctly. This also activates them afterwards.
 auto_enable_configs() {
-    for conf_file in /etc/nginx/conf.d/*.conf*; do
+    while IFS= read -r -d $'\0' conf_file; do
         if allfiles_exist "${conf_file}"; then
             if [ "${conf_file##*.}" = "nokey" ]; then
                 info "Found all the necessary files for '${conf_file}', enabling..."
@@ -302,5 +314,5 @@ auto_enable_configs() {
                 mv "${conf_file}" "${conf_file}.nokey"
             fi
         fi
-    done
+    done < <(find -L /etc/nginx/conf.d/ -name "*.conf*" -type f -print0)
 }
