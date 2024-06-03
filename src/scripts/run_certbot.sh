@@ -110,9 +110,9 @@ get_certificate() {
 # This will return an associative array that looks something like this:
 # "cert_name" => "server_name1 server_name2"
 declare -A certificates
-for conf_file in /etc/nginx/conf.d/*.conf*; do
+while IFS= read -r -d $'\0' conf_file; do
     parse_config_file "${conf_file}" certificates
-done
+done < <(find -L /etc/nginx/conf.d/ -name "*.conf*" -type f -print0)
 
 # Iterate over each key and make a certificate request for them.
 for cert_name in "${!certificates[@]}"; do

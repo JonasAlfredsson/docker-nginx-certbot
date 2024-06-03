@@ -105,8 +105,8 @@ subjectAltName          = @alt_names
 # completely custom CA here if you want to.
 generate_ca() {
     # Make sure necessary folders are present.
-    mkdir -vp "${LOCAL_CA_DIR}"
-    mkdir -vp "${LOCAL_CA_CRT_DIR}"
+    mkdir_log "${LOCAL_CA_DIR}"
+    mkdir_log "${LOCAL_CA_CRT_DIR}"
 
     # Make sure there is a private key available for the CA.
     if [ ! -f "${LOCAL_CA_KEY}" ]; then
@@ -223,9 +223,9 @@ generate_ca
 # This will return an associative array that looks something like this:
 # "cert_name" => "server_name1 server_name2"
 declare -A certificates
-for conf_file in /etc/nginx/conf.d/*.conf*; do
+while IFS= read -r -d $'\0' conf_file; do
     parse_config_file "${conf_file}" certificates
-done
+done < <(find -L /etc/nginx/conf.d/ -name "*.conf*" -type f -print0)
 
 # Iterate over each key and create a signed certificate for them.
 for cert_name in "${!certificates[@]}"; do
