@@ -1,5 +1,8 @@
 # Changelog
 
+### 5.2.1
+- Update certbot to v2.11.0.
+
 ### 5.2.0
 - Forward the `SIGUSR1` signal to Nginx to tell it to reopen log files.
   - PR by [@fredrikekre][50]
