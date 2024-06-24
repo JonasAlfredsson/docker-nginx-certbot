@@ -1,6 +1,7 @@
 name: "unit-tests"
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - "main"
@@ -8,7 +9,6 @@ on:
     paths:
       - "src/scripts/**"
       - "tests/**"
-      - ".github/workflows/**"
   pull_request:
     branches:
       - "main"
