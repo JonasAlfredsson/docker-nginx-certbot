@@ -17,7 +17,8 @@ ENV CERTBOT_DNS_AUTHENTICATORS \
     route53 \
     sakuracloud \
     ionos \
-    bunny
+    bunny \
+    porkbun
 
 # Needed in order to install Python packages via PIP after PEP 668 was
 # introduced, but I believe this is safe since we are in a container without
