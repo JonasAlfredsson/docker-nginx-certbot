@@ -74,6 +74,9 @@ RUN set -ex && \
 # Make sure there are no surprise config files inside the config folder.
     rm -f /etc/nginx/conf.d/*
 
+#Make sure that the container logs also show hostnames in requests.
+RUN sed -i 's/\$request\b/\$request_method \$host\$request_uri \$server_protocol/g' /etc/nginx/nginx.conf
+
 # Copy in our "default" Nginx server configurations, which make sure that the
 # ACME challenge requests are correctly forwarded to certbot and then redirects
 # everything else to HTTPS.
