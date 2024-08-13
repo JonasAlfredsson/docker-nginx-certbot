@@ -33,7 +33,6 @@ RUN set -ex && \
 # Install packages necessary during the build phase (for all architectures).
     apk add --no-cache \
         bash \
-        cargo \
         curl \
         findutils \
         libffi \
@@ -54,14 +53,12 @@ RUN set -ex && \
     pip3 install $(echo $CERTBOT_DNS_AUTHENTICATORS | sed 's/\(^\| \)/\1certbot-dns-/g') && \
 # Remove everything that is no longer necessary.
     apk del \
-        cargo \
         curl \
         libffi-dev \
         libressl-dev \
         python3-dev \
     && \
     rm -rf /root/.cache && \
-    rm -rf /root/.cargo && \
 # Create new directories and set correct permissions.
     mkdir -p /var/www/letsencrypt && \
     mkdir -p /etc/nginx/user_conf.d && \
