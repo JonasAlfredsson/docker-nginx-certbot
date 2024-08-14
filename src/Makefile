@@ -21,7 +21,7 @@ run-alpine:
 # These commands are primarily used for development, see link for more info:
 # https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/28
 dev:
-	docker buildx build --platform linux/amd64,linux/arm64 --tag jonasal/nginx-certbot:dev -f ./Dockerfile ./
+	docker buildx build --platform linux/amd64,linux/386,linux/arm64,linux/arm/v7 --tag jonasal/nginx-certbot:dev -f ./Dockerfile ./
 
 dev-alpine:
 	docker buildx build --platform linux/amd64,linux/arm64 --tag jonasal/nginx-certbot:dev-alpine -f ./Dockerfile-alpine ./
