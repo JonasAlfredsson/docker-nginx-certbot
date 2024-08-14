@@ -38,6 +38,7 @@ for the supported authenticators:
  - [dns-sakuracloud][19]
  - [dns-ionos][20]
  - [dns-bunny][21]
+ - [dns-duckdns][22]
 
 You will need to setup the authenticator file at
 `/etc/letsencrypt/<authenticator provider>.ini`, so for e.g. Cloudflare you
@@ -135,3 +136,4 @@ authenticators.
 [19]: https://certbot-dns-sakuracloud.readthedocs.io/en/stable/#credentials
 [20]: https://github.com/helgeerbe/certbot-dns-ionos
 [21]: https://github.com/mwt/certbot-dns-bunny
+[22]: https://github.com/infinityofspace/certbot_dns_duckdns?tab=readme-ov-file#usage
