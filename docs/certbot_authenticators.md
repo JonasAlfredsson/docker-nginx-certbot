@@ -23,7 +23,6 @@ You can find information about how to configure them by following those links
 for the supported authenticators:
 
  - [dns-cloudflare][6]
- - [dns-cloudxns][7]
  - [dns-digitalocean][8]
  - [dns-dnsimple][9]
  - [dns-dnsmadeeasy][10]
@@ -121,7 +120,6 @@ authenticators.
 [4]: https://eff-certbot.readthedocs.io/en/stable/using.html#dns-plugins
 [5]: https://letsencrypt.org/docs/challenge-types/#dns-01-challenge
 [6]: https://certbot-dns-cloudflare.readthedocs.io/en/stable/#credentials
-[7]: https://certbot-dns-cloudxns.readthedocs.io/en/stable/#credentials
 [8]: https://certbot-dns-digitalocean.readthedocs.io/en/stable/#credentials
 [9]: https://certbot-dns-dnsimple.readthedocs.io/en/stable/#credentials
 [10]: https://certbot-dns-dnsmadeeasy.readthedocs.io/en/stable/#credentials

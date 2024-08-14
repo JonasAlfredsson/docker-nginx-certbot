@@ -3,7 +3,6 @@ LABEL maintainer="Jonas Alfredsson <jonas.alfredsson@protonmail.com>"
 
 ENV CERTBOT_DNS_AUTHENTICATORS \
     cloudflare \
-    cloudxns \
     digitalocean \
     dnsimple \
     dnsmadeeasy \
