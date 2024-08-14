@@ -1,7 +1,7 @@
 all: build
 
 build: Makefile Dockerfile
-	docker build -t jonasal/nginx-certbot:local .
+	docker build --progress=plain -t jonasal/nginx-certbot:local .
 
 run:
 	docker run -it --rm \
@@ -10,7 +10,7 @@ run:
 	jonasal/nginx-certbot:local
 
 build-alpine: Makefile Dockerfile
-	docker build -t jonasal/nginx-certbot:local-alpine -f ./Dockerfile-alpine .
+	docker build --progress=plain -t jonasal/nginx-certbot:local-alpine -f ./Dockerfile-alpine .
 
 run-alpine:
 	docker run -it --rm \
