@@ -1,5 +1,11 @@
 # Changelog
 
+### 5.3.0
+- Added DuckDNS authenticator.
+  - PR by [@emulatorchen][51]
+- Removed deprecated [cloudxns][52] authenticator.
+- Changed from [LegacyKeyValueFormat][53] to the recommended format for `ENV` definitions.
+
 ### 5.2.1
 - Update certbot to v2.11.0.
 
@@ -425,3 +431,6 @@
 [48]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/207
 [49]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/226
 [50]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/d3c20ff199301022ea0dc450bf91a23a51838871
+[51]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/281
+[52]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/fb06d2761942269d73a0630d4b0312b007027dcc
+[53]: https://docs.docker.com/reference/build-checks/legacy-key-value-format/
