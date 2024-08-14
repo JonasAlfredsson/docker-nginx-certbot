@@ -1,7 +1,7 @@
 FROM nginx:1.27.0
 LABEL maintainer="Jonas Alfredsson <jonas.alfredsson@protonmail.com>"
 
-ENV CERTBOT_DNS_AUTHENTICATORS \
+ENV CERTBOT_DNS_AUTHENTICATORS="\
     cloudflare \
     digitalocean \
     dnsimple \
@@ -17,7 +17,8 @@ ENV CERTBOT_DNS_AUTHENTICATORS \
     sakuracloud \
     ionos \
     bunny \
-    duckdns
+    duckdns \
+    "
 
 # Needed in order to install Python packages via PIP after PEP 668 was
 # introduced, but I believe this is safe since we are in a container without
