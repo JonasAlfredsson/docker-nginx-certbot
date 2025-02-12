@@ -1,5 +1,9 @@
 # Changelog
 
+### 5.4.1
+- Added infomaniak DNS authenticator.
+  - PR by [@bcrickboom][55]
+
 ### 5.4.0
 - Added hetzner DNS authenticator.
   - PR by [@protos-gunzinger][54]
@@ -439,3 +443,4 @@
 [52]: https://github.com/JonasAlfredsson/docker-nginx-certbot/commit/fb06d2761942269d73a0630d4b0312b007027dcc
 [53]: https://docs.docker.com/reference/build-checks/legacy-key-value-format/
 [54]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/284
+[55]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/307
