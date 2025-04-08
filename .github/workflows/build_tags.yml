@@ -43,10 +43,10 @@ jobs:
           no-cache: true
           push: true
           tags: |
-            jonasal/nginx-certbot:${{ env.APP_MAJOR }}
-            jonasal/nginx-certbot:${{ env.APP_MAJOR }}.${{ env.APP_MINOR }}
-            jonasal/nginx-certbot:${{ env.APP_MAJOR }}.${{ env.APP_MINOR }}.${{ env.APP_PATCH }}
-            jonasal/nginx-certbot:${{ env.APP_MAJOR }}.${{ env.APP_MINOR }}.${{ env.APP_PATCH }}-nginx${{ env.NGINX_VERSION }}
+            estakhri/nginx-certbot:${{ env.APP_MAJOR }}
+            estakhri/nginx-certbot:${{ env.APP_MAJOR }}.${{ env.APP_MINOR }}
+            estakhri/nginx-certbot:${{ env.APP_MAJOR }}.${{ env.APP_MINOR }}.${{ env.APP_PATCH }}
+            estakhri/nginx-certbot:${{ env.APP_MAJOR }}.${{ env.APP_MINOR }}.${{ env.APP_PATCH }}-nginx${{ env.NGINX_VERSION }}
 
   docker_buildx_alpine:
     runs-on: ubuntu-latest

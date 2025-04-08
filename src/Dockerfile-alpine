@@ -46,6 +46,7 @@ RUN set -ex && \
         procps \
         python3 \
         python3-dev \
+        nginx-mod-http-brotli \
         sed \
     && \
 # Install the latest version of PIP, Setuptools and Wheel.

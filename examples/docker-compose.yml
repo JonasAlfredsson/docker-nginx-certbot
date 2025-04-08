@@ -2,7 +2,7 @@ version: '3'
 
 services:
   nginx:
-    image: jonasal/nginx-certbot:latest
+    image: estakhri/nginx-certbot:latest
     restart: unless-stopped
     environment:
       - CERTBOT_EMAIL

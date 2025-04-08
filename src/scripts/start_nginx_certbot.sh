@@ -27,8 +27,10 @@ debug "Debug messages are enabled"
 # Immediately symlink files to the correct locations and then run
 # 'auto_enable_configs' so that Nginx is in a runnable state
 # This will temporarily disable any misconfigured servers.
-symlink_user_configs
+# symlink_user_configs
 auto_enable_configs
+
+exec "/scripts/env_substitution.sh"
 
 # Start Nginx without its daemon mode (and save its PID).
 if [ 1 = "${DEBUG}" ]; then
@@ -56,7 +58,7 @@ while true; do
     info "Running the autorenewal service"
 
     # Create symlinks from conf.d/ to user_conf.d/ if necessary.
-    symlink_user_configs
+    #symlink_user_configs
 
     # Check that all dhparam files exists.
     "$(cd "$(dirname "$0")"; pwd)/create_dhparams.sh"
