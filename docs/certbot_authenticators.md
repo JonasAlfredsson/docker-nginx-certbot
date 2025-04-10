@@ -46,8 +46,10 @@ for the supported authenticators:
  - [dns-ionos][20]
  - [dns-bunny][21]
  - [dns-duckdns][22]
- - [hetzner][23]
+ - [dns-hetzner][23]
  - [dns-infomaniak][24]
+ - [dns-namecheap][26]
+ - [dns-godaddy][27]
  - [dns-gandi][25]
 
 You will need to setup the authenticator file at
@@ -187,3 +189,5 @@ authenticators.
 [23]: https://github.com/ctrlaltcoop/certbot-dns-hetzner?tab=readme-ov-file#credentials
 [24]: https://github.com/Infomaniak/certbot-dns-infomaniak
 [25]: https://github.com/obynio/certbot-plugin-gandi
+[26]: https://github.com/knoxell/certbot-dns-namecheap?tab=readme-ov-file#credentials
+[27]: https://github.com/miigotu/certbot-dns-godaddy?tab=readme-ov-file#credentials
