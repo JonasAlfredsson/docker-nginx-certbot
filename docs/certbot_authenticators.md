@@ -43,14 +43,20 @@ for the supported authenticators:
 
 You will need to setup the authenticator file at
 `/etc/letsencrypt/<authenticator provider>.ini`, so for e.g. Cloudflare you
-would need the file `/etc/letsencrypt/cloudflare.ini` with the following
+would need the file `/etc/letsencrypt/cloudflares.ini` with the following
 content:
 
 ```ini
 # Cloudflare API token used by Certbot
 dns_cloudflare_api_token = 0123456789abcdef0123456789abcdef01234567
 ```
+in the `docker-compose.yml` file you will also need
 
+```yml
+      - ./cloudflare.ini:/etc/letsencrypt/cloudflares.ini
+```
+
+in the `volumes` portion
 
 ## Using a DNS-01 Authenticator by Default
 
