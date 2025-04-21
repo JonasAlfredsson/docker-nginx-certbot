@@ -1,5 +1,9 @@
 # Changelog
 
+### 5.5.0
+- Added [namecheap][56] DNS authenticator.
+- Added [godaddy][57] DNS authenticator.
+
 ### 5.4.1
 - Added infomaniak DNS authenticator.
   - PR by [@bcrickboom][55]
@@ -444,3 +448,5 @@
 [53]: https://docs.docker.com/reference/build-checks/legacy-key-value-format/
 [54]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/284
 [55]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/307
+[56]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/313
+[57]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/320
