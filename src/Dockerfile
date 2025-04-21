@@ -21,6 +21,7 @@ ENV CERTBOT_DNS_AUTHENTICATORS="\
     hetzner \
     infomaniak \
     namecheap \
+    godaddy \
     "
 
 # Needed in order to install Python packages via PIP after PEP 668 was
