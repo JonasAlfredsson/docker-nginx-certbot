@@ -1,0 +1,62 @@
+# Configuration for this docker image
+nginx-certbot:
+  # Diffie-Hellman parameter size. Falls back to the DHPARAM_SIZE environment variable or,
+  # if that is unset, to '2048'.
+  dhparam-size: 2048
+  # Certificate renewal interval. Falls back to the RENEWAL_INTERVAL environment variable
+  # or, if that is unset, to '8d'.
+  renewal-interval: 8d
+  # Boolean to enable verbose debug messages and the nginx-debug binary. Falls back to the
+  # DEBUG environment variable, or, if that is unset, to 'false'.
+  debug: false
+
+# Configuration for certbot.
+# Note that some of these can be overriden on the certificate level.
+certbot:
+  # Default certbot authenticator (see certbots --authenticator flag). Falls back to the
+  # CERTBOT_AUTHENTICATOR environment variable or, if that is unset, to 'webroot'. The
+  # authenticator can be overriden on the certificate level.
+  authenticator: webroot
+  # Default certbot authenticator credentials (see certbots --<authenticator>-credentials
+  # flag). This is required for the various DNS authenticators. Falls back to
+  # '/etc/letsencrypt/<authenticator>.ini'.
+  credentials: ''
+  # Number of seconds to wait for the DNS challenge (when using dns authenticators). Falls
+  # back to the CERTBOT_DNS_PROPAGATION_SECONDS environment variable and if that is unset to
+  # certbots default.
+  dns-propagation-seconds: ''
+  # Default elliptic curve (see certbots --elliptic-curve flag). Falls back to the
+  # ELLIPTIC_CURVE environment variable or, if that is unset, to 'secp256r1'.
+  elliptic-curve: secp256r1
+  # Default key type (see certbots --key-type flag). Falls back to 'ecdsa' (or if
+  # USE_ECDSA=0 to 'rsa'). The key type can be overriden on the certificate level.
+  key-type: ecdsa
+  # Default RSA key size (see certbots --rsa-key-size flag). Falls back to the RSA_KEY_SIZE
+  # environment variable or, if that is unset, to 2048. The key size can be overriden on the
+  # certificate level.
+  rsa-key-size: 2048
+  # Boolean to enable the Let's Encrypt staging servers. Falls back to the STAGING
+  # environment variable or, if that is unset, to 'false'.
+  staging: false
+
+# Array of certificate specifications.
+# If the 'certificates' key exist (even if the array is empty) the automatic discovery of
+# certificate names and domains is disabled and instead nginx-certbot will request
+# certificates based on the specifications in the array.
+# A minimum requirement for each certificate is to specifiy 'name' and 'domains'.
+certificates:
+    # Certificate name (see certbots --cert-name flag). Generated certificates will be
+    # placed in the /etc/letsencrypt/live/<name>/ folder. This is a required parameter.
+  - name: example-com
+    # Required list of domains for which the certificate should be valid for (see certbots
+    # --domain flag). This is a required parameter.
+    domains: ["a.example.com", "b.example.com", "*.c.example.com"]
+    # Authenticator to use for this certificate. Falls back to certbot.authenticator.
+    authenticator: ''
+    # Credential file for this certificates authenticator. Falls back to
+    # certbot.credentials.
+    credentials: ''
+    # Key type for the certificate. Falls back to certbot.key-type.
+    key-type: ''
+    # RSA key size for the certificate. Falls back to certbot.rsa-key-size.
+    rsa-key-size: ''
