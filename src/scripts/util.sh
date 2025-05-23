@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Configuration file with default location
+CONFIG_FILE="${NGINX_CERTBOT_CONFIG_FILE:-/etc/nginx-certbot/config.yml}"
+
 : ${DATE_FORMAT_STRING:="+%Y/%m/%d %T"}
 
 # Helper function used to output messages in a uniform manner.
@@ -10,31 +13,31 @@ log() {
     echo "$(date "${DATE_FORMAT_STRING}") [${1}] ${2}"
 }
 
-# Helper function to output debug messages to STDOUT if the `DEBUG` environment
+# Helper function to output debug messages to STDERR if the `DEBUG` environment
 # variable is set to 1.
 #
 # $1: String to be printed.
 debug() {
     if [ 1 = "${DEBUG}" ]; then
-        log "debug" "${1}"
+        (log "debug" "${1}") >&2
     fi
 }
 
-# Helper function to output informational messages to STDOUT.
+# Helper function to output informational messages to STDERR.
 #
 # $1: String to be printed.
 info() {
-    log "info" "${1}"
+    (log "info" "${1}") >&2
 }
 
-# Helper function to output warning messages to STDOUT, with bold yellow text.
+# Helper function to output warning messages to STDERR, with bold yellow text.
 #
 # $1: String to be printed.
 warning() {
     (set +x; tput -Tscreen bold
     tput -Tscreen setaf 3
     log "warning" "${1}"
-    tput -Tscreen sgr0)
+    tput -Tscreen sgr0) >&2
 }
 
 # Helper function to output error messages to STDERR, with bold red text.
@@ -303,4 +306,44 @@ auto_enable_configs() {
             fi
         fi
     done
+}
+
+# Helper function to lookup configuration from the YAML config file and environment variables.
+#
+# $1: YAML key
+# $2: Environment variable
+# $3: Default value
+# $4: Setting name (for pretty debug printing)
+get_config () {
+    local yml_key=${1}
+    local env_var=${2}
+    local default=${3}
+    local setting_name=${4}
+    local value=""
+    local msg="Looking up config for ${setting_name}:"
+    # First look in the config file...
+    if [ -f "${CONFIG_FILE}" ]; then
+        value="$(shyaml get-value "${yml_key}" '' <"${CONFIG_FILE}")"
+        if [ -n "${value}" ]; then
+            # Normalize booleans to `1` and `0` (shyaml will normalize all valid YAML
+            # booleans to 'True' and 'False' so only need to check for that).
+            if [ "$(shyaml -q get-type "${yml_key}" <"${CONFIG_FILE}")" == "bool" ]; then
+                [ "${value}" = "True" ] && value="1" || value="0"
+            fi
+            debug "${msg} using ${yml_key}=${value} from config file."
+        fi
+    fi
+    # ...then fall back to the environment variable...
+    if [ -z "${value}" ] && [ -n "${env_var}" ] && [ -n "${!env_var}" ]; then
+        value="${!env_var}"
+        if [ -n "${value}" ]; then
+            debug "${msg} using ${env_var}=${value} from environment"
+        fi
+    fi
+    # ...and finally to the default value.
+    if [ -z "${value}" ]; then
+        value="${default}"
+        debug "${msg} using default value (${value})."
+    fi
+    echo -n "${value}"
 }

@@ -65,6 +65,13 @@ in the old way like how [`@staticfloat`'s image][5] worked.
 
 
 ## How the Script add Domain Names to Certificate Requests
+There are two ways to configure the certificates the container should request
+and maintain:
+ - [Automatic discovery](#automatic-certificate-discovery) based on the mounted
+   Nginx config files
+ - Explicit specification using the [YAML config file](#yaml-certificate-specification)
+
+### Automatic certificate discovery
 The included script will go through all configuration files (`*.conf*`) it
 finds inside Nginx's `/etc/nginx/conf.d/` folder, and create requests from the
 file's content. In every unique file it will find any line that says:
@@ -119,6 +126,28 @@ Furthermore, we support wildcard domain names, but that requires you to use an
 authenticator capable of DNS-01 challenges, and more info about that may be
 found in the [certbot_authenticators.md](./certbot_authenticators.md) document.
 
+### YAML certificate specification
+To explicitly define certificate requests you can define a list `certificates:`
+list in a YAML config file (`/etc/nginx-certbot/config.yml` by default). Note
+that when the `certificates` key exist the automatic discovery from nginx
+config files is disabled and *only* certificates from the config file are
+requested.
+
+The example from the previous section would correspond to the following
+specification:
+```yaml
+certificates:
+  - name: test-name
+    domains:
+      - yourdomain.com
+      - www.yourdomain.com
+      - sub.yourdomain.com
+```
+
+Refer to the commented example [`config.yml`](../examples/config.yml) file for
+more details. It is, for example, possible to specify the
+[certbot authenticator](./certbot_authenticators.md), and the certificate
+[key type](#ecdsa-and-rsa-certificates).
 
 ## ECDSA and RSA Certificates
 [ECDSA (or ECC)][16] certificates use a newer encryption algorithm than the well

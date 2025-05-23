@@ -16,17 +16,15 @@ LOCAL_CA_CRT_DIR="${LOCAL_CA_DIR}/new_certs"
 
 info "Starting certificate renewal process with local CA"
 
+# Load some configuration from file with environment variables as fallback
+certbot_email=$(get_config certbot.email CERTBOT_EMAIL '' "certbot email")
+certbot_rsa_key_size=$(get_config certbot.rsa-key-size RSA_KEY_SIZE 2048 "RSA key size")
+
 # We require an email to be set here as well, in order to simulate how it would
 # be in the real certbot case.
-if [ -z "${CERTBOT_EMAIL}" ]; then
-    error "CERTBOT_EMAIL environment variable undefined; local CA will do nothing!"
+if [ -z "${certbot_email}" ]; then
+    error "certbot.email or the CERTBOT_EMAIL environment variable must be set; without it certbot will do nothing!"
     exit 1
-fi
-
-# Ensure that an RSA key size is set.
-if [ -z "${RSA_KEY_SIZE}" ]; then
-    debug "RSA_KEY_SIZE unset, defaulting to 2048"
-    RSA_KEY_SIZE=2048
 fi
 
 # This is an OpenSSL configuration file that has settings for creating a well
@@ -111,7 +109,7 @@ generate_ca() {
     # Make sure there is a private key available for the CA.
     if [ ! -f "${LOCAL_CA_KEY}" ]; then
         info "Generating new private key for local CA"
-        openssl genrsa -out "${LOCAL_CA_KEY}" "${RSA_KEY_SIZE}"
+        openssl genrsa -out "${LOCAL_CA_KEY}" "${certbot_rsa_key_size}"
     fi
 
     # Make sure there exists a self-signed certificate for the CA.
@@ -136,7 +134,7 @@ generate_ca() {
                               "0.organizationName      = github.com/JonasAlfredsson" \
                               "organizationalUnitName  = docker-nginx-certbot" \
                               "commonName              = Local Debug CA" \
-                              "emailAddress            = ${CERTBOT_EMAIL}" \
+                              "emailAddress            = ${certbot_email}" \
                               ) \
                     -extensions ca_cert \
                     -days "${LOCAL_CA_ROOT_CERT_VALIDITY}" \
@@ -177,7 +175,7 @@ get_certificate() {
     # It is good practice to generate a new key every time a new certificate is
     # requested, in order to guard against potential key compromises.
     info "Generating new private key for '${cert_name}'"
-    openssl genrsa -out "/etc/letsencrypt/live/${cert_name}/privkey.pem" "${RSA_KEY_SIZE}"
+    openssl genrsa -out "/etc/letsencrypt/live/${cert_name}/privkey.pem" "${certbot_rsa_key_size}"
 
     # Create a certificate signing request from the private key.
     info "Generating certificate signing request for '${cert_name}'"
@@ -185,7 +183,7 @@ get_certificate() {
                                 "${openssl_cnf}" \
                                 "[ dn_section ]" \
                                 "commonName   = ${cert_name}" \
-                                "emailAddress = ${CERTBOT_EMAIL}" \
+                                "emailAddress = ${certbot_email}" \
                                 ) \
                 -key "/etc/letsencrypt/live/${cert_name}/privkey.pem" \
                 -out "${LOCAL_CA_DIR}/${cert_name}.csr"
@@ -217,42 +215,77 @@ get_certificate() {
 # time this script is invoked.
 generate_ca
 
-# Get all the cert names for which we should create certificates for, along
-# with the corresponding server names.
-#
-# This will return an associative array that looks something like this:
-# "cert_name" => "server_name1 server_name2"
-declare -A certificates
-for conf_file in /etc/nginx/conf.d/*.conf*; do
-    parse_config_file "${conf_file}" certificates
-done
-
-# Iterate over each key and create a signed certificate for them.
-for cert_name in "${!certificates[@]}"; do
-    server_names=(${certificates["$cert_name"]})
-
-    # Assemble the list of domains to be included in the request.
-    ip_count=0
-    dns_count=0
-    alt_names=()
+# Assemble the list of domains to be included in the request.
+#   $@: All domain name variants
+assemble_alt_names() {
+    local server_names=("${@}")
+    local ip_count=0
+    local dns_count=0
+    local alt_names=()
     for server_name in "${server_names[@]}"; do
         if is_ip "${server_name}"; then
             # See if the alt name looks like an IP address.
-            ip_count=$((${ip_count} + 1))
+            ip_count=$((ip_count + 1))
             alt_names+=("IP.${ip_count}=${server_name}")
         else
             # Else we suppose this is a valid DNS name.
-            dns_count=$((${dns_count} + 1))
+            dns_count=$((dns_count + 1))
             alt_names+=("DNS.${dns_count}=${server_name}")
         fi
     done
+    echo "${alt_names[@]}"
+}
 
-    # Hand over all the info required for the certificate request, and
-    # let the local CA handle the rest.
-    if ! get_certificate "${cert_name}" "${alt_names[@]}"; then
-        error "Local CA failed for '${cert_name}'. Check the logs for details."
-    fi
-done
+# Get all the cert names for which we should create certificates for, along
+# with the corresponding server names.
+if [ -f "${CONFIG_FILE}" ] && shyaml -q get-value certificates >/dev/null <"${CONFIG_FILE}"; then
+    debug "Using config file '${CONFIG_FILE}' for certificate specifications"
+    # Loop over the certificates array and request the certificates
+    while read -r -d '' cert; do
+        debug "Parsing certificate specification"
+        cert_name="$(shyaml get-value name '' <<<"${cert}")"
+        if [ -z "${cert_name}" ]; then
+            error "'name' is missing; ignoring this certificate specification"
+            continue
+        fi
+        debug " - certificate name is: ${cert_name}"
+        domains=()
+        while read -r -d '' domain; do
+            domains+=("${domain}")
+        done < <(shyaml get-values-0 domains '' <<<"${cert}")
+        if [ "${#domains[@]}" -eq 0 ]; then
+            error "'domains' are missing; ignoring this certificate specification"
+            continue
+        fi
+        debug " - certificate domains are: ${domains[*]}"
+        # Assemble the list of domains to be included in the request.
+        read -ra alt_names < <(assemble_alt_names "${domains[@]}")
+        # Hand over all the info required for the certificate request, and
+        # let the local CA handle the rest.
+        if ! get_certificate "${cert_name}" "${alt_names[@]}"; then
+            error "Local CA failed for '${cert_name}'. Check the logs for details."
+        fi
+    done < <(shyaml -y get-values-0 certificates '' <"${CONFIG_FILE}")
+else
+    debug "Using automatic discovery of nginx conf file for certificate specifications"
+    # This will return an associative array that looks something like this:
+    # "cert_name" => "server_name1 server_name2"
+    declare -A certificates
+    for conf_file in /etc/nginx/conf.d/*.conf*; do
+        parse_config_file "${conf_file}" certificates
+    done
+    # Iterate over each key and create a signed certificate for them.
+    for cert_name in "${!certificates[@]}"; do
+        server_names=(${certificates["$cert_name"]})
+        # Assemble the list of domains to be included in the request.
+        read -ra alt_names < <(assemble_alt_names "${server_names[@]}")
+        # Hand over all the info required for the certificate request, and
+        # let the local CA handle the rest.
+        if ! get_certificate "${cert_name}" "${alt_names[@]}"; then
+            error "Local CA failed for '${cert_name}'. Check the logs for details."
+        fi
+    done
+fi
 
 # After trying to sign all of the certificates, auto enable any configs that we
 # did indeed succeed with.
