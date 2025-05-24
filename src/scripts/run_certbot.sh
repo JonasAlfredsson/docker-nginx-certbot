@@ -40,6 +40,13 @@ if [ -z "${ELLIPTIC_CURVE}" ]; then
     ELLIPTIC_CURVE="secp256r1"
 fi
 
+# Ensure that we have a directory where DNS credentials may be placed.
+: "${CERTBOT_DNS_CREDENTIALS_DIR=/etc/letsencrypt}"
+if [ ! -d "${CERTBOT_DNS_CREDENTIALS_DIR}" ]; then
+    error "DNS credentials directory '${CERTBOT_DNS_CREDENTIALS_DIR}' does not exist"
+    exit 1
+fi
+
 if [ "${1}" = "force" ]; then
     info "Forcing renewal of certificates"
     force_renew="--force-renewal"
@@ -52,17 +59,42 @@ fi
 # $1: The name of the certificate (e.g. domain.rsa.dns-rfc2136)
 # $2: String with all requested domains (e.g. -d domain.org -d www.domain.org)
 # $3: Type of key algorithm to use (rsa or ecdsa)
-# $4: The authenticator to use to solve the challenge
 get_certificate() {
-    local authenticator="${4,,}"
+    local cert_name="${1}"
+    local authenticator=""
     local authenticator_params=""
     local challenge_type=""
+    local dns_config_file=""
+
+    # Determine the authenticator to use to solve the authentication challenge.
+    # Having the authenticator specified in the certificate name will take
+    # precedence over the environmental variable.
+    if [[ "${cert_name,,}" =~ (^|[-.])webroot([-.]|$) ]]; then
+        debug "Found mention of 'webroot' in name '${cert_name}"
+        authenticator="webroot"
+    elif [[ "${cert_name,,}" =~ (^|[-.])dns-([^-.]*)([-.]|$) ]]; then
+        # Looks like there is some kind of DNS authenticator in the name, save the full name as the
+        # config file. This allows something like "name.dns-rfc2136_conf1.ecc" to then use the
+        # config file name "rfc2136_conf1.ini" instead of just "rfc2136.ini" further down.
+        dns_config_file="${CERTBOT_DNS_CREDENTIALS_DIR}/${BASH_REMATCH[2]}.ini"
+        if [[ "${BASH_REMATCH[2]}" =~ ($(echo ${CERTBOT_DNS_AUTHENTICATORS} | sed 's/ /|/g')) ]]; then
+            authenticator="dns-${BASH_REMATCH[1]}"
+            debug "Found mention of authenticator '${authenticator}' in name '${cert_name}'"
+        else
+            error "The DNS authenticator found in '${cert_name}' does not appear to be supported"
+            return 1
+        fi
+    elif [ -n "${CERTBOT_AUTHENTICATOR}" ]; then
+        authenticator="${CERTBOT_AUTHENTICATOR}"
+    else
+        authenticator="webroot"
+    fi
 
     # Add correct parameters for the different authenticator types.
     if [ "${authenticator}" == "webroot" ]; then
         challenge_type="http-01"
         authenticator_params="--webroot-path=/var/www/letsencrypt"
-    elif [[ "${authenticator}" == dns-* ]]; then
+    elif [[ "${authenticator}" =~ ^dns-($(echo ${CERTBOT_DNS_AUTHENTICATORS} | sed 's/ /|/g'))$ ]]; then
         challenge_type="dns-01"
 
         if [ "${authenticator#dns-}" == "route53" ]; then
@@ -72,23 +104,28 @@ get_certificate() {
                 return 1
             fi
         else
-            local configfile="/etc/letsencrypt/${authenticator#dns-}.ini"
-            if [ ! -f "${configfile}" ]; then
-                error "Authenticator is '${authenticator}' but '${configfile}' is missing"
+            if [ -z "${dns_config_file}" ]; then
+                # If we don't already have a config file set for this authenticator we assemble
+                # the default path.
+                dns_config_file="${CERTBOT_DNS_CREDENTIALS_DIR}/${authenticator#dns-}.ini"
+            fi
+            if [ ! -f "${dns_config_file}" ]; then
+                error "Authenticator is '${authenticator}' but '${dns_config_file}' is missing"
                 return 1
             fi
-            authenticator_params="--${authenticator}-credentials=${configfile}"
+            debug "Using DNS credentials file at '${dns_config_file}'"
+            authenticator_params="--${authenticator}-credentials=${dns_config_file}"
         fi
 
         if [ -n "${CERTBOT_DNS_PROPAGATION_SECONDS}" ]; then
             authenticator_params="${authenticator_params} --${authenticator}-propagation-seconds=${CERTBOT_DNS_PROPAGATION_SECONDS}"
         fi
     else
-        error "Unknown authenticator '${authenticator}' for '${1}'"
+        error "Unknown authenticator '${authenticator}' for '${cert_name}'"
         return 1
     fi
 
-    info "Requesting an ${3^^} certificate for '${1}' (${challenge_type} through ${authenticator})"
+    info "Requesting an ${3^^} certificate for '${cert_name}' (${challenge_type} through ${authenticator})"
     certbot certonly \
         --agree-tos --keep -n --text \
         --preferred-challenges ${challenge_type} \
@@ -99,7 +136,7 @@ get_certificate() {
         --rsa-key-size "${RSA_KEY_SIZE}" \
         --elliptic-curve "${ELLIPTIC_CURVE}" \
         --key-type "${3}" \
-        --cert-name "${1}" \
+        --cert-name "${cert_name}" \
         ${2} \
         --debug ${force_renew}
 }
@@ -136,21 +173,6 @@ for cert_name in "${!certificates[@]}"; do
         key_type="ecdsa"
     fi
 
-    # Determine the authenticator to use to solve the authentication challenge.
-    # Having the authenticator specified in the certificate name will take
-    # precedence over the environmental variable.
-    if [[ "${cert_name,,}" =~ (^|[-.])webroot([-.]|$) ]]; then
-        authenticator="webroot"
-        debug "Found mention of 'webroot' in name '${cert_name}"
-    elif [[ "${cert_name,,}" =~ (^|[-.])(dns-($(echo ${CERTBOT_DNS_AUTHENTICATORS} | sed 's/ /|/g')))([-.]|$) ]]; then
-        authenticator=${BASH_REMATCH[2]}
-        debug "Found mention of authenticator '${authenticator}' in name '${cert_name}'"
-    elif [ -n "${CERTBOT_AUTHENTICATOR}" ]; then
-        authenticator="${CERTBOT_AUTHENTICATOR}"
-    else
-        authenticator="webroot"
-    fi
-
     # Assemble the list of domains to be included in the request from
     # the parsed 'server_names'
     domain_request=""
@@ -160,7 +182,7 @@ for cert_name in "${!certificates[@]}"; do
 
     # Hand over all the info required for the certificate request, and
     # let certbot decide if it is necessary to update the certificate.
-    if ! get_certificate "${cert_name}" "${domain_request}" "${key_type}" "${authenticator}"; then
+    if ! get_certificate "${cert_name}" "${domain_request}" "${key_type}"; then
         error "Certbot failed for '${cert_name}'. Check the logs for details."
     fi
 done

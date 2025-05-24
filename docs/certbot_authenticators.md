@@ -2,16 +2,24 @@
 
 Certbot allows to use a number of [authenticators to get certificates][1]. By
 default, and this will be sufficient for most users, this container uses the
-[webroot authenticator][2], which will provision certificates for your domain
-names by doing what is called [HTTP-01 validation][3], where ownership of the
-domain name is proven by serving a specific content at a given URL.
+[webroot authenticator][2] which will provision certificates for your domain
+names by doing what is called [HTTP-01 validation][3]. Here the ownership of the
+domain name is proven by serving a specific content at a given URL, whcih means
+that a limitation with this authenticator is that the Let's Encrypt servers
+must be able to reach your server on port 80 for it to work. This is the reason
+for the ".well-known" location in the
+[`redirector.conf`](../src/nginx_conf.d/redirector.conf) file.
 
 Among the other authenticators available to certbot, the [DNS authenticators][4]
 are also available through this container. DNS authenticators allow you to prove
 ownership of a domain name by serving a challenge directly through a TXT record
 added in your DNS provider. This challenge is called [DNS-01][5] and is a
 stronger proof of ownership than using HTTP-01, which is why this method also
-allow wildcard certificates (e.g. `*.yourdomain.org`).
+allow wildcard certificates (e.g. `*.yourdomain.org`). Using the DNS autheicator
+also means that the Let's Encrypt servers only has to perform DNS lookups and do
+not need to connect directly to your server. This means that you can get a
+"proper" certificate to a service that otherwise is only reachable on your own
+LAN.
 
 
 ## Preparing the Container for DNS-01 Challenges
@@ -43,14 +51,19 @@ for the supported authenticators:
  - [dns-gandi][25]
 
 You will need to setup the authenticator file at
-`/etc/letsencrypt/<authenticator provider>.ini`, so for e.g. Cloudflare you
-would need the file `/etc/letsencrypt/cloudflare.ini` with the following
-content:
+`$CERTBOT_DNS_CREDENTIALS_DIR/<authenticator provider>.ini`, where the
+`$CERTBOT_DNS_CREDENTIALS_DIR` variable defaults to `/etc/letsencrypt`.
+So for e.g. Cloudflare you would need the file `/etc/letsencrypt/cloudflare.ini`
+with the following content:
 
 ```ini
 # Cloudflare API token used by Certbot
 dns_cloudflare_api_token = 0123456789abcdef0123456789abcdef01234567
 ```
+
+It is also possible to define unique credentials files by including extra
+information in the certificate path, read more about it
+[below](#unique-credentials-files).
 
 
 ## Using a DNS-01 Authenticator by Default
@@ -98,6 +111,39 @@ RSA certificate via Clouflare's authenticator can be specified like this:
 ```
 ssl_certificate_key /etc/letsencrypt/live/test-name.dns-cloudflare.rsa/privkey.pem;
 ```
+
+### Unique Credentials Files
+An expansion on the unique DNS authenticator feature mentioned above is that
+it is possible to add a suffix to it in order to use individual credentials
+files for the same DNS provider. In the following example we have two config
+files with the following content:
+
+```
+server {
+    listen              443 ssl;
+    server_name         first.org *.first.org;
+    ssl_certificate_key /etc/letsencrypt/live/c2.dns-cloudflare_1/privkey.pem;
+    ...
+}
+```
+
+```
+server {
+    listen              443 ssl;
+    server_name         second.org *.second.org;
+    ssl_certificate_key /etc/letsencrypt/live/c1.dns-cloudflare_2/privkey.pem;
+    ...
+}
+```
+
+As you can see they both use the Cloudflare DNS authenticator, but the first
+one will use the `/etc/letsencrypt/cloudflare_1.ini` credentials file while the
+second one will use `/etc/letsencrypt/cloudflare_2.ini`. This allows us to have
+multiple scoped credentials for the DNS, instead of a single one that can
+control all domains.
+
+The limit to this feature is that the suffix may not consist of an `.` or a `-`
+since they are used as separators for other things.
 
 ## Troubleshooting Tips
 
