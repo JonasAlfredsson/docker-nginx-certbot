@@ -1,5 +1,9 @@
 # Changelog
 
+### 5.6.0
+- Added gandi DNS authenticator.
+  - PR by [@benedicteb][58]
+
 ### 5.5.0
 - Added [namecheap][56] DNS authenticator.
 - Added [godaddy][57] DNS authenticator.
@@ -450,3 +454,4 @@
 [55]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/307
 [56]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/313
 [57]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/320
+[58]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/327
