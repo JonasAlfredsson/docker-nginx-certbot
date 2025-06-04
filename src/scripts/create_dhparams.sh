@@ -11,16 +11,13 @@ set -e
 # The created file should be stored somewhere under /etc/letsencrypt/dhparams/
 # to ensure persistence between restarts.
 create_dhparam() {
-    if [ -z "${DHPARAM_SIZE}" ]; then
-        debug "DHPARAM_SIZE unset, using default of 2048 bits"
-        DHPARAM_SIZE=2048
-    fi
-
+    local dhparam_size
+    dhparam_size=$(get_config nginx-certbot.dhparam-size DHPARAM_SIZE 2048 "Diffie-Hellman parameter size")
     info "
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %                        ATTENTION!                       %
     %                                                         %
-    % This script will now create a ${DHPARAM_SIZE} bit Diffie-Hellman   %
+    % This script will now create a ${dhparam_size} bit Diffie-Hellman   %
     % parameter to use during the SSL handshake.              %
     %                                                         %
     % >>>>>      This MIGHT take a VERY long time!      <<<<< %
@@ -34,7 +31,7 @@ create_dhparam() {
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     "
     info "Will now output to the following file: '${1}'"
-    openssl dhparam -out "${1}" "${DHPARAM_SIZE}"
+    openssl dhparam -out "${1}" "${dhparam_size}"
     info "
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % >>>>>   Diffie-Hellman parameter creation done!   <<<<< %

@@ -72,6 +72,8 @@ RUN set -ex && \
     pip3 install -r /requirements.txt && \
 # And the supported extra authenticators.
     pip3 install $(echo $CERTBOT_DNS_AUTHENTICATORS | sed 's/\(^\| \)/\1certbot-dns-/g') && \
+# Install shyaml
+    pip3 install shyaml && \
 # Remove everything that is no longer necessary.
     apt-get remove --purge -y \
             build-essential \

@@ -21,8 +21,24 @@ trap "clean_exit" EXIT
 # Source "util.sh" so we can have our nice tools.
 . "$(cd "$(dirname "$0")"; pwd)/util.sh"
 
-# If the environment variable `DEBUG=1` is set, then this message is printed.
+# Enable debug mode if requested and export the variable to the various subprocesses
+DEBUG=$(get_config nginx-certbot.debug DEBUG 0 "debug mode")
+export DEBUG
+# If `DEBUG=1` is set, then this message is printed.
 debug "Debug messages are enabled"
+
+# Configuration file from NGINX_CERTBOT_CONFIG_FILE environment variable. We make some noise
+# here during startup if the variable is set to a file that doesn't exist since this is most
+# likely a user error.
+if [ ! -f "${CONFIG_FILE}" ]; then
+    if [ -n "${NGINX_CERTBOT_CONFIG_FILE}" ]; then
+        warning "NGINX_CERTBOT_CONFIG_FILE is explicitly set but '${CONFIG_FILE}' doesn't exist."
+    else
+        debug "Configuration file '${CONFIG_FILE}' doesn't exist."
+    fi
+else
+    debug "Configuration file '${CONFIG_FILE}' exist."
+fi
 
 # Immediately symlink files to the correct locations and then run
 # 'auto_enable_configs' so that Nginx is in a runnable state
@@ -43,10 +59,7 @@ fi
 debug "PID of the main Nginx process: ${NGINX_PID}"
 
 # Make sure a renewal interval is set before continuing.
-if [ -z "${RENEWAL_INTERVAL}" ]; then
-    debug "RENEWAL_INTERVAL unset, using default of '8d'"
-    RENEWAL_INTERVAL='8d'
-fi
+RENEWAL_INTERVAL=$(get_config nginx-certbot.renewal-interval RENEWAL_INTERVAL 8d "renewal interval")
 
 # Instead of trying to run 'cron' or something like that, just sleep and
 # call on certbot after the defined interval.
