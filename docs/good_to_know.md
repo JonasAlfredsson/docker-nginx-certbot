@@ -78,6 +78,10 @@ will be provided to the [`--cert-name`][14] argument for certbot, so while you
 may set basically any name you want here I suggest you keep it descriptive for
 your own sake.
 
+> ADVANCED: It is possible to add keywords to this certificate name in order
+> to use [specific algorithms](./advanced_usage.md#multi-certificate-setup) or
+> use other [authenitcators](./certbot_authenticators.md#using-a-dns-01-authenticator-for-specific-certificates-only).
+
 After this the script will find all the lines that contain `server_name` and
 make a list of all the domain names that exist on the same line. So a file
 containing something like this:
@@ -141,6 +145,9 @@ Nginx to serve both ECDSA and RSA certificates at the same time, but this
 is explained further in the
 [Advanced Usage](./advanced_usage.md#multi-certificate-setup) document.
 
+> :warning: If you are using ciphers that depend on RSA they will be
+> [silently disabled](https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/247#issuecomment-2128717110)
+> if only ECDSA certificates are available.
 
 
 ## Renewal Check Interval
