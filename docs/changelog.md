@@ -1,5 +1,11 @@
 # Changelog
 
+### 6.0.0
+- Certbot updated two major versions (`2.11.0` -> `4.1.1`).
+  - This is the main reason for making a major version bump for us.
+- The scripts now handle nested folders in `user_conf.d/`.
+- It is now possible to have [multiple credentials](./certbot_authenticators.md#unique-credentials-files) files for the same DNS authenticator.
+
 ### 5.6.0
 - Added gandi DNS authenticator.
   - PR by [@benedicteb][58]
