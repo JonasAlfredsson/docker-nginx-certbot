@@ -51,6 +51,7 @@ for the supported authenticators:
  - [dns-namecheap][26]
  - [dns-godaddy][27]
  - [dns-gandi][25]
+ - [dns-powerdns][28]
 
 You will need to setup the authenticator file at
 `$CERTBOT_DNS_CREDENTIALS_DIR/<authenticator provider>.ini`, where the
@@ -158,7 +159,7 @@ environment variable in your docker configuration, to increase the time to wait
 for DNS propagation to happen.
 
 When that environment variable is not set, certbot will use a default value,
-which can be found in the documentation of the authenticator of your chosing.
+which can be found in the documentation of the authenticator of your choosing.
 At the time of writing, this default value is of 10 seconds for all of the DNS
 authenticators.
 
@@ -191,3 +192,4 @@ authenticators.
 [25]: https://github.com/obynio/certbot-plugin-gandi
 [26]: https://github.com/knoxell/certbot-dns-namecheap?tab=readme-ov-file#credentials
 [27]: https://github.com/miigotu/certbot-dns-godaddy?tab=readme-ov-file#credentials
+[28]: https://github.com/pan-net-security/certbot-dns-powerdns 
