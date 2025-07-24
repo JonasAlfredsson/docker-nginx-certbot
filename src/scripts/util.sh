@@ -234,6 +234,12 @@ parse_config_file() {
             continue
         fi
 
+        # Ignore nginx variables since these cannot be gracefully handled
+        if [[ "${server_name}" =~ \$(.+) ]]; then
+            debug "Ignoring server name '${server_name}' since it looks like an nginx variable and we cannot handle that"
+            continue
+        fi
+
         server_names+=("${server_name}")
     done
     debug "Found the following domain names: ${server_names[*]}"
