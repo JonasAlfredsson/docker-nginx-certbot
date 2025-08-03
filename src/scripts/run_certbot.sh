@@ -19,13 +19,19 @@ if [ -z "${CERTBOT_EMAIL}" ]; then
     exit 1
 fi
 
-# Use the correct challenge URL depending on if we want staging or not.
-if [ "${STAGING}" = "1" ]; then
-    debug "Using staging environment"
-    letsencrypt_url="${CERTBOT_STAGING_URL}"
+if [ ! -z "${CUSTOM_SERVER_URL}" ]
+then
+    debug "Using custom CA server at \"${CUSTOM_SERVER_URL}\""
+    letsencrypt_url="${CUSTOM_SERVER_URL}" # Not necessarily Let's Encrypt anymore though...
 else
-    debug "Using production environment"
-    letsencrypt_url="${CERTBOT_PRODUCTION_URL}"
+    # Use the correct challenge URL depending on if we want staging or not.
+    if [ "${STAGING}" = "1" ]; then
+        debug "Using staging environment"
+        letsencrypt_url="${CERTBOT_STAGING_URL}"
+    else
+        debug "Using production environment"
+        letsencrypt_url="${CERTBOT_PRODUCTION_URL}"
+    fi
 fi
 
 # Ensure that an RSA key size is set.
