@@ -1,5 +1,11 @@
 # Changelog
 
+### 6.0.1
+- Added powerdns DNS authenticator.
+  - PR by [@robmccrea][59]
+- Ignore `server_name`s that look like Nginx variables (i.e. they begin with `$`).
+  - PR by [@Grimeh][59]
+
 ### 6.0.0
 - Certbot updated two major versions (`2.11.0` -> `4.1.1`).
   - This is the main reason for making a major version bump for us.
@@ -461,3 +467,5 @@
 [56]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/313
 [57]: https://github.com/JonasAlfredsson/docker-nginx-certbot/issues/320
 [58]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/327
+[59]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/334
+[60]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/335
