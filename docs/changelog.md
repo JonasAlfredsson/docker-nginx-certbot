@@ -1,5 +1,8 @@
 # Changelog
 
+### 6.0.2
+- Upgrade nginx to 1.29.5 to address CVE-2026-1642.
+
 ### 6.0.1
 - Added powerdns DNS authenticator.
   - PR by [@robmccrea][59]
