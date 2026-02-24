@@ -24,6 +24,7 @@ ENV CERTBOT_DNS_AUTHENTICATORS="\
     godaddy \
     gandi \
     powerdns \
+    porkbun \
     "
 
 # Needed in order to install Python packages via PIP after PEP 668 was
