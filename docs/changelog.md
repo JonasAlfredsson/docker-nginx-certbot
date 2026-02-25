@@ -1,10 +1,14 @@
 # Changelog
 
+### 6.1.0
+- Added porkbun DNS authenticator.
+  - PR by [@Oni][61]
+
 ### 6.0.1
 - Added powerdns DNS authenticator.
   - PR by [@robmccrea][59]
 - Ignore `server_name`s that look like Nginx variables (i.e. they begin with `$`).
-  - PR by [@Grimeh][59]
+  - PR by [@Grimeh][60]
 
 ### 6.0.0
 - Certbot updated two major versions (`2.11.0` -> `4.1.1`).
@@ -469,3 +473,4 @@
 [58]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/327
 [59]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/334
 [60]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/335
+[61]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/368
