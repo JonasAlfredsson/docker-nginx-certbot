@@ -82,8 +82,13 @@ RUN set -ex && \
 # lego reads the same multi.ini credentials file and covers all 150+ DNS providers.
 ARG LEGO_VERSION=4.33.0
 ARG TARGETARCH
+ARG TARGETVARIANT
 RUN set -ex && \
-    ARCH=$(echo "${TARGETARCH:-$(uname -m)}" | sed 's/x86_64/amd64/;s/aarch64/arm64/;s/armv7l/arm/') && \
+    if [ "${TARGETARCH}" = "arm" ] && [ -n "${TARGETVARIANT}" ]; then \
+        ARCH="arm${TARGETVARIANT}"; \
+    else \
+        ARCH=$(echo "${TARGETARCH:-$(uname -m)}" | sed 's/x86_64/amd64/;s/aarch64/arm64/;s/armv7l/armv7/;s/armv6l/armv6/'); \
+    fi && \
     wget -qO- "https://github.com/go-acme/lego/releases/download/v${LEGO_VERSION}/lego_v${LEGO_VERSION}_linux_${ARCH}.tar.gz" \
     | tar -xz -C /usr/local/bin lego && \
     chmod +x /usr/local/bin/lego

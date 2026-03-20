@@ -25,15 +25,11 @@ ENV CERTBOT_DNS_AUTHENTICATORS="\
     gandi \
     powerdns \
     porkbun \
-    multi \
     "
 
-# NOTE: certbot-dns-multi is a meta-plugin that wraps 117+ DNS providers via
-# the lego library (including freemyip, Porkbun extras, etc.). It is listed
-# last because it requires special handling in both images:
-# - Debian: installs from precompiled manylinux wheels (fast, no Go needed).
-# - Alpine: compiled from source using the Go toolchain installed temporarily
-#   during the build (see Dockerfile-alpine for details).
+# dns-multi certificates are handled by the static lego binary on all platforms
+# and architectures. lego reads the same multi.ini credentials file and covers
+# all 150+ DNS providers. See Dockerfile-alpine for the Alpine equivalent.
 
 # Needed in order to install Python packages via PIP after PEP 668 was
 # introduced, but I believe this is safe since we are in a container without
@@ -43,6 +39,9 @@ ARG PIP_BREAK_SYSTEM_PACKAGES=1
 # We need to do some platfrom specific workarounds in the build script, so bring
 # this information in to the build environment.
 ARG TARGETPLATFORM
+ARG TARGETARCH
+ARG TARGETVARIANT
+ARG LEGO_VERSION=4.33.0
 
 # Through this we gain the ability to handle certbot upgrades through
 # dependabot pull requests.
@@ -80,8 +79,18 @@ RUN set -ex && \
     curl -L 'https://bootstrap.pypa.io/get-pip.py' | python3 && \
 # Install certbot.
     pip3 install -r /requirements.txt && \
-# And the supported extra authenticators.
-    pip3 install $(echo $CERTBOT_DNS_AUTHENTICATORS | sed 's/\(^\| \)/\1certbot-dns-/g') && \
+# Install all supported extra authenticators.
+    pip3 install $(echo $CERTBOT_DNS_AUTHENTICATORS | xargs | sed 's/\(^\| \)/\1certbot-dns-/g') && \
+# Install the static lego binary to handle dns-multi certificates.
+# curl is still available here (removed in the cleanup step below).
+    if [ "${TARGETARCH}" = "arm" ] && [ -n "${TARGETVARIANT}" ]; then \
+        ARCH="arm${TARGETVARIANT}"; \
+    else \
+        ARCH=$(echo "${TARGETARCH:-$(uname -m)}" | sed 's/x86_64/amd64/;s/aarch64/arm64/;s/armv7l/armv7/;s/armv6l/armv6/'); \
+    fi && \
+    curl -sL "https://github.com/go-acme/lego/releases/download/v${LEGO_VERSION}/lego_v${LEGO_VERSION}_linux_${ARCH}.tar.gz" \
+        | tar -xz -C /usr/local/bin lego && \
+    chmod +x /usr/local/bin/lego && \
 # Remove everything that is no longer necessary.
     apt-get remove --purge -y \
             build-essential \
@@ -92,7 +101,7 @@ RUN set -ex && \
             python3-dev \
     && \
     if echo "$TARGETPLATFORM" | grep -E -q '^(linux/386|linux/arm64|linux/arm/v7)'; then \
-        rustup self uninstall -y; \
+        rustup self uninstall -y || rm -rf "$HOME/.rustup" "$HOME/.cargo"; \
     fi && \
     apt-get autoremove -y && \
     apt-get clean && \
