@@ -57,9 +57,8 @@ RUN set -ex && \
     curl -L 'https://bootstrap.pypa.io/get-pip.py' | python3 && \
 # Install certbot.
     pip3 install -r /requirements.txt && \
-# Install all supported extra authenticators except dns-multi, which requires
-# Go for CGO compilation and is handled separately below.
-    pip3 install $(echo $CERTBOT_DNS_AUTHENTICATORS | sed 's/\bmulti\b//' | xargs | sed 's/\(^\| \)/\1certbot-dns-/g') && \
+# Install all supported extra authenticators.
+    pip3 install $(echo $CERTBOT_DNS_AUTHENTICATORS | xargs | sed 's/\(^\| \)/\1certbot-dns-/g') && \
 # Remove everything that is no longer necessary.
     apk del \
         curl \
@@ -80,10 +79,7 @@ RUN set -ex && \
     rm -f /etc/nginx/conf.d/*
 
 # Install the static lego binary to handle dns-multi certificates on Alpine.
-# certbot-dns-multi uses a CGO shared library (lego_bridge.so) whose initial-exec
-# TLS model is rejected by musl's dlopen(). The upstream lego binary is compiled
-# with CGO_ENABLED=0 — fully static, no libc dependency — so it works on musl.
-# lego reads the same multi.ini credentials file and covers all 150+ lego providers.
+# lego reads the same multi.ini credentials file and covers all 150+ DNS providers.
 ARG LEGO_VERSION=4.33.0
 ARG TARGETARCH
 RUN set -ex && \

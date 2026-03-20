@@ -196,17 +196,13 @@ ssl_certificate_key /etc/letsencrypt/live/mysite.dns-multi/privkey.pem;
 See the [certbot-dns-multi documentation][30] for the full list of supported
 providers and their credential keys.
 
-> **Alpine image note.** `certbot-dns-multi` uses a CGO shared library
-> (`lego_bridge.so`) whose `initial-exec` TLS model is rejected by musl's
-> `dlopen()`. On the Alpine image the `dns-multi` authenticator is therefore
-> handled by the upstream **lego** binary instead of by certbot. Lego is
-> compiled with `CGO_ENABLED=0` (fully static, no libc dependency) so it
-> works on musl without issues. The image ships `/usr/local/bin/lego` and
-> a companion script `run_lego.sh` that reads the same `multi.ini`
-> credentials file, issues/renews all `dns-multi` certificates, and
-> symlinks the results into the certbot-compatible
-> `/etc/letsencrypt/live/<cert-name>/` layout. Everything else — certbot
-> and all other DNS authenticators — is unchanged.
+> **Alpine image note.** On the Alpine image the `dns-multi` authenticator
+> is handled by the upstream **lego** binary instead of by certbot. The
+> image ships `/usr/local/bin/lego` and a companion script `run_lego.sh`
+> that reads the same `multi.ini` credentials file, issues/renews all
+> `dns-multi` certificates, and symlinks the results into the
+> certbot-compatible `/etc/letsencrypt/live/<cert-name>/` layout.
+> Everything else — certbot and all other DNS authenticators — is unchanged.
 
 
 [1]: https://eff-certbot.readthedocs.io/en/stable/using.html#getting-certificates-and-choosing-plugins
