@@ -25,7 +25,15 @@ ENV CERTBOT_DNS_AUTHENTICATORS="\
     gandi \
     powerdns \
     porkbun \
+    multi \
     "
+
+# NOTE: certbot-dns-multi is a meta-plugin that wraps 117+ DNS providers via
+# the lego library (including freemyip, Porkbun extras, etc.). It is listed
+# last because it requires special handling in both images:
+# - Debian: installs from precompiled manylinux wheels (fast, no Go needed).
+# - Alpine: compiled from source using the Go toolchain installed temporarily
+#   during the build (see Dockerfile-alpine for details).
 
 # Needed in order to install Python packages via PIP after PEP 668 was
 # introduced, but I believe this is safe since we are in a container without

@@ -53,6 +53,7 @@ for the supported authenticators:
  - [dns-gandi][25]
  - [dns-powerdns][28]
  - [dns-porkbun][29]
+ - [dns-multi][30] *(see [note below](#dns-multi-meta-plugin) for Alpine build details)*
 
 You will need to setup the authenticator file at
 `$CERTBOT_DNS_CREDENTIALS_DIR/<authenticator provider>.ini`, where the
@@ -165,6 +166,47 @@ At the time of writing, this default value is of 10 seconds for all of the DNS
 authenticators.
 
 
+## dns-multi Meta-Plugin
+
+`certbot-dns-multi` is a single plugin that wraps [lego's 117+ DNS
+providers][31], including many not available as individual certbot plugins (e.g.
+freemyip, Netlify, Akamai). Instead of one `.ini` file per provider, it uses a
+single `multi.ini` credentials file whose format is:
+
+```ini
+dns_multi_provider = <provider-name>
+<PROVIDER_SPECIFIC_KEY> = <value>
+```
+
+For example, to use [freemyip][32]:
+
+```ini
+dns_multi_provider = freemyip
+FREEMYIP_TOKEN = your-freemyip-token
+```
+
+Place this file at `$CERTBOT_DNS_CREDENTIALS_DIR/multi.ini` (defaults to
+`/etc/letsencrypt/multi.ini`), then reference it in your nginx config using
+`dns-multi` as the authenticator suffix:
+
+```nginx
+ssl_certificate_key /etc/letsencrypt/live/mysite.dns-multi/privkey.pem;
+```
+
+See the [certbot-dns-multi documentation][30] for the full list of supported
+providers and their credential keys.
+
+> **Alpine image note.** `certbot-dns-multi` uses a CGO shared library
+> (`lego_bridge.so`) whose `initial-exec` TLS model is rejected by musl's
+> `dlopen()`. On the Alpine image the `dns-multi` authenticator is therefore
+> handled by the upstream **lego** binary instead of by certbot. Lego is
+> compiled with `CGO_ENABLED=0` (fully static, no libc dependency) so it
+> works on musl without issues. The image ships `/usr/local/bin/lego` and
+> a companion script `run_lego.sh` that reads the same `multi.ini`
+> credentials file, issues/renews all `dns-multi` certificates, and
+> symlinks the results into the certbot-compatible
+> `/etc/letsencrypt/live/<cert-name>/` layout. Everything else — certbot
+> and all other DNS authenticators — is unchanged.
 
 
 [1]: https://eff-certbot.readthedocs.io/en/stable/using.html#getting-certificates-and-choosing-plugins
@@ -195,3 +237,6 @@ authenticators.
 [27]: https://github.com/miigotu/certbot-dns-godaddy?tab=readme-ov-file#credentials
 [28]: https://github.com/pan-net-security/certbot-dns-powerdns 
 [29]: https://pypi.org/project/certbot-dns-porkbun/
+[30]: https://github.com/alexzorin/certbot-dns-multi
+[31]: https://go-acme.github.io/lego/dns/
+[32]: https://freemyip.com

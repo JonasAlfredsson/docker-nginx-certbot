@@ -80,6 +80,11 @@ get_certificate() {
         if [[ "${BASH_REMATCH[2]}" =~ ($(echo ${CERTBOT_DNS_AUTHENTICATORS} | sed 's/ /|/g')) ]]; then
             authenticator="dns-${BASH_REMATCH[1]}"
             debug "Found mention of authenticator '${authenticator}' in name '${cert_name}'"
+        elif [[ "${cert_name,,}" =~ (^|[-.])dns-multi([-._]|$) ]] && command -v lego >/dev/null 2>&1; then
+            # dns-multi certs are handled by run_lego.sh on images that ship the
+            # static lego binary (e.g. Alpine). Skip here without error.
+            debug "Skipping '${cert_name}' — dns-multi will be handled by lego"
+            return 0
         else
             error "The DNS authenticator found in '${cert_name}' does not appear to be supported"
             return 1

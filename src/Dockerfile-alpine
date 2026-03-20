@@ -57,8 +57,9 @@ RUN set -ex && \
     curl -L 'https://bootstrap.pypa.io/get-pip.py' | python3 && \
 # Install certbot.
     pip3 install -r /requirements.txt && \
-# And the supported extra authenticators.
-    pip3 install $(echo $CERTBOT_DNS_AUTHENTICATORS | sed 's/\(^\| \)/\1certbot-dns-/g') && \
+# Install all supported extra authenticators except dns-multi, which requires
+# Go for CGO compilation and is handled separately below.
+    pip3 install $(echo $CERTBOT_DNS_AUTHENTICATORS | sed 's/\bmulti\b//' | xargs | sed 's/\(^\| \)/\1certbot-dns-/g') && \
 # Remove everything that is no longer necessary.
     apk del \
         curl \
@@ -77,6 +78,19 @@ RUN set -ex && \
     && \
 # Make sure there are no surprise config files inside the config folder.
     rm -f /etc/nginx/conf.d/*
+
+# Install the static lego binary to handle dns-multi certificates on Alpine.
+# certbot-dns-multi uses a CGO shared library (lego_bridge.so) whose initial-exec
+# TLS model is rejected by musl's dlopen(). The upstream lego binary is compiled
+# with CGO_ENABLED=0 — fully static, no libc dependency — so it works on musl.
+# lego reads the same multi.ini credentials file and covers all 150+ lego providers.
+ARG LEGO_VERSION=4.33.0
+ARG TARGETARCH
+RUN set -ex && \
+    ARCH=$(echo "${TARGETARCH:-$(uname -m)}" | sed 's/x86_64/amd64/;s/aarch64/arm64/;s/armv7l/arm/') && \
+    wget -qO- "https://github.com/go-acme/lego/releases/download/v${LEGO_VERSION}/lego_v${LEGO_VERSION}_linux_${ARCH}.tar.gz" \
+    | tar -xz -C /usr/local/bin lego && \
+    chmod +x /usr/local/bin/lego
 
 # Copy in our "default" Nginx server configurations, which make sure that the
 # ACME challenge requests are correctly forwarded to certbot and then redirects
