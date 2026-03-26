@@ -53,6 +53,7 @@ for the supported authenticators:
  - [dns-gandi][25]
  - [dns-powerdns][28]
  - [dns-porkbun][29]
+ - [dns-inwx][30]
 
 You will need to setup the authenticator file at
 `$CERTBOT_DNS_CREDENTIALS_DIR/<authenticator provider>.ini`, where the
@@ -195,3 +196,4 @@ authenticators.
 [27]: https://github.com/miigotu/certbot-dns-godaddy?tab=readme-ov-file#credentials
 [28]: https://github.com/pan-net-security/certbot-dns-powerdns 
 [29]: https://pypi.org/project/certbot-dns-porkbun/
+[30]: https://github.com/oGGy990/certbot-dns-inwx
