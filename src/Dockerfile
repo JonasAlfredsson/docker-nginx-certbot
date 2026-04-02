@@ -1,4 +1,4 @@
-FROM nginx:1.29.6
+FROM nginx:1.29.7
 LABEL maintainer="Jonas Alfredsson <jonas.alfredsson@protonmail.com>"
 
 ENV CERTBOT_DNS_AUTHENTICATORS="\
