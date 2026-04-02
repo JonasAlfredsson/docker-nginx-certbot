@@ -1,5 +1,9 @@
 # Changelog
 
+### 6.2.0
+- Added inwx DNS authenticator.
+  - PR by [@Gunzinger][62]
+
 ### 6.1.0
 - Added porkbun DNS authenticator.
   - PR by [@Oni][61]
@@ -474,3 +478,4 @@
 [59]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/334
 [60]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/335
 [61]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/368
+[62]: https://github.com/JonasAlfredsson/docker-nginx-certbot/pull/375
