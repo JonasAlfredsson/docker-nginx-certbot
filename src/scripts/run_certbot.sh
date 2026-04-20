@@ -199,3 +199,16 @@ fi
 
 # Finally, tell Nginx to reload the configs.
 nginx -s reload
+
+# Workaround for https://github.com/certbot/certbot/issues/4850
+# Store and retreive letsencrypt config to an archive rather than in a live directory
+if [ -d /etc/letsencrypt.backup ]; then
+    info "Archiving letsencrypt configuration"
+    if [ -f /etc/letsencrypt.backup/letsencrypt.old.tar.gz ]; then
+      rm -f /etc/letsencrypt.backup/letsencrypt.old.tar.gz
+    fi
+    if [ -f /etc/letsencrypt.backup/letsencrypt.tar.gz ]; then
+      mv  /etc/letsencrypt.backup/letsencrypt.tar.gz /etc/letsencrypt.backup/letsencrypt.old.tar.gz
+    fi
+    tar zcf /etc/letsencrypt.backup/letsencrypt.tar.gz -C /etc/letsencrypt .
+fi
