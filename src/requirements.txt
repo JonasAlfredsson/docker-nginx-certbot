@@ -1,1 +1,1 @@
-certbot==5.5.0
+certbot==5.6.0
