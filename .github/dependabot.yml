@@ -5,19 +5,19 @@ updates:
     directory: "/src"
     schedule:
       interval: "cron"
-      cronjob: "0 4 * * *"
+      cron: "0 4 * * *"
     open-pull-requests-limit: 10
 # Maintain dependencies for pip packages.
   - package-ecosystem: "pip"
     directory: "/src"
     schedule:
       interval: "cron"
-      cronjob: "0 4 * * *"
+      cron: "0 4 * * *"
     open-pull-requests-limit: 10
 # Maintain dependencies for GitHub Actions.
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "cron"
-      cronjob: "0 4 * * *"
+      cron: "0 4 * * *"
     open-pull-requests-limit: 10
