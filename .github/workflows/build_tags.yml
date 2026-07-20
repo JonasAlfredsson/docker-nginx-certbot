@@ -15,7 +15,7 @@ jobs:
       - name: Run Docker on tmpfs
         uses: JonasAlfredsson/docker-on-tmpfs@v2.0.0
         with:
-          tmpfs_size: 7
+          tmpfs_size: 8
           swap_size: 9
 
       - name: Perform setup steps
@@ -55,7 +55,7 @@ jobs:
       - name: Run Docker on tmpfs
         uses: JonasAlfredsson/docker-on-tmpfs@v2.0.0
         with:
-          tmpfs_size: 7
+          tmpfs_size: 8
           swap_size: 9
 
       - name: Perform setup steps
