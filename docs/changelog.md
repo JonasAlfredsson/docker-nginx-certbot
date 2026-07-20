@@ -1,8 +1,5 @@
 # Changelog
 
-### 6.2.1
-- Bump Nginx version from `1.31.2` to `1.31.3`.
-
 ### 6.2.0
 - Added inwx DNS authenticator.
   - PR by [@Gunzinger][62]
