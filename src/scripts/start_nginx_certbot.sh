@@ -24,6 +24,15 @@ trap "clean_exit" EXIT
 # If the environment variable `DEBUG=1` is set, then this message is printed.
 debug "Debug messages are enabled"
 
+# Workaround for https://github.com/certbot/certbot/issues/4850
+# Store and retreive letsencrypt config to an archive rather than in a live directory
+if [ -f /etc/letsencrypt.backup/letsencrypt.tar.gz ]; then
+  info "Restoring letsencrypt configuration from backup"
+  rm -rf /etc/letsencrypt
+  mkdir -m 755 /etc/letsencrypt
+  tar zxf /etc/letsencrypt.backup/letsencrypt.tar.gz -C /etc/letsencrypt
+fi
+
 # Immediately symlink files to the correct locations and then run
 # 'auto_enable_configs' so that Nginx is in a runnable state
 # This will temporarily disable any misconfigured servers.
