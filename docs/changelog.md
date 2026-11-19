@@ -1,9 +1,5 @@
 # Changelog
 
-### 6.2.1
-- Updated Nginx to `1.31.9`.
-- Updated certbot to `5.10.0`.
-
 ### 6.2.0
 - Added inwx DNS authenticator.
   - PR by [@Gunzinger][62]
